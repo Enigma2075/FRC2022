@@ -18,14 +18,22 @@ public class ShooterSubsystem extends SubsystemBase {
   public final WPI_TalonSRX popperMotor = new WPI_TalonSRX(8);
   public final WPI_TalonFX rightMotor = new WPI_TalonFX(15);
   public final WPI_TalonFX leftMotor = new WPI_TalonFX(14);
+  public final WPI_TalonFX topMotor = new WPI_TalonFX(20);
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
+    rightMotor.configFactoryDefault();
+    leftMotor.configFactoryDefault();
+    topMotor.configFactoryDefault();
+
+    popperMotor.configFactoryDefault();
+    
     rightMotor.follow(leftMotor);
     rightMotor.setInverted(InvertType.OpposeMaster);
 
     TalonFXConfiguration config = getCommonShooterMotorConfig();
 
+    configShooterMotor(topMotor, config);
     configShooterMotor(rightMotor, config);
     configShooterMotor(leftMotor, config);
   }
@@ -39,14 +47,24 @@ public class ShooterSubsystem extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 40, 50, 50);
-    config.openloopRamp = 1;
+    //config.openloopRamp = 1;
 
     return config;
   }
 
   public void shoot() {
-    rightMotor.set(ControlMode.PercentOutput, .48);
-    leftMotor.set(ControlMode.PercentOutput, .48);
+//Ticks/100ms 19900
+
+    //rightMotor.set(ControlMode.PercentOutput, .45);
+    //leftMotor.set(ControlMode.PercentOutput, .45);
+    //topMotor.set(ControlMode.PercentOutput, .95);
+    rightMotor.set(ControlMode.PercentOutput, .95);
+    leftMotor.set(ControlMode.PercentOutput, .95);
+    topMotor.set(ControlMode.PercentOutput, -.1);
+
+    //rightMotor.set(ControlMode.PercentOutput, .40);
+    //leftMotor.set(ControlMode.PercentOutput, .40);
+    //topMotor.set(ControlMode.PercentOutput, .40);
 
     popperMotor.set(ControlMode.PercentOutput, .80);
   }
@@ -54,6 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void stop() {
     rightMotor.set(ControlMode.PercentOutput, 0);
     leftMotor.set(ControlMode.PercentOutput, 0);
+    topMotor.set(ControlMode.PercentOutput, 0);
 
     popperMotor.set(ControlMode.PercentOutput, 0);
   }

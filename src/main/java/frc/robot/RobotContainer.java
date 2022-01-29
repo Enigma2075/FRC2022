@@ -8,8 +8,11 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.ClimbInCommand;
+import frc.robot.commands.ClimbOutCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -22,11 +25,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_ShooterSubsystem);
+  private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem);
+  private final ClimbOutCommand climbOutCommand = new ClimbOutCommand(climberSubsystem);
+  private final ClimbInCommand climbInCommand = new ClimbInCommand(climberSubsystem);
 
-  XboxController m_driverController =  new XboxController(IOConstants.kDriverControllerPort);
+  XboxController driverController =  new XboxController(IOConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -41,9 +47,14 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(m_driverController, Button.kA.value)
-      .whenHeld(new ShootCommand(m_ShooterSubsystem));
+    new JoystickButton(driverController, Button.kA.value)
+      .whenHeld(shootCommand);
 
+    new JoystickButton(driverController, Button.kB.value)
+      .whenHeld(climbInCommand);
+
+    new JoystickButton(driverController, Button.kX.value)
+      .whenHeld(climbOutCommand);
   }
 
   /**
@@ -53,6 +64,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    return shootCommand;
   }
 }
