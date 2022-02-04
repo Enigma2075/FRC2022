@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.ClimbInCommand;
 import frc.robot.commands.ClimbOutCommand;
 import frc.robot.commands.ExampleCommand;
@@ -38,6 +39,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, driverController::getLeftTriggerAxis, driverController::getRightTriggerAxis));
   }
 
   /**

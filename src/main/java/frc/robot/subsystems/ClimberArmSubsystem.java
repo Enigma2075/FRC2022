@@ -24,14 +24,14 @@ public class ClimberArmSubsystem extends SubsystemBase {
     servo.setBounds(2, 1.6, 1.5, 1.4, 1);
   }
 
-  public void out() {
-    top.setSpeed(1);
-    bottom.setSpeed(-1);
+  public void out(double power) {
+    top.setSpeed(power);
+    bottom.setSpeed(power);
   }
 
-  public void in() {
-    top.setSpeed(-1);
-    bottom.setSpeed(1);
+  public void in(double power) {
+    top.setSpeed(-1 * power);
+    bottom.setSpeed(-1 * power);
   }
 
   public void stop() {

@@ -17,4 +17,22 @@ public final class Constants {
     public static final class IOConstants {
         public static final int kDriverControllerPort = 0;
     }
+
+    public static final class ShooterConstants {
+        public static final int kPopperCanId = 8;
+        public static final int kTopCanId = 20;
+        public static final int kBottomCanId = 15;
+
+        public static final double kSlot1P = 0.255;
+        public static final double kSlot1I = 0;
+        public static final double kSlot1D = 0;
+        public static final double kSlot1F = 0.05148;
+    }
+
+    public static final class ClimberConstants {
+        public static final int kRightTopPwmChannel = 0;
+        public static final int kRightBottomPwmChannel = 1;
+        public static final int kLeftTopPwmChannel = 2;
+        public static final int kLeftBottomPwmChannel = 3;
+    }
 }

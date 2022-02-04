@@ -26,7 +26,7 @@ public class ClimbInCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.in();
+    climber.in(.5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

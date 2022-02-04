@@ -26,7 +26,7 @@ public class ClimbOutCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.out();
+    climber.out(.5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -5,10 +5,11 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase { 
-  private ClimberArmSubsystem right = new ClimberArmSubsystem(0, 1);
-  private ClimberArmSubsystem left = new ClimberArmSubsystem(2, 3);
+  private ClimberArmSubsystem right = new ClimberArmSubsystem(ClimberConstants.kRightTopPwmChannel, ClimberConstants.kRightBottomPwmChannel);
+  private ClimberArmSubsystem left = new ClimberArmSubsystem(ClimberConstants.kLeftTopPwmChannel, ClimberConstants.kLeftBottomPwmChannel);
 
   /** Creates a new ExampleSubsystem. */
   public ClimberSubsystem() {
@@ -19,14 +20,14 @@ public class ClimberSubsystem extends SubsystemBase {
     left.stop();
   }
 
-  public void out() {
-    right.out();
-    left.out();
+  public void out(double power) {
+    right.out(power);
+    left.out(power);
   }
 
-  public void in() {
-    right.in();
-    left.in();
+  public void in(double power) {
+    right.in(power);
+    left.in(power);
   }
 
   @Override
