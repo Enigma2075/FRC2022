@@ -29,6 +29,20 @@ public final class Constants {
         public static final double kSlot1F = 0.05148;
     }
 
+    public static final class DriveConstants {
+        public static final int kRightOneCanId = 4;
+        public static final int kRightTwoCanId = 5;
+        public static final int kRightThreeCanId = 6;
+        public static final int kLeftOneCanId = 7;
+        public static final int kLeftTwoCanId = 9;
+        public static final int kLeftThreeCanId = 10;
+
+        public static final double kSlot1P = 0;
+        public static final double kSlot1I = 0;
+        public static final double kSlot1D = 0;
+        public static final double kSlot1F = 0;
+    }
+
     public static final class ClimberConstants {
         public static final int kRightTopPwmChannel = 0;
         public static final int kRightBottomPwmChannel = 1;

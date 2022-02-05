@@ -7,13 +7,16 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ClimbInCommand;
 import frc.robot.commands.climber.ClimbOutCommand;
+import frc.robot.commands.drivetrain.DriveCommand;
 import frc.robot.commands.shooter.ShootCommand;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -28,6 +31,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
 
   private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem);
   private final ClimbOutCommand climbOutCommand = new ClimbOutCommand(climberSubsystem);
@@ -41,6 +45,8 @@ public class RobotContainer {
     configureButtonBindings();
 
     climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, driverController::getLeftTriggerAxis, driverController::getRightTriggerAxis));
+
+    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX));
   }
 
   /**
