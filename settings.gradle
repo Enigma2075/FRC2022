@@ -3,6 +3,9 @@ import org.gradle.internal.os.OperatingSystem
 pluginManagement {
     repositories {
         mavenLocal()
+        maven { 
+            url = 'https://maven.brott.dev/' 
+        }
         gradlePluginPortal()
         String frcYear = '2022'
         File frcHome
