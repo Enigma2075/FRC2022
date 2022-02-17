@@ -23,8 +23,8 @@ import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase { 
   public final WPI_TalonSRX popperMotor = new WPI_TalonSRX(ShooterConstants.kPopperCanId);
-  public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId);
-  public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId);
+  public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId, "canivore");
+  public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId, "canivore");
 
   // Measured Max Velocity 19900;
   final int maxVel = 14900; 

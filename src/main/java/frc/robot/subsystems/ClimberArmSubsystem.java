@@ -4,39 +4,42 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberArmSubsystem extends SubsystemBase { 
-  private Servo top;// = new Servo(0);
-  private Servo bottom;// = new Servo(1);
-
+  private final WPI_VictorSPX tapeMeasure;
+  private final WPI_TalonSRX pivot;
+  
   /** Creates a new ExampleSubsystem. */
-  public ClimberArmSubsystem(int topPort, int bottomPort) {
-    top = new Servo(topPort);
-    bottom = new Servo(bottomPort);
+  public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId) {
+    tapeMeasure = new WPI_VictorSPX(tapeMasureCanId);
+    pivot = new WPI_TalonSRX(pivotCanId);
 
-    configServo(top, topPort);
-    configServo(bottom, bottomPort);
+    //configServo(top, topPort);
+    //configServo(bottom, bottomPort);
   }
 
-  private void configServo(Servo servo, int port) {
-    servo.setBounds(2, 1.6, 1.5, 1.4, 1);
-  }
+  //private void configServo(Servo servo, int port) {
+  //  servo.setBounds(2, 1.6, 1.5, 1.4, 1);
+  //}
 
   public void out(double power) {
-    top.setSpeed(power);
-    bottom.setSpeed(power);
+    //top.setSpeed(power);
+    //bottom.setSpeed(power);
   }
 
   public void in(double power) {
-    top.setSpeed(-1 * power);
-    bottom.setSpeed(-1 * power);
+    //top.setSpeed(-1 * power);
+    //bottom.setSpeed(-1 * power);
   }
 
   public void stop() {
-    top.setSpeed(0);
-    bottom.setSpeed(0);
+    //top.setSpeed(0);
+    //bottom.setSpeed(0);
   }
 
   @Override
