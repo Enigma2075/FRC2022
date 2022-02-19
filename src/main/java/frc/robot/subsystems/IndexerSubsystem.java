@@ -32,7 +32,6 @@ public class IndexerSubsystem extends SubsystemBase {
     singleMotor.configFactoryDefault();
     indexerMotor.setInverted(InvertType.InvertMotorOutput);
 
-
     /*
      * TalonFXConfiguration config = getCommonIndexerMotorConfig();
      * 
