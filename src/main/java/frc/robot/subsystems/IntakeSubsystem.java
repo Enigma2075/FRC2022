@@ -24,8 +24,8 @@ import frc.robot.Constants.intakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   public enum PivotPosition {
-    Down(1642),
-    Up(300),
+    Down(1810),
+    Up(200),
     FullyUp(0);
 
     private int value;
@@ -53,24 +53,26 @@ public class IntakeSubsystem extends SubsystemBase {
   public final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
   public final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
 
-  public static final double kPivotZeroOffset = 3191;
-  public static final double kPivotMaxGravityFF = .15;
-  public static final double kPivotCruiseVelocity = 400; // Measured max velocity
-  public static final double kPivotAccelerationVelocity = 400;
+  public static final double kPivotZeroOffset = -4089; // To get this value 
+
+  public static final double kPivotMaxGravityFF = .1;
+  public static final double kPivotCruiseVelocity = 900; // Measured max velocity
+  public static final double kPivotAccelerationVelocity = 1500;
+  public static final double kPivotP = 3;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
-    barMotor.configFactoryDefault();
-    pivotMotor.configFactoryDefault();
+    barMotor.configFactoryDefault(10);
+    pivotMotor.configFactoryDefault(10);
 
     barMotor.setInverted(InvertType.InvertMotorOutput);
     barMotor.setNeutralMode(NeutralMode.Coast);
 
+    SensorCollection sensors = pivotMotor.getSensorCollection();
+    sensors.setQuadraturePosition(sensors.getPulseWidthPosition(), 10);
+
     pivotMotor.setInverted(InvertType.InvertMotorOutput);
     pivotMotor.setNeutralMode(NeutralMode.Brake);
-
-    SensorCollection sensors = pivotMotor.getSensorCollection();
-    double absolutePosition = sensors.getPulseWidthPosition();
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
@@ -83,8 +85,9 @@ public class IntakeSubsystem extends SubsystemBase {
     config.motionCruiseVelocity = kPivotCruiseVelocity;
     config.motionAcceleration = kPivotCruiseVelocity;
 
+    config.slot0.kP = kPivotP;
 
-    pivotMotor.setSelectedSensorPosition(absolutePosition);
+    pivotMotor.configAllSettings(config);
 
     // config.slot0.kP = intakeConstants.kSlot1P;
     // config.slot0.kI = intakeConstants.kSlot1I;
@@ -117,8 +120,8 @@ public class IntakeSubsystem extends SubsystemBase {
   // }
 
   public void intake() {
-    // barMotor.set(ControlMode.PercentOutput, 1.00);
-    pivotMotor.set(ControlMode.PercentOutput, 1);
+    barMotor.set(ControlMode.PercentOutput, 1.00);
+    pivotTo(PivotPosition.Down);
   }
 
   public void outtake() {
@@ -127,8 +130,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void stop() {
     barMotor.set(ControlMode.PercentOutput, 0);
-    pivotMotor.set(ControlMode.PercentOutput, 0);
-
+    pivotTo(PivotPosition.Up);
   }
 
   public void pivotTo(PivotPosition position) {
@@ -159,10 +161,10 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    //SensorCollection sensors = pivotMotor.getSensorCollection();
-    //SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
-    //SmartDashboard.putNumber("Intake:Pivot:Relative", sensors.getQuadraturePosition());
+    SensorCollection sensors = pivotMotor.getSensorCollection();
     
+    SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
+    SmartDashboard.putNumber("Intake:Pivot:PositionRaw", pivotMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Intake:Pivot:Position", getPivotSensorPosition());
   }
   /*
