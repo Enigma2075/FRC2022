@@ -11,8 +11,8 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 
 public class ClimberSubsystem extends SubsystemBase { 
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeMeasureCanId, ClimberConstants.kInnerPivotCanId, false);
-  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeMeasureCanId, ClimberConstants.kOuterPivotCanId, true);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeCanId, ClimberConstants.kInnerPivotCanId, false);
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeCanId, ClimberConstants.kOuterPivotCanId, true);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, "canivore");
 
