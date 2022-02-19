@@ -4,30 +4,34 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase { 
-  private ClimberArmSubsystem right = new ClimberArmSubsystem(ClimberConstants.kRightTopPwmChannel, ClimberConstants.kRightBottomPwmChannel);
-  private ClimberArmSubsystem left = new ClimberArmSubsystem(ClimberConstants.kLeftTopPwmChannel, ClimberConstants.kLeftBottomPwmChannel);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeMeasureCanId, ClimberConstants.kInnerPivotCanId);
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeMeasureCanId, ClimberConstants.kOuterPivotCanId);
+
+  private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, "canivore");
 
   /** Creates a new ExampleSubsystem. */
   public ClimberSubsystem() {
   }
 
   public void stop() {
-    right.stop();
-    left.stop();
+    inner.stop();
+    outer.stop();
   }
 
   public void out(double power) {
-    right.out(power);
-    left.out(power);
+    inner.out(power);
+    outer.out(power);
   }
 
   public void in(double power) {
-    right.in(power);
-    left.in(power);
+    inner.in(power);
+    outer.in(power);
   }
 
   @Override

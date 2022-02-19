@@ -6,6 +6,7 @@ package frc.robot.commands.drivetrain;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -36,10 +37,30 @@ public class DriveCommand extends CommandBase {
   public void initialize() {
   }
 
+  public double applyDeadband(double joystick){
+    double deadband = .11;
+
+    if(Math.abs(joystick) <= deadband) {
+      return 0;
+    }
+    else {
+      return (joystick - Math.signum(joystick) * deadband) / (1.0 - deadband);
+    }
+  }
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drive.drive(throttle.getAsDouble(), wheel.getAsDouble());
+    double throttleValue = throttle.getAsDouble() * -1;
+    double wheelValue = wheel.getAsDouble() * -1;
+    
+    double adjustedThrottle = applyDeadband(throttleValue);
+    double adjustedWheel = applyDeadband(wheelValue);
+
+    drive.drive(adjustedThrottle, adjustedWheel);
+    
+    SmartDashboard.putNumber("Drive Command:Wheel", adjustedWheel);
+    SmartDashboard.putNumber("Drive Command:throttle", adjustedThrottle);
   }
 
   // Called once the command ends or is interrupted.

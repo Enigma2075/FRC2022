@@ -13,9 +13,12 @@ import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ClimbInCommand;
 import frc.robot.commands.climber.ClimbOutCommand;
 import frc.robot.commands.drivetrain.DriveCommand;
+import frc.robot.commands.indexer.IndexerCommand;
 import frc.robot.commands.shooter.ShootCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -31,21 +34,29 @@ public class RobotContainer {
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
 
-  private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem);
+  private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem, indexerSubsystem);
   private final ClimbOutCommand climbOutCommand = new ClimbOutCommand(climberSubsystem);
   private final ClimbInCommand climbInCommand = new ClimbInCommand(climberSubsystem);
 
   XboxController driverController =  new XboxController(IOConstants.kDriverControllerPort);
+  XboxController operatorController =  new XboxController(IOConstants.kOperatorControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, driverController::getLeftTriggerAxis, driverController::getRightTriggerAxis));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftTriggerAxis, operatorController::getRightTriggerAxis));
+    
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getLeftTriggerAxis, driverController::getRightTriggerAxis));
 
     driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX));
+
+    indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
+
   }
 
   /**
