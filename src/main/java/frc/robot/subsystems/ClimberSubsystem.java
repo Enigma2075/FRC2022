@@ -8,10 +8,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 
 public class ClimberSubsystem extends SubsystemBase { 
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeCanId, ClimberConstants.kInnerPivotCanId);
-  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeCanId, ClimberConstants.kOuterPivotCanId);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeMeasureCanId, ClimberConstants.kInnerPivotCanId, false);
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeMeasureCanId, ClimberConstants.kOuterPivotCanId, true);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, "canivore");
 
@@ -32,6 +33,11 @@ public class ClimberSubsystem extends SubsystemBase {
   public void in(double power) {
     inner.in(power);
     outer.in(power);
+  }
+
+  public void pivot(PivotPosition position) {
+    inner.pivot(position);
+    outer.pivot(position);
   }
 
   @Override

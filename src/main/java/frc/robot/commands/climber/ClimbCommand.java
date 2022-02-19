@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 
 /** An example command that uses an example subsystem. */
 public class ClimbCommand extends CommandBase {
@@ -38,7 +39,7 @@ public class ClimbCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(out.getAsDouble() > .1) {
+  /*  if(out.getAsDouble() > .1) {
       climber.out(out.getAsDouble());
     }
     else if(in.getAsDouble() > .1) {
@@ -47,6 +48,8 @@ public class ClimbCommand extends CommandBase {
     else {
       climber.stop();
     }
+    */
+    climber.pivot(PivotPosition.Middle);
   }
 
   public void initiate() {
