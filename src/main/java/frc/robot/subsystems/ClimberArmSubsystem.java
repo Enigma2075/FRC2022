@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -11,6 +15,35 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberArmSubsystem extends SubsystemBase { 
+  public enum PivotPosition {
+    Forwards(1),
+    MidFront(2),
+    Middle(3),
+    MidBack(4),
+    Backwards(5);
+
+    private int value;
+    private static Map map = new HashMap<>();
+
+    private PivotPosition(int value) {
+        this.value = value;
+    }
+
+    static {
+        for (PivotPosition pivotPosition : PivotPosition.values()) {
+            map.put(pivotPosition.value, pivotPosition);
+        }
+    }
+
+    public static PivotPosition valueOf(int pivotPosition) {
+        return (PivotPosition) map.get(pivotPosition);
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
   private final WPI_VictorSPX tapeMeasure;
   private final WPI_TalonSRX pivot;
   
@@ -28,18 +61,25 @@ public class ClimberArmSubsystem extends SubsystemBase {
   //}
 
   public void out(double power) {
-    //top.setSpeed(power);
-    //bottom.setSpeed(power);
+    tapeMeasure.set(ControlMode.PercentOutput, power);
   }
 
   public void in(double power) {
-    //top.setSpeed(-1 * power);
-    //bottom.setSpeed(-1 * power);
+    tapeMeasure.set(ControlMode.PercentOutput, -1 * power);
   }
 
   public void stop() {
-    //top.setSpeed(0);
-    //bottom.setSpeed(0);
+    tapeMeasure.set(ControlMode.PercentOutput, 0);
+  }
+
+  public void pivot(PivotPosition position) {
+    // TODO: Add logic to move motor to correct position
+    //get PivotPosition
+    //currentPosition = get MotorPosition
+    //if currentPosition = PivotPosition
+    //then return;
+    //else if currrentposition != PivotPosititon
+    //set currentposition = tryingtomovetoo
   }
 
   @Override

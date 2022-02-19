@@ -8,23 +8,20 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 
 /** An example command that uses an example subsystem. */
-public class ClimbCommand extends CommandBase {
+public class ClimbStart extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
-  private final DoubleSupplier out;
-  private final DoubleSupplier in;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ClimbCommand(ClimberSubsystem climber, DoubleSupplier out, DoubleSupplier in) {
+  public ClimbStart(ClimberSubsystem climber) {
     this.climber = climber;
-    this.out = out;
-    this.in = in;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
@@ -38,34 +35,17 @@ public class ClimbCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(out.getAsDouble() > .1) {
-      climber.out(out.getAsDouble());
-    }
-    else if(in.getAsDouble() > .1) {
-      climber.in(in.getAsDouble());
-    }
-    else {
-      climber.stop();
-    }
+    climber.pivot(PivotPosition.Middle);
+    climber.out(1);
   }
-
+/*
   public void initiate() {
-    //pivot = forwardsMid
-    //climber.out(power);
-    //wait(5);
-    //climber.in(power);
   }
-  public void stageTwo() {
-    //set pivot = position
-    //outer.out(power);
-    //find out when it hooks
-    //outer.in(power);
-    //inner.in(power);
-    //inner.out(power);
-    //find when it hooks
-    //inner.in(power);
-    //outer.in(power);
-
+*/
+  @Override
+  public boolean isFinished() {
+    // TODO: add logic to determine when we are done.
+    return false;
   }
 
   // Called once the command ends or is interrupted.
