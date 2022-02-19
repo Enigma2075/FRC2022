@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -18,9 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.intakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase { 
-  
   public final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
   public final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
+
+  public static final int kPivotZeroOffset = 3191;
  
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
@@ -32,7 +34,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     pivotMotor.setInverted(InvertType.InvertMotorOutput);
     pivotMotor.setNeutralMode(NeutralMode.Brake);
-    
+
+    SensorCollection sensors = pivotMotor.getSensorCollection();
+    double absolutePosition = sensors.getPulseWidthPosition();
+  
     TalonSRXConfiguration config = new TalonSRXConfiguration();
   
     //config.supplyCurrLimit.enable = true;
@@ -40,7 +45,10 @@ public class IntakeSubsystem extends SubsystemBase {
     //config.supplyCurrLimit.triggerThresholdTime = 50;
     //config.supplyCurrLimit.currentLimit = 40;
     
-    config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Absolute;
+    config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
+
+
+    pivotMotor.setSelectedSensorPosition(absolutePosition);
     
     //config.slot0.kP = intakeConstants.kSlot1P;
     //config.slot0.kI = intakeConstants.kSlot1I;
@@ -73,8 +81,8 @@ public class IntakeSubsystem extends SubsystemBase {
   //}
 
   public void intake() {
-    barMotor.set(ControlMode.PercentOutput, 1.00);
-    pivotMotor.set(ControlMode.PercentOutput, .5);
+    //barMotor.set(ControlMode.PercentOutput, 1.00);
+    pivotMotor.set(ControlMode.PercentOutput, -.15);
   }
 
   public void outtake() {
@@ -83,7 +91,20 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void stop() {
     barMotor.set(ControlMode.PercentOutput, 0);
+    pivotMotor.set(ControlMode.PercentOutput, 0);
 
+  }
+
+  public void pivotTo() {
+
+  }
+
+  public int calculatePivotTarget(int target) {
+    return target + kPivotZeroOffset;
+  }
+
+  public int calculatePivotPosition(int target) {
+    return target - kPivotZeroOffset;
   }
 
   @Override
@@ -93,7 +114,11 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    SmartDashboard.putNumber("Intake:Pivot", pivotMotor.getSelectedSensorPosition());
+    SensorCollection sensors = pivotMotor.getSensorCollection();
+
+    SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
+    SmartDashboard.putNumber("Intake:Pivot:Relative", sensors.getQuadraturePosition());
+    SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
   }
 /*
    public void writeMotorDebug(String prefix, WPI_TalonFX motor) {
