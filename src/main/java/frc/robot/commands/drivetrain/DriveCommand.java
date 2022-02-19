@@ -8,7 +8,6 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -52,7 +51,7 @@ public class DriveCommand extends CommandBase {
   @Override
   public void execute() {
     double throttleValue = throttle.getAsDouble() * -1;
-    double wheelValue = wheel.getAsDouble() * -1;
+    double wheelValue = wheel.getAsDouble();
     
     double adjustedThrottle = applyDeadband(throttleValue);
     double adjustedWheel = applyDeadband(wheelValue);
