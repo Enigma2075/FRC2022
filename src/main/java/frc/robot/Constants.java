@@ -14,12 +14,18 @@ package frc.robot;
  */
 public final class Constants {
 
+    public static final class GeneralConstants {
+        public static final String kCanBusName = "canivore";
+    }
+
     public static final class IOConstants {
         public static final int kDriverControllerPort = 0;
     }
 
     public static final class ShooterConstants {
-        public static final int kPopperCanId = 8;
+        public static final int kTurretCanId = 0;
+        public static final int kHoodCanId = 0;
+        public static final int kPopperCanId = 9;
         public static final int kTopCanId = 20;
         public static final int kBottomCanId = 15;
 

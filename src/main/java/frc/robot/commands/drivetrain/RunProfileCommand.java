@@ -3,7 +3,6 @@ package frc.robot.commands.drivetrain;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.AutoDrivetrainSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * Command that given a RoadRunner Path object will generate a trajectory and run the profile on the Drivetrain

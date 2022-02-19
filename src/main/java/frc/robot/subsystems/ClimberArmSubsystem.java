@@ -25,12 +25,12 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
 
   public void out(double power) {
-    top.setSpeed(power);
-    bottom.setSpeed(power);
+    top.setSpeed(-1 * power);
+    bottom.setSpeed(1 * power);
   }
 
   public void in(double power) {
-    top.setSpeed(-1 * power);
+    top.setSpeed(1 * power);
     bottom.setSpeed(-1 * power);
   }
 

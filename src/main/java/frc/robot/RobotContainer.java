@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ClimbInCommand;
 import frc.robot.commands.climber.ClimbOutCommand;
