@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberArmSubsystem extends SubsystemBase { 
@@ -48,10 +50,13 @@ public class ClimberArmSubsystem extends SubsystemBase {
   private final WPI_TalonSRX pivot;
   
   /** Creates a new ExampleSubsystem. */
-  public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId) {
+  public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId, boolean invert) {
+
     tapeMeasure = new WPI_VictorSPX(tapeMasureCanId);
     pivot = new WPI_TalonSRX(pivotCanId);
-
+    if (invert == true) {
+      pivot.setInverted(InvertType.InvertMotorOutput);
+    }
     //configServo(top, topPort);
     //configServo(bottom, bottomPort);
   }
@@ -73,6 +78,8 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
 
   public void pivot(PivotPosition position) {
+    pivot.set(ControlMode.PercentOutput, .2);
+
     // TODO: Add logic to move motor to correct position
     //get PivotPosition
     //currentPosition = get MotorPosition
@@ -85,6 +92,12 @@ public class ClimberArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    debug();
+  }
+
+  public void debug() {
+    
+    SmartDashboard.putNumber("Climber:Pivot:" + pivot.getInverted() + ":Position", pivot.getSelectedSensorPosition());
   }
 
   @Override
