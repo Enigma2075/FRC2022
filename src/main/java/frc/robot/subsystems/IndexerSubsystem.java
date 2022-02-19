@@ -8,15 +8,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.BaseTalonPIDSetConfiguration;
-import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,7 +20,7 @@ import frc.robot.Constants.IndexerConstants;
 
 public class IndexerSubsystem extends SubsystemBase {
   public final WPI_TalonSRX indexerMotor = new WPI_TalonSRX(IndexerConstants.kIndexerCanId);
-  public final WPI_VictorSPX singleMotor = new WPI_VictorSPX(IndexerConstants.kSingleCanId);
+  public final WPI_VictorSPX singleMotor = new WPI_VictorSPX(IndexerConstants.kSingulizerCanId);
 
   private DigitalInput position1 = new DigitalInput(IndexerConstants.kSensor1DioPort);
   private DigitalInput position2 = new DigitalInput(IndexerConstants.kSensor2DioPort);
@@ -145,10 +140,14 @@ public class IndexerSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // debug();
+    debug();
   }
 
   public void debug() {
+    SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
+    SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
+    SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
+    
     // writeMotorDebug("Index", indexerMotor);
     // writeMotorDebug("Singulizer", singulizerMotor);
   }

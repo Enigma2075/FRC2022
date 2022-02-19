@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase { 
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeMeasureCanId, ClimberConstants.kInnerPivotCanId);
-  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeMeasureCanId, ClimberConstants.kOuterPivotCanId);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeCanId, ClimberConstants.kInnerPivotCanId);
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeCanId, ClimberConstants.kOuterPivotCanId);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, "canivore");
 

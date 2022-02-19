@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ClimbInCommand;
 import frc.robot.commands.climber.ClimbOutCommand;
@@ -49,9 +50,9 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftTriggerAxis, operatorController::getRightTriggerAxis));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis));
     
-    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getLeftTriggerAxis, driverController::getRightTriggerAxis));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
     driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX));
 

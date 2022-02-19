@@ -23,9 +23,9 @@ import frc.robot.Constants.ShooterConstants;
 public class ShooterSubsystem extends SubsystemBase { 
   public final CANSparkMax hoodMotor = new CANSparkMax(ShooterConstants.kHoodCanId, MotorType.kBrushless);
   public final CANSparkMax popperMotor = new CANSparkMax(ShooterConstants.kPopperCanId, MotorType.kBrushless);
-  public final WPI_TalonFX turretMotor = new WPI_TalonFX(ShooterConstants.kTurretCanId, GeneralConstants.kCanBusName);
-  public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId, GeneralConstants.kCanBusName);
-  public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId, GeneralConstants.kCanBusName);
+  public final WPI_TalonFX turretMotor = new WPI_TalonFX(ShooterConstants.kTurretCanId, GeneralConstants.kCanBusAltName);
+  public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId, GeneralConstants.kCanBusRioName);
+  public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId, GeneralConstants.kCanBusRioName);
 
   // Measured Max Velocity 19900;
   final int maxVel = 14900; 
