@@ -16,8 +16,10 @@ import frc.robot.commands.climber.ClimbOutCommand;
 import frc.robot.commands.drivetrain.DriveCommand;
 import frc.robot.commands.indexer.IndexerCommand;
 import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.TurretCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -31,19 +33,20 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  XboxController driverController =  new XboxController(IOConstants.kDriverControllerPort);
+  XboxController operatorController =  new XboxController(IOConstants.kOperatorControllerPort);
+
   // The robot's subsystems and commands are defined here...
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final GyroSubsystem gyroSubsystem = new GyroSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem(gyroSubsystem::getYaw);
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-
+  
   private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem, indexerSubsystem);
   private final ClimbOutCommand climbOutCommand = new ClimbOutCommand(climberSubsystem);
   private final ClimbInCommand climbInCommand = new ClimbInCommand(climberSubsystem);
-
-  XboxController driverController =  new XboxController(IOConstants.kDriverControllerPort);
-  XboxController operatorController =  new XboxController(IOConstants.kOperatorControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -58,6 +61,7 @@ public class RobotContainer {
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
+    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, driverController::getPOV));
   }
 
   /**

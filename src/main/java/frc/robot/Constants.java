@@ -24,12 +24,18 @@ public final class Constants {
         public static final int kOperatorControllerPort = 1;
     }
 
+    public static final class GyroConstants {
+        public static final int kGyroCanId = 1;
+    }
+
     public static final class ShooterConstants {
         public static final int kTurretCanId = 7;
-        public static final int kHoodCanId = 0;
-        public static final int kPopperCanId = 9;
+        public static final int kHoodCanId = 1;
+        public static final int kPopperCanId = 2;
         public static final int kTopCanId = 10;
         public static final int kBottomCanId = 9;
+        public static final int kLimeLightRightPwmPort = 1;
+        public static final int kLimeLightLeftPwmPort = 0;
 
         public static final double kSlot1P = 0.255;
         public static final double kSlot1I = 0;

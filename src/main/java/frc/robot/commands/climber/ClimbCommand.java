@@ -49,7 +49,7 @@ public class ClimbCommand extends CommandBase {
       climber.stop();
     }
     */
-    climber.pivot(PivotPosition.Middle);
+    climber.pivot(PivotPosition.Forwards);
   }
 
   public void initiate() {

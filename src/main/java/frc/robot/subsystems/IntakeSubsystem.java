@@ -53,10 +53,10 @@ public class IntakeSubsystem extends SubsystemBase {
   public final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
   public final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
 
-  public static final double kPivotZeroOffset = -4089; // To get this value 
+  public static final double kPivotZeroOffset = 3756; // To get this value 
 
   public static final double kPivotMaxGravityFF = .1;
-  public static final double kPivotCruiseVelocity = 900; // Measured max velocity
+  public static final double kPivotCruiseVelocity = 800; // Measured max velocity 800
   public static final double kPivotAccelerationVelocity = 1500;
   public static final double kPivotP = 3;
 
@@ -69,7 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
     barMotor.setNeutralMode(NeutralMode.Coast);
 
     SensorCollection sensors = pivotMotor.getSensorCollection();
-    sensors.setQuadraturePosition(sensors.getPulseWidthPosition(), 10);
+    sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kPivotZeroOffset), 10);
 
     pivotMotor.setInverted(InvertType.InvertMotorOutput);
     pivotMotor.setNeutralMode(NeutralMode.Brake);
@@ -83,7 +83,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
     config.motionCruiseVelocity = kPivotCruiseVelocity;
-    config.motionAcceleration = kPivotCruiseVelocity;
+    config.motionAcceleration = kPivotAccelerationVelocity;
 
     config.slot0.kP = kPivotP;
 
@@ -136,23 +136,23 @@ public class IntakeSubsystem extends SubsystemBase {
   public void pivotTo(PivotPosition position) {
     double kMeasuredPosHorizontal = 840; //Position measured when arm is horizontal
     double kTicksPerDegree = PivotPosition.Down.value / 90.0; // The pivot moves 90 degrees
-    double currentPos = getPivotSensorPosition();
+    double currentPos = pivotMotor.getSelectedSensorPosition();
     double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
     double radians = java.lang.Math.toRadians(degrees);
     double cosineScalar = java.lang.Math.cos(radians);
     
     double arbitraryFF = kPivotMaxGravityFF * cosineScalar;
 
-    pivotMotor.set(ControlMode.MotionMagic, calculatePivotTarget(position.getValue()), DemandType.ArbitraryFeedForward, arbitraryFF);
+    pivotMotor.set(ControlMode.MotionMagic, position.getValue(), DemandType.ArbitraryFeedForward, arbitraryFF);
   }
 
-  private double calculatePivotTarget(double target) {
-    return target + kPivotZeroOffset;
-  }
+  // private double calculatePivotTarget(double target) {
+  //   return target + kPivotZeroOffset;
+  // }
 
-  public double getPivotSensorPosition() {
-    return pivotMotor.getSelectedSensorPosition() - kPivotZeroOffset;
-  }
+  // public double getPivotSensorPosition() {
+  //   return pivotMotor.getSelectedSensorPosition() - kPivotZeroOffset;
+  // }
 
   @Override
   public void periodic() {
@@ -165,7 +165,7 @@ public class IntakeSubsystem extends SubsystemBase {
     
     SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
     SmartDashboard.putNumber("Intake:Pivot:PositionRaw", pivotMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Intake:Pivot:Position", getPivotSensorPosition());
+    //SmartDashboard.putNumber("Intake:Pivot:Position", getPivotSensorPosition());
   }
   /*
    * public void writeMotorDebug(String prefix, WPI_TalonFX motor) {

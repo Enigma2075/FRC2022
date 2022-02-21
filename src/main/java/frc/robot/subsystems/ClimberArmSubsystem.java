@@ -12,12 +12,10 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -28,11 +26,11 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
   
   public enum PivotPosition {
-    Forwards(740),//
+    Forwards(2400),//
     //MidFront(2),
-    Middle(0),//0
+    Middle(1700),//0
     //MidBack(4),//
-    Backwards(-1108);///
+    Backwards(500);///
 
     private int value;
     private static Map map = new HashMap<>();
@@ -56,14 +54,14 @@ public class ClimberArmSubsystem extends SubsystemBase {
     }
 }
 
-  private static final double kOuterPivotOffset = 0;
-  private static final double kInnerPivotOffset = 0;
+  private static final double kOuterPivotOffset = 4096-4020;
+  private static final double kInnerPivotOffset = 710;
   private static final double kOuterPivotMaxGravityFF = 0;//.075
   private static final double kInnerPivotMaxGravityFF = 0;//.05
-  private static final double kOuterPivotCruiseVelocity = 400; // Measured max velocity
-  private static final double kInnerPivotCruiseVelocity = 400; // Measured max velocity
-  private static final double kOuterPivotAccelerationVelocity = 400;
-  private static final double kInnerPivotAccelerationVelocity = 400;
+  private static final double kOuterPivotCruiseVelocity = 700; // Measured max velocity 860
+  private static final double kInnerPivotCruiseVelocity = 700; // Measured max velocity 860
+  private static final double kOuterPivotAccelerationVelocity = 1400;
+  private static final double kInnerPivotAccelerationVelocity = 1400;
 
   
   private final WPI_VictorSPX tapeMeasure;
@@ -83,18 +81,27 @@ public class ClimberArmSubsystem extends SubsystemBase {
     tapeMeasure = new WPI_VictorSPX(tapeMasureCanId);
     pivot = new WPI_TalonSRX(pivotCanId);
     
-    tapeMeasure.configFactoryDefault();
-    pivot.configFactoryDefault();
+    tapeMeasure.configFactoryDefault(10);
+    pivot.configFactoryDefault(10);
 
-    if (side == Side.Outer) {
-      pivot.setInverted(InvertType.InvertMotorOutput);
+    SensorCollection sensors = pivot.getSensorCollection();
     
+    double pivotPoistion = 0;
+
+    if (this.side == Side.Outer) {
+      pivot.setInverted(InvertType.InvertMotorOutput);
+      pivotPoistion = Math.abs((int)(4096.0 - sensors.getPulseWidthPosition() - kOuterPivotOffset));
+      //pivot.setSelectedSensorPosition(Math.abs((int)(4096.0 - sensors.getPulseWidthPosition() - kOuterPivotOffset)), 0, 10);
+      
       this.pivotOffset = kOuterPivotOffset;    
       this.pivotMaxGravityFF = kOuterPivotMaxGravityFF;
       this.pivotCruiseVelocity = kOuterPivotCruiseVelocity;
       this.pivotAccelerationVelocity = kOuterPivotAccelerationVelocity; 
     }
     else {
+      //sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kInnerPivotOffset), 10);
+      pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
+      
       this.pivotOffset = kInnerPivotOffset;
       this.pivotMaxGravityFF = kInnerPivotMaxGravityFF;
       this.pivotCruiseVelocity = kInnerPivotCruiseVelocity;
@@ -107,13 +114,15 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
 
+    config.motionCruiseVelocity = pivotCruiseVelocity;
+    config.motionAcceleration = pivotAccelerationVelocity;
+
+    config.slot0.kP = 1.5;
+
     pivot.configAllSettings(config);
 
-    SensorCollection sensors = pivot.getSensorCollection();
-    double absolutePosition = sensors.getPulseWidthPosition();
-
-    pivot.setSelectedSensorPosition(absolutePosition);
-
+    pivot.setSelectedSensorPosition(pivotPoistion, 0, 10);
+      
     //configServo(top, topPort);
     //configServo(bottom, bottomPort);
   }
@@ -135,7 +144,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
 
   public void pivot(PivotPosition position) {
-    pivot.set(ControlMode.PercentOutput, -.075);
+    pivot.set(ControlMode.MotionMagic, position.value);
+    
+    //pivot.set(ControlMode.PercentOutput, 1);
 
     // TODO: Add logic to move motor to correct position
     //get PivotPosition
@@ -146,13 +157,13 @@ public class ClimberArmSubsystem extends SubsystemBase {
     //set currentposition = tryingtomovetoo
   }
 
-  public double calculatePivotTarget(double target) {
-    return target + pivotOffset;
-  }
+  // public double calculatePivotTarget(double target) {
+  //   return target + pivotOffset;
+  // }
 
-  public double getPosition() {
-    return pivot.getSelectedSensorPosition() - pivotOffset; 
-  }
+  // public double getPosition() {
+  //   return pivot.getSelectedSensorPosition() - pivotOffset; 
+  // }
 
   @Override
   public void periodic() {
@@ -162,9 +173,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
   public void debug() {
     SensorCollection sensors = pivot.getSensorCollection();
-    SmartDashboard.putNumber("Climber:Pivot:" + pivot.getInverted() + ":Absolute", sensors.getPulseWidthPosition());
+    SmartDashboard.putNumber("Climber:Pivot:" + side + ":Absolute", sensors.getPulseWidthPosition());
    
-    SmartDashboard.putNumber("Climber:Pivot:" + pivot.getInverted() + ":Position", getPosition());
+    SmartDashboard.putNumber("Climber:Pivot:" + side + ":Position", pivot.getSelectedSensorPosition());
   }
 
   @Override

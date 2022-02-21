@@ -4,27 +4,27 @@
 
 package frc.robot.commands.shooter;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /** An example command that uses an example subsystem. */
-public class ShootCommand extends CommandBase {
+public class TurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem shooter;
-  private final IndexerSubsystem indexer;
-
+  private final DoubleSupplier headingSupplier;
+  
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShootCommand(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+  public TurretCommand(ShooterSubsystem shooter, DoubleSupplier headingSupplier) {
     this.shooter = shooter;
-    this.indexer = indexer;
+    this.headingSupplier = headingSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
-    addRequirements(indexer);
   }
 
   // Called when the command is initially scheduled.
@@ -35,20 +35,12 @@ public class ShootCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.aquireTarget();
-    boolean atSpeed = shooter.shoot(.48);
-    if(atSpeed) {
-      indexer.index(true);
-    }
-    else {
-      indexer.stop();
-    }
+    shooter.turret(headingSupplier.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     shooter.stop();
-    indexer.stop();
   }
 }
