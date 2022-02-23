@@ -68,8 +68,6 @@ public class ShooterSubsystem extends SubsystemBase {
   public final PWM limeLightRight = new PWM(ShooterConstants.kLimeLightRightPwmPort);
   public final PWM limeLightLeft = new PWM(ShooterConstants.kLimeLightLeftPwmPort);
 
-  public final DoubleSupplier yawSupplier;
-
   // Measured Max Velocity 20300;
   private static final double maxVel = 16500;
 
@@ -95,9 +93,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kHighAngle = 0;
 
   /** Creates a new ExampleSubsystem. */
-  public ShooterSubsystem(DoubleSupplier yawSupplier) {
-    this.yawSupplier = yawSupplier;
-
+  public ShooterSubsystem() {
     // Reset all motors to factory default
     turretMotor.configFactoryDefault(10);
     bottomMotor.configFactoryDefault(10);
@@ -184,8 +180,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void turret(double heading) {
     
-    //double target = kTurretCountsPerDegree * heading;
-    double target = kTurretCountsPerDegree * yawSupplier.getAsDouble();
+    double target = kTurretCountsPerDegree * heading;
+    //double target = kTurretCountsPerDegree * yawSupplier.getAsDouble();
 
     if(target == 0) {
       target = kTurretForwardLimit;

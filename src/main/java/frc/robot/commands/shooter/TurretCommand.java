@@ -6,7 +6,9 @@ package frc.robot.commands.shooter;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -14,17 +16,20 @@ public class TurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem shooter;
   private final DoubleSupplier headingSupplier;
+  private final GyroSubsystem gyro;
   
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public TurretCommand(ShooterSubsystem shooter, DoubleSupplier headingSupplier) {
+  public TurretCommand(ShooterSubsystem shooter, GyroSubsystem gyro, DoubleSupplier headingSupplier) {
     this.shooter = shooter;
     this.headingSupplier = headingSupplier;
+    this.gyro = gyro;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
+    addRequirements(gyro);
   }
 
   // Called when the command is initially scheduled.
@@ -35,7 +40,31 @@ public class TurretCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.turret(headingSupplier.getAsDouble());
+    double requestedHeading = headingSupplier.getAsDouble();
+    if(requestedHeading == -1) {
+      shooter.turret(20);
+      return;
+    }
+
+    requestedHeading = 360 - requestedHeading;
+
+    double currentYaw = gyro.getYaw() % 360.0;
+
+    if(Math.signum(currentYaw) == -1) {
+      currentYaw += 360.0;
+    }
+    
+    //SmartDashboard.putNumber("RequestedYaw", requestedHeading);
+    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
+    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
+    //SmartDashboard.putNumber("FinalHeading", requestedHeading - currentYaw);    
+    
+    double finalHeading = requestedHeading - currentYaw;
+    if(Math.signum(finalHeading) == -1) {
+      finalHeading += 360.0;
+    }
+
+    shooter.turret(finalHeading);
   }
 
   // Called once the command ends or is interrupted.

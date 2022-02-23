@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,11 +16,12 @@ public class GyroSubsystem extends SubsystemBase {
   private final Pigeon2 pigeon = new Pigeon2(GyroConstants.kGyroCanId, GeneralConstants.kCanBusAltName);
 
   public GyroSubsystem() {
-    
+    Pigeon2Configuration config = new Pigeon2Configuration();
+    setYaw(180);
   }
 
-public void setYaw() {
-  pigeon.setYaw(0);
+public void setYaw(double yaw) {
+  pigeon.setYaw(yaw);
 }
 
 public double getYaw() {

@@ -4,14 +4,13 @@
 
 package frc.robot.commands.climber;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
+import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
+import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 
 /** An example command that uses an example subsystem. */
-public class ClimbStart extends CommandBase {
+public class StartClimb extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
 
@@ -20,7 +19,7 @@ public class ClimbStart extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ClimbStart(ClimberSubsystem climber) {
+  public StartClimb(ClimberSubsystem climber) {
     this.climber = climber;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -30,27 +29,27 @@ public class ClimbStart extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    climber.startClimb();
+    climber.startTapes();
+    climber.pivot(ArmPosition.InitialGrab, true);
+    climber.winch(WinchPosition.InnerOut);
+    //climber.winchRaw(-.5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    climber.pivot(PivotPosition.Middle);
-    climber.out(1);
   }
-/*
-  public void initiate() {
-  }
-*/
+
   @Override
   public boolean isFinished() {
-    // TODO: add logic to determine when we are done.
-    return false;
+    return false;//climber.isFinished();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    //climber.winchRaw(0);
     climber.stop();
   }
 }

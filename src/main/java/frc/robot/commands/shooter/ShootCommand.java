@@ -4,6 +4,7 @@
 
 package frc.robot.commands.shooter;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -36,7 +37,20 @@ public class ShootCommand extends CommandBase {
   @Override
   public void execute() {
     shooter.aquireTarget();
-    boolean atSpeed = shooter.shoot(.48);
+    //boolean atSpeed = shooter.shoot(.48);
+    
+    double slope = (.53 - .42)/(114.02 - 53.2);
+
+    double speed = slope * shooter.getDistanceFromTarget() + (.53 - (114.02 * slope));
+
+    
+    //boolean atSpeed = shooter.shoot(.42); // 43.5 Distance
+    //boolean atSpeed = shooter.shoot(.53); // 114.02 Distance
+
+    boolean atSpeed = shooter.shoot(speed); // 114.02 Distance
+    
+    SmartDashboard.putNumber("Shooter:Distance", shooter.getDistanceFromTarget());
+
     if(atSpeed) {
       indexer.index(true);
     }

@@ -27,6 +27,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
   
   public enum PivotPosition {
     Forwards(2400),//
+
+    ForwardGrab(2900),
+    ForwardLatch(2400),
     //MidFront(2),
     Middle(1700),//0
     //MidBack(4),//
@@ -58,13 +61,13 @@ public class ClimberArmSubsystem extends SubsystemBase {
   private static final double kInnerPivotOffset = 710;
   private static final double kOuterPivotMaxGravityFF = 0;//.075
   private static final double kInnerPivotMaxGravityFF = 0;//.05
-  private static final double kOuterPivotCruiseVelocity = 700; // Measured max velocity 860
-  private static final double kInnerPivotCruiseVelocity = 700; // Measured max velocity 860
-  private static final double kOuterPivotAccelerationVelocity = 1400;
-  private static final double kInnerPivotAccelerationVelocity = 1400;
+  private static final double kOuterPivotCruiseVelocity = 600; // Measured max velocity 860
+  private static final double kInnerPivotCruiseVelocity = 600; // Measured max velocity 860
+  private static final double kOuterPivotAccelerationVelocity = 500;
+  private static final double kInnerPivotAccelerationVelocity = 500;
 
   
-  private final WPI_VictorSPX tapeMeasure;
+  private final WPI_TalonSRX tapeMeasure;
   private final WPI_TalonSRX pivot;
 
   private final double pivotOffset;
@@ -78,7 +81,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
   public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId, Side side) {
     this.side = side;
 
-    tapeMeasure = new WPI_VictorSPX(tapeMasureCanId);
+    tapeMeasure = new WPI_TalonSRX(tapeMasureCanId);
     pivot = new WPI_TalonSRX(pivotCanId);
     
     tapeMeasure.configFactoryDefault(10);
@@ -102,6 +105,8 @@ public class ClimberArmSubsystem extends SubsystemBase {
       //sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kInnerPivotOffset), 10);
       pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
       
+      tapeMeasure.setInverted(InvertType.InvertMotorOutput);
+
       this.pivotOffset = kInnerPivotOffset;
       this.pivotMaxGravityFF = kInnerPivotMaxGravityFF;
       this.pivotCruiseVelocity = kInnerPivotCruiseVelocity;
@@ -131,19 +136,20 @@ public class ClimberArmSubsystem extends SubsystemBase {
   //  servo.setBounds(2, 1.6, 1.5, 1.4, 1);
   //}
 
-  public void out(double power) {
+  public void setTape(double power) {
     tapeMeasure.set(ControlMode.PercentOutput, power);
   }
 
-  public void in(double power) {
-    tapeMeasure.set(ControlMode.PercentOutput, -1 * power);
+  public void holdPivot() {
+    pivot.set(ControlMode.MotionMagic, pivot.getSelectedSensorPosition());
   }
 
-  public void stop() {
-    tapeMeasure.set(ControlMode.PercentOutput, 0);
+  public void setPivotCoast() {
+    pivot.setNeutralMode(NeutralMode.Coast);
+    //pivot.set(ControlMode.PercentOutput, -0.2);
   }
 
-  public void pivot(PivotPosition position) {
+  public void setPivot(PivotPosition position) {
     pivot.set(ControlMode.MotionMagic, position.value);
     
     //pivot.set(ControlMode.PercentOutput, 1);
