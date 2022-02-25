@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motion.BufferedTrajectoryPointStream;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -11,19 +12,30 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.external.CheesyDriveHelper;
 import frc.external.DriveSignal;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase { 
-  public final WPI_TalonFX rightOne = new WPI_TalonFX(DriveConstants.kRightOneCanId, "canivore");
-  public final WPI_TalonFX rightTwo = new WPI_TalonFX(DriveConstants.kRightTwoCanId, "canivore");
-  public final WPI_TalonFX rightThree = new WPI_TalonFX(DriveConstants.kRightThreeCanId, "canivore");
+  private final WPI_TalonFX rightOne = new WPI_TalonFX(DriveConstants.kRightOneCanId, "canivore");
+  private final WPI_TalonFX rightTwo = new WPI_TalonFX(DriveConstants.kRightTwoCanId, "canivore");
+  private final WPI_TalonFX rightThree = new WPI_TalonFX(DriveConstants.kRightThreeCanId, "canivore");
 
-  public final WPI_TalonFX leftOne = new WPI_TalonFX(DriveConstants.kLeftOneCanId, "canivore");
-  public final WPI_TalonFX leftTwo = new WPI_TalonFX(DriveConstants.kLeftTwoCanId, "canivore");
-  public final WPI_TalonFX leftThree = new WPI_TalonFX(DriveConstants.kLeftThreeCanId, "canivore");
+  private final WPI_TalonFX leftOne = new WPI_TalonFX(DriveConstants.kLeftOneCanId, "canivore");
+  private final WPI_TalonFX leftTwo = new WPI_TalonFX(DriveConstants.kLeftTwoCanId, "canivore");
+  private final WPI_TalonFX leftThree = new WPI_TalonFX(DriveConstants.kLeftThreeCanId, "canivore");
+
+  private static final double kCountsPerRev = 2048.0;
+  private static final double kGearRatio = 1;
+  private static final double kWheelCirc = 1;
+  private static final double kEncToInches = ((kCountsPerRev*kGearRatio)/kWheelCirc);
+  private static final double kInchesToMeters = .0254;
+
+  private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(new Rotation2d());
+  private final BufferedTrajectoryPointStream trajStream = new BufferedTrajectoryPointStream();
 
   public DriveSubsystem() {
     rightOne.configFactoryDefault();
