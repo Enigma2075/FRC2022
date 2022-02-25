@@ -7,12 +7,15 @@ package frc.robot.commands.Intake;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
 /** An example command that uses an example subsystem. */
 public class IntakeCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private IntakeSubsystem intakeSubsystem;
+  private ClimberSubsystem climberSubsystem;
   DoubleSupplier intake;
   DoubleSupplier outtake;
 
@@ -22,8 +25,9 @@ public class IntakeCommand extends CommandBase {
    * @param subsystem The subsystem used by this command.
    * @return 
    */
-  public IntakeCommand(IntakeSubsystem intakeSubsystem, DoubleSupplier intake, DoubleSupplier outtake) {
+  public IntakeCommand(IntakeSubsystem intakeSubsystem, ClimberSubsystem climberSubsystem, DoubleSupplier intake, DoubleSupplier outtake) {
     this.intakeSubsystem = intakeSubsystem;
+    this.climberSubsystem = climberSubsystem;
     this.intake = intake;
     this.outtake = outtake;
 
@@ -40,9 +44,11 @@ public class IntakeCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-    
-    
+    if(climberSubsystem.hasClimbStarted()) {
+      intakeSubsystem.pivotTo(PivotPosition.Down);
+      return;
+    }
+
     if(intake.getAsDouble() > .1) {
       intakeSubsystem.intake();
     }

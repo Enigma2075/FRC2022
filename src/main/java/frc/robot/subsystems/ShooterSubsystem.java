@@ -17,9 +17,16 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAlternateEncoder.Type;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -68,11 +75,27 @@ public class ShooterSubsystem extends SubsystemBase {
   public final PWM limeLightRight = new PWM(ShooterConstants.kLimeLightRightPwmPort);
   public final PWM limeLightLeft = new PWM(ShooterConstants.kLimeLightLeftPwmPort);
 
+  private final SparkMaxPIDController hoodPid;
+  private final RelativeEncoder hoodEncoder;
+  private double hoodOffset = 0;
+  //private final RelativeEncoder hoodEncoder;
+
   // Measured Max Velocity 20300;
   private static final double maxVel = 16500;
 
   // Positive X Right
   // Positive Y Forward
+
+  private static final double kHoodP = 0.01;
+  private static final double kHoodI = 0;
+  private static final double kHoodD = 0;
+  private static final double kHoodIz = 0;
+  private static final double kHoodFF = 0.0005;
+  private static final int kHoodMagicSlot = 0;
+  private static final double kHoodMaxVel = 5000;
+  private static final double kHoodMinVel = 0;
+  private static final double kHoodMaxAcc = 10000;
+  private static final double kHoodAllowedError = 0;
 
   private static final double kTurretCountsPerRotation = 55.625 * 2048.0;
   private static final double kTurretCountsPerDegree = kTurretCountsPerRotation / 365.0;
@@ -80,7 +103,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kTurretCruiseVelocity = 18000; // Measured max velocity 20890
   private static final double kTurretAccelerationVelocity = 60000;
   private static final double kTurretP = .2;
-  private static final double kTurretForwardLimit = 112000;
+  private static final double kTurretForwardLimit = 111000;
   private static final double kTurretReverseLimit = kTurretInitialCount + 1000;
   
   private static final double kMaxPWM = 1000; // Servo Max 2500
@@ -100,6 +123,25 @@ public class ShooterSubsystem extends SubsystemBase {
     topMotor.configFactoryDefault(10);
     hoodMotor.restoreFactoryDefaults(true);
     popperMotor.restoreFactoryDefaults(true);
+
+    // Configure hood motor
+    //hoodEncoder = hoodMotor.getAlternateEncoder(Type.kQuadrature, 8192);
+    hoodMotor.setInverted(true);
+    hoodEncoder = hoodMotor.getEncoder();
+    hoodOffset = hoodEncoder.getPosition();
+    hoodPid = hoodMotor.getPIDController();
+
+    hoodPid.setP(kHoodP);
+    hoodPid.setI(kHoodI);
+    hoodPid.setD(kHoodD);
+    hoodPid.setIZone(kHoodIz);
+    hoodPid.setFF(kHoodFF);
+    
+    hoodPid.setSmartMotionMaxVelocity(kHoodMaxVel, kHoodMagicSlot);
+    hoodPid.setSmartMotionMinOutputVelocity(kHoodMinVel, kHoodMagicSlot);
+    hoodPid.setSmartMotionMaxAccel(kHoodMaxAcc, kHoodMagicSlot);
+    hoodPid.setSmartMotionAllowedClosedLoopError(kHoodAllowedError, kHoodMagicSlot);
+    hoodPid.setOutputRange(-1, 1);
 
     // Configure turrt motor
     turretMotor.setInverted(InvertType.None);
@@ -179,11 +221,9 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void turret(double heading) {
-    
     double target = kTurretCountsPerDegree * heading;
-    //double target = kTurretCountsPerDegree * yawSupplier.getAsDouble();
-
-    if(target == 0) {
+    
+    if(heading < 20) {
       target = kTurretForwardLimit;
     }
 
@@ -216,7 +256,22 @@ public class ShooterSubsystem extends SubsystemBase {
     return currentDistance;
   }
 
-  public boolean shoot(double speed) {
+  public void shoot(boolean force) {
+    topMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
+    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
+    
+    popperMotor.set(1);
+  }
+
+  public boolean shoot() {
+    boolean targetAquired = aquireTarget();
+
+    double currentDistance = getDistanceFromTarget();
+    double slope = (.53 - .42)/(114.02 - 53.2);
+    double speed = slope * currentDistance + (.53 - (114.02 * slope));
+
+    boolean validDistance = currentDistance <= 114.02 && currentDistance >= 53.2;
+
     // Works at 20 foot and wrench under front of shooter
     // topMotor.set(TalonFXControlMode.Velocity, maxVel * .675);
     // bottomMotor.set(TalonFXControlMode.Velocity, maxVel * .675);
@@ -235,16 +290,24 @@ public class ShooterSubsystem extends SubsystemBase {
     // return false;
 
     boolean atSpeed = isShooterAtSpeed(speed);
-    if (atSpeed) {
+    boolean canShoot = validDistance && atSpeed && targetAquired;
+
+    if (canShoot) {
       popperMotor.set(1);
     } else {
       popperMotor.set(0);
     }
 
-    return atSpeed;
+    return canShoot;
   }
 
-  public NetworkTable getLimeLightTable() {
+  public void setHood(){
+    //hoodPid.setReference(1, ControlType.kSmartVelocity);
+    //hoodMotor.set(1);
+    hoodPid.setReference(hoodOffset + 5, ControlType.kSmartMotion);
+  }
+
+  private NetworkTable getLimeLightTable() {
     return NetworkTableInstance.getDefault().getTable("limelight");
   }
 
@@ -259,12 +322,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  public void aquireTarget() {
-    // if(!isWithinRange()) {
-    // setLEDs(false);
-    // return;
-    // }
-
+  public boolean aquireTarget() {
     setLEDs(true);
 
     NetworkTable table = getLimeLightTable();
@@ -286,7 +344,10 @@ public class ShooterSubsystem extends SubsystemBase {
       // || turretTalon.getSelectedSensorPosition() > Constants.TURRET_F_LIMIT - 500){
       // turretTalon.set(ControlMode.Velocity, -1600);
       // }
-      return;
+      if(turretMotor.getControlMode() == ControlMode.PercentOutput) {
+        turretMotor.set(ControlMode.PercentOutput, 0);
+      }
+      return false;
     }
 
     // if(error < 2) {
@@ -304,6 +365,13 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     turretMotor.set(ControlMode.PercentOutput, output);
+
+    if(Math.abs(tx) < 1) {
+      return true;
+    }
+    else {
+      return false;
+    }
 
     //SmartDashboard.putNumber("Vision:output", output);
     //SmartDashboard.putNumber("Vision:tx", tx);
@@ -331,6 +399,8 @@ public class ShooterSubsystem extends SubsystemBase {
     writeMotorDebug("Top", topMotor);
     writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
+    SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }
 
   public void writeMotorDebug(String prefix, WPI_TalonFX motor) {

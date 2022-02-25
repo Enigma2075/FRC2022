@@ -33,7 +33,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public enum WinchPosition {
     OuterOut(2000),//
-    InnerOut(292000),
+    InnerOut(310000),
     InnerLetGo(150000);
     
     private int value;
@@ -67,7 +67,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private static final double kWinchAccelerationVelocity = 11000;
   private static final double kWinchP = 0.05;
 
-  private static final double kWinchForwardLimit = 290000; // 106000
+  private static final double kWinchForwardLimit = 310000; // 106000
   private static final double kWinchReverseLimit = 4500;
 
   private boolean climbStarted = false;
@@ -108,17 +108,63 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void stop(boolean force) {
     if(!climbStarted || force) {
-      inner.setTape(0);
-      outer.setTape(0);  
+    //  inner.setTape(0);
+    //  outer.setTape(0);  
     }
     winch.set(ControlMode.MotionMagic, winch.getSelectedSensorPosition());
     inner.holdPivot();
     outer.holdPivot();
   }
 
-  public void startTapes() {
-    inner.setTape(.8);
-    outer.setTape(.8);
+  private boolean hasWinchBeenPastHalf = false;
+
+  public void runTapes() {
+    double innerPower = 0;
+    double outerPower = 0;
+
+    double winchVel = winch.getSelectedSensorVelocity() / kWinchCruiseVelocity;
+
+    if(!hasWinchBeenPastHalf && winch.getSelectedSensorPosition() > (kWinchForwardLimit/2) - 10000) {
+      hasWinchBeenPastHalf = true;
+    }
+
+    if(Math.abs(winchVel) > .1) {
+
+      if(!hasWinchBeenPastHalf) {
+        innerPower = .5;
+        outerPower = .5;
+      }
+      else {
+        innerPower = .5 * Math.signum(winchVel);
+        outerPower = innerPower * -1;
+      }
+
+      if(innerPower < 0) {
+        innerPower = 0;
+      }
+      if(outerPower < 0) {
+        outerPower = 0;
+      }
+    }
+    else{
+      innerPower = .5;
+      outerPower = .5;
+    }
+
+    runTapes(innerPower, outerPower);
+  }
+
+  private void runTapes(double innerPower, double outerPower) {
+    inner.setTape(innerPower);
+    outer.setTape(outerPower);
+  }
+
+  public boolean isWinchHalfWay() {
+    return winch.getSelectedSensorPosition() > (WinchPosition.InnerOut.value/2);
+  }
+
+  public void testTapes(double power) {
+    inner.setTape(power);
   }
 
   public void pivot(ArmPosition position) {

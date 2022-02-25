@@ -27,6 +27,7 @@ public class Pullup extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    climber.runTapes();
     climber.winch(WinchPosition.OuterOut, true);
   }
 
@@ -38,7 +39,7 @@ public class Pullup extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    climber.runTapes();
   }
 
   // Called once the command ends or is interrupted.

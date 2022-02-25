@@ -55,15 +55,15 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftY));
     
-    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, climberSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
     driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, driverController::getPOV));
+    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getPOV));
   }
 
   /**
@@ -73,8 +73,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(driverController, Button.kA.value)
-      .whenHeld(shootCommand);
+    new JoystickButton(operatorController, Button.kRightBumper.value)
+      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem));
 
     new JoystickButton(driverController, Button.kB.value)
       .whenHeld(new Pullup(climberSubsystem));

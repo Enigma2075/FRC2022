@@ -36,27 +36,17 @@ public class ShootCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.aquireTarget();
-    //boolean atSpeed = shooter.shoot(.48);
     
-    double slope = (.53 - .42)/(114.02 - 53.2);
+    shooter.shoot(true);
 
-    double speed = slope * shooter.getDistanceFromTarget() + (.53 - (114.02 * slope));
-
+    //boolean atSpeed = shooter.shoot(); // 114.02 Distance
     
-    //boolean atSpeed = shooter.shoot(.42); // 43.5 Distance
-    //boolean atSpeed = shooter.shoot(.53); // 114.02 Distance
-
-    boolean atSpeed = shooter.shoot(speed); // 114.02 Distance
-    
-    SmartDashboard.putNumber("Shooter:Distance", shooter.getDistanceFromTarget());
-
-    if(atSpeed) {
-      indexer.index(true);
-    }
-    else {
-      indexer.stop();
-    }
+    //if(atSpeed) {
+    //  indexer.index(true);
+    //}
+    //else {
+    //  indexer.stop();
+    //}
   }
 
   // Called once the command ends or is interrupted.

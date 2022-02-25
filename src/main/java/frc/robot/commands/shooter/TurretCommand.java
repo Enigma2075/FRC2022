@@ -40,6 +40,8 @@ public class TurretCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //shooter.setHood();
+
     double requestedHeading = headingSupplier.getAsDouble();
     if(requestedHeading == -1) {
       shooter.turret(20);
@@ -54,16 +56,16 @@ public class TurretCommand extends CommandBase {
       currentYaw += 360.0;
     }
     
-    //SmartDashboard.putNumber("RequestedYaw", requestedHeading);
-    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
-    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
-    //SmartDashboard.putNumber("FinalHeading", requestedHeading - currentYaw);    
-    
     double finalHeading = requestedHeading - currentYaw;
     if(Math.signum(finalHeading) == -1) {
       finalHeading += 360.0;
     }
 
+    //SmartDashboard.putNumber("RequestedYaw", requestedHeading);
+    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
+    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
+    //SmartDashboard.putNumber("FinalHeading", finalHeading);    
+    
     shooter.turret(finalHeading);
   }
 

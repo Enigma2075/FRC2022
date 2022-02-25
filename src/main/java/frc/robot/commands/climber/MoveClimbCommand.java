@@ -33,7 +33,6 @@ public class MoveClimbCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.startTapes();
     climber.pivot(armPosition);
     climber.winch(winchPosition);
   }

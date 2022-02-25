@@ -83,9 +83,18 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
     tapeMeasure = new WPI_TalonSRX(tapeMasureCanId);
     pivot = new WPI_TalonSRX(pivotCanId);
-    
+
     tapeMeasure.configFactoryDefault(10);
     pivot.configFactoryDefault(10);
+
+    TalonSRXConfiguration tapeConfig = new TalonSRXConfiguration();
+    tapeConfig.continuousCurrentLimit = 2;
+    tapeConfig.peakCurrentLimit = 10;
+    tapeConfig.peakCurrentDuration = 100;
+
+    tapeMeasure.configAllSettings(tapeConfig);
+    tapeMeasure.enableCurrentLimit(true);
+    tapeMeasure.setNeutralMode(NeutralMode.Coast);
 
     SensorCollection sensors = pivot.getSensorCollection();
     
@@ -115,16 +124,16 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
     pivot.setNeutralMode(NeutralMode.Brake);
 
-    TalonSRXConfiguration config = new TalonSRXConfiguration();
+    TalonSRXConfiguration pivotConfig = new TalonSRXConfiguration();
 
-    config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
+    pivotConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
 
-    config.motionCruiseVelocity = pivotCruiseVelocity;
-    config.motionAcceleration = pivotAccelerationVelocity;
+    pivotConfig.motionCruiseVelocity = pivotCruiseVelocity;
+    pivotConfig.motionAcceleration = pivotAccelerationVelocity;
 
-    config.slot0.kP = 1.5;
+    pivotConfig.slot0.kP = 1.5;
 
-    pivot.configAllSettings(config);
+    pivot.configAllSettings(pivotConfig);
 
     pivot.setSelectedSensorPosition(pivotPoistion, 0, 10);
       
