@@ -42,7 +42,7 @@ public class ShootCommand extends CommandBase {
     //boolean atSpeed = shooter.shoot(); // 114.02 Distance
     
     //if(atSpeed) {
-    //  indexer.index(true);
+      indexer.index(true);
     //}
     //else {
     //  indexer.stop();

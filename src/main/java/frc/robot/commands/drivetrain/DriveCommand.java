@@ -4,6 +4,7 @@
 
 package frc.robot.commands.drivetrain;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,16 +17,18 @@ public class DriveCommand extends CommandBase {
   private final DriveSubsystem drive;
   private final DoubleSupplier throttle;
   private final DoubleSupplier wheel;
+  private final BooleanSupplier fastMode;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel) {
+  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel, BooleanSupplier fastMode) {
     this.drive = drive;
     this.throttle = throttle;
     this.wheel = wheel;
+    this.fastMode = fastMode;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -43,7 +46,12 @@ public class DriveCommand extends CommandBase {
       return 0;
     }
     else {
-      return (joystick - Math.signum(joystick) * deadband) / (1.0 - deadband);
+      double remappedJoystick = (joystick - Math.signum(joystick) * deadband) / (1.0 - deadband);
+      if(!fastMode.getAsBoolean()) {
+        remappedJoystick *= .5;
+      }
+ 
+      return remappedJoystick;
     }
   }
 

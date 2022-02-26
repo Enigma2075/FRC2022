@@ -251,7 +251,11 @@ public class ShooterSubsystem extends SubsystemBase {
     // Angle = 52 From Vertical
     // Height = 26.4325
 
-    double currentDistance = ((102.25 - 26.4325) / Math.tan(Math.toRadians(90 - 52 + ty)));
+    double limelightAngle = 52;
+    double targetHeight = 102.25;
+    double limelightHeight = 26.4325;
+
+    double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(90 - limelightAngle + ty)));
 
     return currentDistance;
   }

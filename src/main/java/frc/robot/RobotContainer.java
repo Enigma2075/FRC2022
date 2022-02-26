@@ -44,7 +44,7 @@ public class RobotContainer {
   private final GyroSubsystem gyroSubsystem = new GyroSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+  private final DriveSubsystem driveSubsystem = new DriveSubsystem(gyroSubsystem);
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   
@@ -59,7 +59,7 @@ public class RobotContainer {
     
     intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, climberSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
-    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX));
+    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
@@ -94,5 +94,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     return shootCommand;
+  }
+
+  public void updateDrive() {
+    driveSubsystem.update();
   }
 }

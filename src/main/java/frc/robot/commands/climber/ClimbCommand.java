@@ -39,7 +39,7 @@ public class ClimbCommand extends CommandBase {
     if(climber.hasClimbStarted()) {
       climber.runTapes();
     }
-    climber.pivot(ArmPosition.Default);
+    climber.pivot(ArmPosition.BothMiddle);
     //climber.testTapes(tapePower.getAsDouble());
   }
 

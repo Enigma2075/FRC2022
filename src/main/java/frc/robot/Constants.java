@@ -55,7 +55,10 @@ public final class Constants {
         public static final double kSlot1I = 0;
         public static final double kSlot1D = 0;
         public static final double kSlot1F = 0;
+        
+        public static final double kProfileResolution = 10.0; // Time in milliseconds for each point
     }
+
     public static final class intakeConstants {
         public static final int kBarCanId = 1;
         public static final int kPivotCanId = 16;

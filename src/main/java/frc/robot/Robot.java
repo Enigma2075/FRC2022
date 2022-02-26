@@ -28,6 +28,9 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    // We want to update the drive more frequently than the rest of the robot.
+    addPeriodic(() -> {m_robotContainer.updateDrive();}, .01);
   }
 
   /**
