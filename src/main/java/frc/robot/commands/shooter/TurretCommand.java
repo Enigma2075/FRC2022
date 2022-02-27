@@ -16,6 +16,8 @@ public class TurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem shooter;
   private final DoubleSupplier headingSupplier;
+  private final DoubleSupplier headingX;
+  private final DoubleSupplier headingY;
   private final GyroSubsystem gyro;
   
   /**
@@ -23,9 +25,11 @@ public class TurretCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public TurretCommand(ShooterSubsystem shooter, GyroSubsystem gyro, DoubleSupplier headingSupplier) {
+  public TurretCommand(ShooterSubsystem shooter, GyroSubsystem gyro, DoubleSupplier headingSupplier, DoubleSupplier headingX, DoubleSupplier headingY) {
     this.shooter = shooter;
     this.headingSupplier = headingSupplier;
+    this.headingX = headingX;
+    this.headingY = headingY;
     this.gyro = gyro;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
@@ -42,7 +46,13 @@ public class TurretCommand extends CommandBase {
   public void execute() {
     //shooter.setHood();
 
-    double requestedHeading = headingSupplier.getAsDouble();
+    double requestedHeading = -1;
+    
+    //if(headingY.getAsDouble() > .2 && headingX.getAsDouble() >.2) {
+    //  requestedHeading = Math.atan2(headingY.getAsDouble(), headingX.getAsDouble()) - Math.PI / 4;
+    //}
+        
+    requestedHeading = headingSupplier.getAsDouble();
     if(requestedHeading == -1) {
       shooter.turret(20);
       return;

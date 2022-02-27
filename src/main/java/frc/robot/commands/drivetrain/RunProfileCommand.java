@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -23,9 +22,9 @@ import frc.robot.subsystems.DriveSubsystem.DriveMode;
  * previous errors
  */
 public class RunProfileCommand extends CommandBase {
-  private final DriveSubsystem drivetrain;
+  protected final DriveSubsystem drivetrain;
 
-  private boolean isHolding = false; // A boolean value used to see if the profile is holding at its final position
+  //private boolean isHolding = false; // A boolean value used to see if the profile is holding at its final position
                                      // used to check if the command can end
 
   private ArrayList<Trajectory> trajectories = new ArrayList<Trajectory>();
@@ -35,6 +34,8 @@ public class RunProfileCommand extends CommandBase {
   private double rightEncoder = 0.0;
   private double leftEncoder = 0.0;
 
+  private double halfTrackWidth;
+
   /**
    * Creates a new ExampleCommand.
    *
@@ -42,6 +43,8 @@ public class RunProfileCommand extends CommandBase {
    */
   public RunProfileCommand(DriveSubsystem drivetrain) {
     this.drivetrain = drivetrain;
+
+    halfTrackWidth = drivetrain.getTrackWidth() / 2;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
@@ -57,14 +60,14 @@ public class RunProfileCommand extends CommandBase {
   }
 
   private void loadTrajectory(Trajectory traj) {
-    double resolutionInSec = (1000.0 / Constants.DriveConstants.kProfileResolution);
+    double profileFramesPerSec = (1000.0 / Constants.DriveConstants.kProfileResolution);
 
-    int trajectorySegmentCount = (int) (traj.duration() * resolutionInSec);
+    int trajectorySegmentCount = (int) (traj.duration() * profileFramesPerSec);
 
     // System.out.println(String.format("number %1$d",trajectorySegmentCount));
 
-    Pose2d prevPositionPose = null;
-    Pose2d prevVelocityPose = null;
+    //Pose2d prevPositionPose = null;
+    //Pose2d prevVelocityPose = null;
     Vector2d prevLeftVector = null;
     Vector2d prevRightVector = null;
 
@@ -72,7 +75,7 @@ public class RunProfileCommand extends CommandBase {
     // to the talon's upper buffer
     for (int i = 0; i <= trajectorySegmentCount; i++) {
       // System.out.println(String.format("count: %d", i));
-      double timeInSec = ((double) i) / resolutionInSec;
+      double timeInSec = ((double) i) / profileFramesPerSec;
       Pose2d curPositionPose = traj.get(timeInSec);
       Pose2d curVelocityPose = traj.velocity(timeInSec);
 
@@ -86,70 +89,42 @@ public class RunProfileCommand extends CommandBase {
       point.velocity = DriveSubsystem.inchesToEnc(curVelocityPose.getX()) / 10.0;
 
       double curHeading = curPositionPose.getHeading();
-      double halfTrackWidth = drivetrain.getTrackWidth() / 2;
-
+      
       if (Math.toDegrees(curPositionPose.getHeading()) > 180.0) {
-        curHeading = curHeading - (2 * Math.PI);
+        // curHeading = curHeading - (2 * Math.PI);
         // TODO: Fix heading calc
-        point.auxiliaryPos = curHeading * (8192.0 / (2.0 * Math.PI));
+        point.auxiliaryPos = Math.toDegrees(curHeading);
       } else {
-        point.auxiliaryPos = curHeading * (8192.0 / (2.0 * Math.PI));
+        point.auxiliaryPos = Math.toDegrees(curHeading);
       }
 
       if (i == 0) {
         point.position = (rightEncoder + leftEncoder) / 2.0;
-
-        double cos_angle = Math.cos(curPositionPose.getHeading() - Math.PI / 2.0);
-        double sin_angle = Math.sin(curPositionPose.getHeading() - Math.PI / 2.0);
-
-        double leftX = curPositionPose.getX() - halfTrackWidth * cos_angle;
-        double leftY = curPositionPose.getY() - halfTrackWidth * sin_angle;
-
-        prevLeftVector = new Vector2d(leftX, leftY);
-
-        cos_angle = Math.cos(curPositionPose.getHeading() + Math.PI / 2.0);
-        sin_angle = Math.sin(curPositionPose.getHeading() + Math.PI / 2.0);
-
-        double rightX = curPositionPose.getX() - halfTrackWidth * cos_angle;
-        double rightY = curPositionPose.getY() - halfTrackWidth * sin_angle;
-
-        prevRightVector = new Vector2d(rightX, rightY);
+        prevLeftVector = generateNewVector(curPositionPose);
+        prevRightVector = generateNewVector(curPositionPose);
       } else {
-        double cos_angle = Math.cos(curPositionPose.getHeading() - Math.PI / 2.0);
-        double sin_angle = Math.sin(curPositionPose.getHeading() - Math.PI / 2.0);
+        Vector2d curLeftVector = generateNewVector(curPositionPose);
+        Vector2d curRightVector = generateNewVector(curPositionPose);
 
-        double leftX = curPositionPose.getX() - halfTrackWidth * cos_angle;
-        double leftY = curPositionPose.getY() - halfTrackWidth * sin_angle;
-
-        Vector2d curLeftVector = new Vector2d(leftX, leftY);
-
-        cos_angle = Math.cos(curPositionPose.getHeading() + Math.PI / 2.0);
-        sin_angle = Math.sin(curPositionPose.getHeading() + Math.PI / 2.0);
-
-        double rightX = curPositionPose.getX() - halfTrackWidth * cos_angle;
-        double rightY = curPositionPose.getY() - halfTrackWidth * sin_angle;
-
-        System.out.println(String.format("%1$f,%2$f,%3$f,%4$f,%5$f,%6$f,%7$f", rightX, rightY, leftX, leftY,
-            curPositionPose.getHeading(), curPositionPose.getX(), curPositionPose.getY()));
+        //System.out.println(String.format("%1$f,%2$f,%3$f,%4$f,%5$f,%6$f,%7$f", rightX, rightY, leftX, leftY,
+        //    curPositionPose.getHeading(), curPositionPose.getX(), curPositionPose.getY()));
 
         // System.out.println(String.format("r(%1$f,%2$f),l(%3$f,%4$f)", rightX, rightY,
         // leftX, leftY));
 
-        Vector2d curRightVector = new Vector2d(rightX, rightY);
-
         double leftSegmentDistance = prevLeftVector.distTo(curLeftVector);
         double rightSegmentDistance = prevRightVector.distTo(curRightVector);
 
-        double prevRightEncoder = rightEncoder;
-        double prevLeftEncoder = leftEncoder;
+        //double prevRightEncoder = rightEncoder;
+        //double prevLeftEncoder = leftEncoder;
 
-        rightEncoder = rightEncoder - (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(rightSegmentDistance));
+        rightEncoder = rightEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(rightSegmentDistance));
         leftEncoder = leftEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(leftSegmentDistance));
 
         prevLeftVector = curLeftVector;
         prevRightVector = curRightVector;
 
-        point.position = (leftEncoder - rightEncoder) / 2.0;
+        point.position = (rightEncoder + leftEncoder) / 2.0;
 
         // point.velocity = Math.signum(point.velocity) * Math.abs((point.position -
         // ((prevLeftEncoder - prevRightEncoder) / 2.0)) * 10.0);
@@ -160,21 +135,35 @@ public class RunProfileCommand extends CommandBase {
       if (trajectorySegmentCount == i && loadedTrajectories == trajectories.size())
         point.isLastPoint = true;
 
-      prevPositionPose = curPositionPose;
-      prevVelocityPose = curVelocityPose;
+      //prevPositionPose = curPositionPose;
+      //prevVelocityPose = curVelocityPose;
 
-      // System.out.println(point.position);
-      // System.out.println(point.auxiliaryPos);
-      // System.out.println(point.auxiliaryArbFeedFwd);
-      // System.out.println(String.format("Vel:%1$f zeroPos:%2$s last:%3$s pos:%4$f
-      // angPos:%5$f angVel:%6$f", point.velocity, Boolean.toString(point.zeroPos),
-      // Boolean.toString(point.isLastPoint), point.position, point.auxiliaryPos,
+      System.out.println(String.format("Pos:%1f,AuxPos:%2f,RightEnc:%2f,Left:%2f", point.position, point.auxiliaryPos, rightEncoder, leftEncoder));
+      //  System.out.println(point.auxiliaryPos);
+      //  System.out.println(point.auxiliaryArbFeedFwd);
+      //  System.out.println(String.format("Vel:%1$f zeroPos:%2$s last:%3$s pos:%4$f
+      //  angPos:%5$f angVel:%6$f", point.velocity, Boolean.toString(point.zeroPos),
+      //  Boolean.toString(point.isLastPoint), point.position, point.auxiliaryPos,
       // point.auxiliaryVel));
 
       drivetrain.loadTrajectoryPoint(point);
     }
 
     System.out.println("Loaded");
+  }
+
+  private Vector2d generateNewVector(Pose2d pose) {
+    double cos_angle = Math.cos(pose.getHeading() - Math.PI / 2.0);
+    double sin_angle = Math.sin(pose.getHeading() - Math.PI / 2.0);
+
+    double leftX = pose.getX() - halfTrackWidth * cos_angle;
+    double leftY = pose.getY() - halfTrackWidth * sin_angle;
+
+    return new Vector2d(leftX, leftY);
+  }
+
+  public void addTrajectory(Trajectory trajectory) {
+    this.trajectories.add(trajectory);
   }
 
   // Called when the command is initially scheduled.
@@ -186,21 +175,29 @@ public class RunProfileCommand extends CommandBase {
     drivetrain.setupNewProfile();
     drivetrain.setNeutralMode(NeutralMode.Brake);
 
+    
     // TODO: This shouldn't be needed
     // double startPosition =
     // DriveSubsystem.inchesToEnc(drivetrain.getCurrentPosition());
 
     // TODO: Don't think this is needed anymore
-    // drivetrain.resetEncoders();
+    drivetrain.resetEncoders();
+
+    //rightEncoder = drivetrain.getRightEnc();
+    //leftEncoder = drivetrain.getLeftEnc();
 
     rightEncoder = 0;
     leftEncoder = 0;
   }
 
+  public void clearTrajectories() {
+    this.trajectories.clear();
+    loadedTrajectories = 0;
+  }
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
   }
 
   /**
@@ -209,7 +206,9 @@ public class RunProfileCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    return drivetrain.isProfileComplete();
+    System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
+      
+    return false;//drivetrain.isProfileComplete();
   }
 
   /**

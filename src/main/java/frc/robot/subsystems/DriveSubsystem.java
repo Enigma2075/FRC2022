@@ -20,22 +20,26 @@ import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstra
 import com.acmerobotics.roadrunner.trajectory.constraints.MinAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.ctre.phoenix.motion.BufferedTrajectoryPointStream;
-import com.ctre.phoenix.motion.SetValueMotionProfile;
+import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.external.CheesyDriveHelper;
 import frc.external.DriveSignal;
 import frc.external.TankLocalizer;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase { 
@@ -63,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final TankLocalizer localizer = new TankLocalizer(this);
   private final BufferedTrajectoryPointStream trajStream = new BufferedTrajectoryPointStream();
 
-  private static final double kMaxVel = encToInches(14000.0) * 10.0;
+  private static final double kMaxVel = encToInches(14000.0) * 10.0; // 18000
   private static final double kMaxAngVel = Math.toRadians(90);
   private static final double kTrackWidth = 24.125;
   private static final double kMaxAccel = kMaxVel * .75;
@@ -84,7 +88,6 @@ public class DriveSubsystem extends SubsystemBase {
     leftTwo.configFactoryDefault();
     leftThree.configFactoryDefault();
 
-
     rightTwo.follow(rightOne);
     rightThree.follow(rightOne);
 
@@ -95,17 +98,108 @@ public class DriveSubsystem extends SubsystemBase {
     rightTwo.setInverted(InvertType.FollowMaster);
     rightThree.setInverted(InvertType.FollowMaster);
 
+    rightOne.setSensorPhase(false);
+    leftOne.setSensorPhase(false);
+    rightTwo.setSensorPhase(false);
+    leftTwo.setSensorPhase(false);
 
-    TalonFXConfiguration config = getCommonDriveMotorConfig();
+    TalonFXConfiguration leftConfig = getCommonDriveMotorConfig();
+    TalonFXConfiguration rightConfig = getCommonDriveMotorConfig();
+    TalonFXConfiguration leftEncConfig = getCommonDriveMotorConfig();
+    TalonFXConfiguration rightEncConfig = getCommonDriveMotorConfig();
 
-    configDriveMotor(rightOne, config);
-    configDriveMotor(rightTwo, config);
-    configDriveMotor(rightThree, config);
+    leftEncConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
+    rightEncConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
+
+    rightConfig.diff0Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice(); //Local Integrated Sensor
+    rightConfig.diff1Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Aux Selected Sensor
+    rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 - Sum1
+
+    rightConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
+
+    /* Configure the left Talon's selected sensor as integrated sensor */
+    leftConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
+
+    /* Configure the Remote (Left) Talon's selected sensor as a remote sensor for the right Talon */
+    rightConfig.remoteFilter0.remoteSensorDeviceID = gyro.getCanId(); //Device ID of Remote Source
+    rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; //Remote Source Type
     
-    configDriveMotor(leftOne, config);
-    configDriveMotor(leftTwo, config);
-    configDriveMotor(leftThree, config);
+    /** Heading Configs */
+    rightConfig.remoteFilter1.remoteSensorDeviceID = gyro.getCanId();    //Pigeon Device ID
+    rightConfig.remoteFilter1.remoteSensorSource = RemoteSensorSource.Pigeon_Yaw; //This is for a Pigeon over CAN
+    rightConfig.auxiliaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.RemoteSensor1.toFeedbackDevice(); //Set as the Aux Sensor
+    // TODO: Update based on Pigeon values.
+    rightConfig.auxiliaryPID.selectedFeedbackCoefficient = 1; //3600.0 / 8192.0; //Convert Yaw to tenths of a degree
+    //leftConfig.auxPIDPolarity = true;
 
+    /**
+     * 1ms per loop.  PID loop can be slowed down if need be.
+     * For example,
+     * - if sensor updates are too slow
+     * - sensor deltas are very small per update, so derivative error never gets large enough to be useful.
+     * - sensor movement is very slow causing the derivative error to be near zero.
+     */
+    int closedLoopTimeMs = 1;
+    rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
+    
+    //Configures the PIDF values for the position loop
+    rightConfig.slot0.integralZone = Constants.DriveConstants.kSlot0Iz;
+    rightConfig.slot0.kF = Constants.DriveConstants.kSlot0F;
+    rightConfig.slot0.kP = Constants.DriveConstants.kSlot0P;
+    rightConfig.slot0.kI = Constants.DriveConstants.kSlot0I;
+    rightConfig.slot0.kD = Constants.DriveConstants.kSlot0D;
+    //rightConfig.slot0.closedLoopPeakOutput = .5;
+
+    //Configures the PIDF values for the heading loop
+    rightConfig.slot1.integralZone = Constants.DriveConstants.kSlot1Iz;
+    rightConfig.slot1.kF = Constants.DriveConstants.kSlot1F;
+    rightConfig.slot1.kP = Constants.DriveConstants.kSlot1P;
+    rightConfig.slot1.kI = Constants.DriveConstants.kSlot1I;
+    rightConfig.slot1.kD = Constants.DriveConstants.kSlot1D;
+    //rightConfig.slot1.closedLoopPeakOutput = .5;
+    //rightConfig.slot1.closedLoopPeriod = 1;
+
+    /* Set status frame periods to ensure we don't have stale data */
+    // Dial down the feedback on all of the followers
+    // rightOne.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
+    // rightTwo.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
+    // rightThree.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+    // leftOne.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
+    // rightTwo.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
+    // rightThree.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+    
+    // leftOne.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+    // leftTwo.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+    // leftThree.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
+    
+    // Dial up the speed on everything we need.
+    rightOne.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20);
+    rightOne.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20);
+    rightOne.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 20);
+    rightOne.setStatusFramePeriod(StatusFrame.Status_10_Targets, 20);
+
+    leftOne.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
+    leftTwo.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
+    rightTwo.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
+    
+    rightOne.changeMotionControlFramePeriod(5);
+
+
+    configDriveMotor(rightOne, rightConfig);
+    configDriveMotor(rightTwo, rightEncConfig);
+    configDriveMotor(rightThree, getCommonDriveMotorConfig());
+    
+    configDriveMotor(leftOne, leftConfig);
+    configDriveMotor(leftTwo, leftEncConfig);
+    configDriveMotor(leftThree, getCommonDriveMotorConfig());
+
+    rightOne.setSelectedSensorPosition(0);
+    leftOne.setSelectedSensorPosition(0);
+
+    setDriveMode(DriveMode.Normal);
   }
 
   private void configDriveMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -125,6 +219,12 @@ public class DriveSubsystem extends SubsystemBase {
     
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
     
+    config.motionProfileTrajectoryPeriod = (int)Constants.DriveConstants.kProfileResolution;
+    config.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_5Ms;
+    config.velocityMeasurementWindow = 10;
+    config.peakOutputForward =  +1.0;
+    config.peakOutputReverse =  -1.0;
+
     config.slot0.kP = DriveConstants.kSlot1P;
     config.slot0.kI = DriveConstants.kSlot1I;
     config.slot0.kD = DriveConstants.kSlot1D;
@@ -149,6 +249,8 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(double throttle, double wheel, boolean quickturn) {
     DriveSignal signal = cheesyDriveHelper.cheesyDrive(throttle, wheel, quickturn);
     
+    //System.out.print(String.format("%1$f,%2$f,%3$f,%4$f", signal.rightMotor, signal.leftMotor, throttle, wheel));
+
     rightOne.set(ControlMode.PercentOutput, signal.rightMotor);
     leftOne.set(ControlMode.PercentOutput, signal.leftMotor);
   }
@@ -159,9 +261,12 @@ public class DriveSubsystem extends SubsystemBase {
       case Normal:
       case Disable:
         leftOne.set(ControlMode.PercentOutput, 0);
-        leftTwo.follow(rightOne, FollowerType.PercentOutput);
-        leftThree.follow(rightOne, FollowerType.PercentOutput);
+        leftTwo.follow(leftOne, FollowerType.PercentOutput);
+        leftThree.follow(leftOne, FollowerType.PercentOutput);
+        
         rightOne.set(ControlMode.PercentOutput, 0);
+        rightTwo.follow(rightOne);
+        rightThree.follow(rightOne);
         break;
       case MotionProfile:
         leftOne.follow(rightOne, FollowerType.AuxOutput1);
@@ -196,6 +301,20 @@ public class DriveSubsystem extends SubsystemBase {
     debug();
   }
 
+  private void debug() {
+    if(currentPose != null) {
+      SmartDashboard.putNumber("Drive:X", currentPose.getX());
+      SmartDashboard.putNumber("Drive:Y", currentPose.getY());
+      SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
+    }
+    SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());
+
+    System.out.println(String.format("CurTargetPos:%1$f,CurTargetVel%2$f", rightOne.getActiveTrajectoryPosition(), rightOne.getActiveTrajectoryVelocity()));
+
+    //System.out.print(String.format("%1$f,%2$f,%3$f,%4$f,%5$f,%6$f", rightOne.getMotorOutputPercent(), rightTwo.getMotorOutputPercent(), rightThree.getMotorOutputPercent(), leftOne.getMotorOutputPercent(), leftTwo.getMotorOutputPercent(), leftThree.getMotorOutputPercent()));
+  }
+
   public double getHeading() {
     return Math.toRadians(gyro.getYaw());
   }
@@ -213,12 +332,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public List<Double> getWheelPositions() {
-    return Arrays.asList(leftOne.getSelectedSensorPosition(), rightOne.getSelectedSensorPosition());
-  }
-
-  private void debug() {
-    SmartDashboard.putNumber("Drive:X", currentPose.getX());
-    SmartDashboard.putNumber("Drive:Y", currentPose.getY());
+    return Arrays.asList(encToInches(leftOne.getSelectedSensorPosition()), encToInches(rightOne.getSelectedSensorPosition()));
   }
 
   @Override
@@ -234,6 +348,14 @@ public class DriveSubsystem extends SubsystemBase {
     return inches * kEncToInches;
   }
 
+  public double getRightEnc() {
+    return rightTwo.getSelectedSensorPosition();
+  }
+
+  public double getLeftEnc() {
+    return leftTwo.getSelectedSensorPosition();
+  }
+
   public void setupNewProfile() {
     rightOne.clearMotionProfileHasUnderrun();
     rightOne.clearMotionProfileTrajectories();
@@ -241,6 +363,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void startProfile() {
+    setDriveMode(DriveMode.MotionProfile);
     rightOne.startMotionProfile(trajStream, 50, ControlMode.MotionProfileArc);
   }
 
@@ -253,7 +376,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getCurrentGlobalPosition(){
-    return new Pose2d(currentPose.getX(), currentPose.getY(), currentPose.getHeading());
+    return currentPose;
   }
 
   public TrajectoryBuilder getTrajectoryBuilder(boolean isReverse) {
@@ -279,4 +402,12 @@ public class DriveSubsystem extends SubsystemBase {
     return new ProfileAccelerationConstraint(maxAccel);
   }
 
+  public void resetEncoders() {
+    rightOne.getSensorCollection().setIntegratedSensorPosition(0, 10);
+    leftOne.setSelectedSensorPosition(0);
+  }
+
+  public void loadTrajectoryPoint(TrajectoryPoint point) {
+    trajStream.Write(point);
+  }
 }

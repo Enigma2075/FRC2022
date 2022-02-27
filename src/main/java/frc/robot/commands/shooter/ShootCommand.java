@@ -37,16 +37,16 @@ public class ShootCommand extends CommandBase {
   @Override
   public void execute() {
     
-    shooter.shoot(true);
+    //shooter.shoot(true);
 
-    //boolean atSpeed = shooter.shoot(); // 114.02 Distance
+    boolean atSpeed = shooter.shoot(); // 114.02 Distance
     
-    //if(atSpeed) {
+    if(atSpeed) {
       indexer.index(true);
-    //}
-    //else {
-    //  indexer.stop();
-    //}
+    }
+    else {
+      indexer.index();
+    }
   }
 
   // Called once the command ends or is interrupted.

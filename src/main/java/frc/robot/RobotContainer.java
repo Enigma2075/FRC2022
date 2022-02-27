@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.Intake.IntakeCommand;
+import frc.robot.commands.auto.GrabCargo;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.climber.MoveClimbCommand;
@@ -49,7 +50,8 @@ public class RobotContainer {
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   
   private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem, indexerSubsystem);
-  
+  private final GrabCargo grabCargoCommand = new GrabCargo(driveSubsystem);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -63,7 +65,7 @@ public class RobotContainer {
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getPOV));
+    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getPOV, operatorController::getLeftX, operatorController::getLeftY));
   }
 
   /**
@@ -93,10 +95,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return shootCommand;
+    return grabCargoCommand;
   }
 
   public void updateDrive() {
+    //System.out.println("UpdateDrive");
     driveSubsystem.update();
   }
 }

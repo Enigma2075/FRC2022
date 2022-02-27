@@ -48,7 +48,7 @@ public class DriveCommand extends CommandBase {
     else {
       double remappedJoystick = (joystick - Math.signum(joystick) * deadband) / (1.0 - deadband);
       if(!fastMode.getAsBoolean()) {
-        remappedJoystick *= .5;
+        remappedJoystick *= .7;
       }
  
       return remappedJoystick;

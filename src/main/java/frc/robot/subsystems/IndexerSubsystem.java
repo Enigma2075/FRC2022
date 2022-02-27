@@ -143,9 +143,9 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
-    SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
-    SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
+    //SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
+    //SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
+    //SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
     
     // writeMotorDebug("Index", indexerMotor);
     // writeMotorDebug("Singulizer", singulizerMotor);

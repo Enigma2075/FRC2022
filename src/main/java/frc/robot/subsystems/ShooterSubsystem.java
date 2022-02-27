@@ -212,10 +212,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
 
-    config.slot0.kP = ShooterConstants.kSlot1P;
-    config.slot0.kI = ShooterConstants.kSlot1I;
-    config.slot0.kD = ShooterConstants.kSlot1D;
-    config.slot0.kF = ShooterConstants.kSlot1F;
+    config.slot0.kP = ShooterConstants.kSlot0P;
+    config.slot0.kI = ShooterConstants.kSlot0I;
+    config.slot0.kD = ShooterConstants.kSlot0D;
+    config.slot0.kF = ShooterConstants.kSlot0F;
 
     return config;
   }
@@ -251,11 +251,11 @@ public class ShooterSubsystem extends SubsystemBase {
     // Angle = 52 From Vertical
     // Height = 26.4325
 
-    double limelightAngle = 52;
+    double limelightAngle = 42;
     double targetHeight = 102.25;
     double limelightHeight = 26.4325;
 
-    double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(90 - limelightAngle + ty)));
+    double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + ty)));
 
     return currentDistance;
   }
@@ -295,6 +295,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     boolean atSpeed = isShooterAtSpeed(speed);
     boolean canShoot = validDistance && atSpeed && targetAquired;
+
+    SmartDashboard.putBoolean("Shooter:AtSpeed", atSpeed);
+    SmartDashboard.putBoolean("Shooter:ValidDistance", validDistance);
+    SmartDashboard.putBoolean("Shooter:TargetAquired", targetAquired);
 
     if (canShoot) {
       popperMotor.set(1);
@@ -351,6 +355,7 @@ public class ShooterSubsystem extends SubsystemBase {
       if(turretMotor.getControlMode() == ControlMode.PercentOutput) {
         turretMotor.set(ControlMode.PercentOutput, 0);
       }
+
       return false;
     }
 
@@ -358,16 +363,19 @@ public class ShooterSubsystem extends SubsystemBase {
     // table.getEntry("pipeline").setNumber(1);
     // }
 
-    if (tx < 1.0) {
+    //if (tx < -1.0) {
       output = kP * error + kF;
-    } else if (tx > 1.0) {
-      output = kP * error - kF;
-    }
+    //} else if (tx > 1.0) {
+    //  output = kP * error - kF;
+    //}
 
     if (Math.abs(output) > 1) {
       output = Math.signum(output);
     }
-
+    else if(Math.abs(output) < .1) {// && Math.abs(tx) >= 1) {
+      output = .06 * Math.signum(output);
+    }
+    
     turretMotor.set(ControlMode.PercentOutput, output);
 
     if(Math.abs(tx) < 1) {
@@ -396,15 +404,15 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    //debug();
+    debug();
   }
 
   public void debug() {
-    writeMotorDebug("Top", topMotor);
-    writeMotorDebug("Bottom", bottomMotor);
+    //writeMotorDebug("Top", topMotor);
+    //writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
-    SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
-    SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
+    //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
+    //SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }
 
   public void writeMotorDebug(String prefix, WPI_TalonFX motor) {

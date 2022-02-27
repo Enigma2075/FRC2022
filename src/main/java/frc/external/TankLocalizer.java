@@ -42,12 +42,16 @@ public class TankLocalizer implements Localizer  {
     public void update() {
         var wheelPositions = drive.getWheelPositions();
         var heading = drive.getHeading();
+        //System.out.println(String.format("%1$f,%2$f,%3$f", wheelPositions.get(0), wheelPositions.get(1), heading));
         if(!lastWheelPositions.isEmpty()) {
             var wheelDeltas = IntStream.range(0, wheelPositions.size()).mapToObj(i -> wheelPositions.get(i) - lastWheelPositions.get(i)).collect(Collectors.toUnmodifiableList());
             var robotPoseDelta = TankKinematics.wheelToRobotVelocities(wheelDeltas, drive.getTrackWidth());
             var finalHeadingDelta = Angle.normDelta(heading - lastHeading);
             pose = Kinematics.relativeOdometryUpdate(pose, new Pose2d(robotPoseDelta.vec(), finalHeadingDelta));
         }
+
+        lastWheelPositions = wheelPositions;
+        lastHeading = heading;
     }
 }
 
