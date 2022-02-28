@@ -11,6 +11,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.GrabCargo;
+import frc.robot.commands.auto.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.climber.MoveClimbCommand;
@@ -49,8 +50,7 @@ public class RobotContainer {
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   
-  private final ShootCommand shootCommand = new ShootCommand(shooterSubsystem, indexerSubsystem);
-  private final GrabCargo grabCargoCommand = new GrabCargo(driveSubsystem);
+  private final RightFull grabCargoCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

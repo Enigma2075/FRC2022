@@ -25,7 +25,7 @@ public class GyroSubsystem extends SubsystemBase {
   }
 
   public void setYaw(double yaw) {
-    pigeon.setYaw(yaw);
+    pigeon.setYaw(yaw, 10);
   }
 
   public double getYaw() {

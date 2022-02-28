@@ -50,15 +50,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
-  public final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
-  public final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
+  private final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
+  private final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
 
-  public static final double kPivotZeroOffset = 3756; // To get this value 
+  private static final double kPivotZeroOffset = 3756; // To get this value 
 
-  public static final double kPivotMaxGravityFF = .1;
-  public static final double kPivotCruiseVelocity = 800; // Measured max velocity 800
-  public static final double kPivotAccelerationVelocity = 1500;
-  public static final double kPivotP = 3;
+  private static final double kPivotMaxGravityFF = .1;
+  private static final double kPivotCruiseVelocity = 800; // Measured max velocity 800
+  private static final double kPivotAccelerationVelocity = 1500;
+  private static final double kPivotP = 3;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {

@@ -1,4 +1,4 @@
-package frc.external;
+package frc.external.roadrunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +37,8 @@ public class TankLocalizer implements Localizer  {
         lastWheelPositions = Collections.<Double>emptyList();
         lastHeading = Double.NaN;
         drive.setHeading(pose.getHeading());
+
+        this.pose = pose;
     }
     @Override
     public void update() {

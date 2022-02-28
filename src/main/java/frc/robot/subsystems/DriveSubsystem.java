@@ -29,7 +29,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
@@ -38,7 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.external.CheesyDriveHelper;
 import frc.external.DriveSignal;
-import frc.external.TankLocalizer;
+import frc.external.roadrunner.TankLocalizer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
@@ -67,7 +66,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final TankLocalizer localizer = new TankLocalizer(this);
   private final BufferedTrajectoryPointStream trajStream = new BufferedTrajectoryPointStream();
 
-  private static final double kMaxVel = encToInches(14000.0) * 10.0; // 18000
+  private static final double kMaxVel = encToInches(18000.0 * 10.0) * .9; // 18000/100ms
   private static final double kMaxAngVel = Math.toRadians(90);
   private static final double kTrackWidth = 24.125;
   private static final double kMaxAccel = kMaxVel * .75;
@@ -323,8 +322,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
-  public void setPosition(double x, double y) {
-    localizer.setPoseEstimate(new Pose2d(x, y, getHeading()));
+  public void setPosition(double x, double y, double heading) {
+    localizer.setPoseEstimate(new Pose2d(x, y, heading));
   }
   
   public double getTrackWidth() {

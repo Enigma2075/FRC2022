@@ -119,6 +119,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
   }
 
+  public boolean hasCargo() {
+    return getPosition1() || getPosition2() || getPosition3();
+  }
+
   public boolean getPosition1() {
     return !position1.get();
   }

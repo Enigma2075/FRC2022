@@ -36,6 +36,7 @@ public final class Constants {
         public static final int kBottomCanId = 9;
         public static final int kLimeLightRightPwmPort = 1;
         public static final int kLimeLightLeftPwmPort = 0;
+        public static final int kBlueCargoDioPort = 3;
 
         public static final double kSlot0P = 0.255;
         public static final double kSlot0I = 0;
@@ -52,13 +53,13 @@ public final class Constants {
         public static final int kLeftThreeCanId = 6;
 
         public static final double kSlot0F = 0.04017;
-        public static final double kSlot0P = 0.002;
+        public static final double kSlot0P = 0.003;
         public static final double kSlot0I = 0;
         public static final double kSlot0D = 0;
         public static final double kSlot0Iz = 0;
         
         public static final double kSlot1F = 0;
-        public static final double kSlot1P = 0;
+        public static final double kSlot1P = 0.3;
         public static final double kSlot1I = 0;
         public static final double kSlot1D = 0;
         public static final double kSlot1Iz = 0;

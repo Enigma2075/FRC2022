@@ -93,9 +93,9 @@ public class RunProfileCommand extends CommandBase {
       if (Math.toDegrees(curPositionPose.getHeading()) > 180.0) {
         // curHeading = curHeading - (2 * Math.PI);
         // TODO: Fix heading calc
-        point.auxiliaryPos = Math.toDegrees(curHeading);
+        point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI));
       } else {
-        point.auxiliaryPos = Math.toDegrees(curHeading);
+        point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI));
       }
 
       if (i == 0) {
@@ -138,7 +138,7 @@ public class RunProfileCommand extends CommandBase {
       //prevPositionPose = curPositionPose;
       //prevVelocityPose = curVelocityPose;
 
-      System.out.println(String.format("Pos:%1f,AuxPos:%2f,RightEnc:%2f,Left:%2f", point.position, point.auxiliaryPos, rightEncoder, leftEncoder));
+      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,RightEnc:%2f,Left:%2f", point.position, point.auxiliaryPos, point.velocity, rightEncoder, leftEncoder));
       //  System.out.println(point.auxiliaryPos);
       //  System.out.println(point.auxiliaryArbFeedFwd);
       //  System.out.println(String.format("Vel:%1$f zeroPos:%2$s last:%3$s pos:%4$f

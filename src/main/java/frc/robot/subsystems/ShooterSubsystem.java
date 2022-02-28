@@ -30,6 +30,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -75,6 +76,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public final PWM limeLightRight = new PWM(ShooterConstants.kLimeLightRightPwmPort);
   public final PWM limeLightLeft = new PWM(ShooterConstants.kLimeLightLeftPwmPort);
 
+  private DigitalInput blueCargo = new DigitalInput(ShooterConstants.kBlueCargoDioPort);
+  
   private final SparkMaxPIDController hoodPid;
   private final RelativeEncoder hoodEncoder;
   private double hoodOffset = 0;
@@ -117,6 +120,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
+    
     // Reset all motors to factory default
     turretMotor.configFactoryDefault(10);
     bottomMotor.configFactoryDefault(10);
@@ -260,11 +264,30 @@ public class ShooterSubsystem extends SubsystemBase {
     return currentDistance;
   }
 
+  public double getTurretAngle() {
+    return turretMotor.getSelectedSensorPosition() / kTurretCountsPerDegree;
+  }
+
   public void shoot(boolean force) {
     topMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
     bottomMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
     
     popperMotor.set(1);
+  }
+
+  public boolean shoot(double speed) {
+    topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
+    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
+    
+    boolean atSpeed = isShooterAtSpeed(speed);
+    if(atSpeed) {
+      popperMotor.set(1);
+      return true;
+    }
+    else {
+      popperMotor.set(0);
+      return false;
+    }
   }
 
   public boolean shoot() {
@@ -411,6 +434,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //writeMotorDebug("Top", topMotor);
     //writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    SmartDashboard.putBoolean("Shooter:BlueCargo", blueCargo.get());
     //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
     //SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }
