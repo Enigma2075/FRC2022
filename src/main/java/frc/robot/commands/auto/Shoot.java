@@ -31,7 +31,9 @@ public class Shoot extends CommandBase {
         double targetAngle = 155;
 
         if(Math.abs(targetAngle - shooter.getTurretAngle()) < 1) {
-           shooting = shooter.shoot(.43); // 114.02 Distance
+            shooter.shoot(true);
+            //shooting = shooter.shoot(.43); // 114.02 Distance
+            shooting = true;
         }
         else {
             shooter.turret(targetAngle);
@@ -56,7 +58,7 @@ public class Shoot extends CommandBase {
             count = 0;
         }
 
-        if(count > 100) {
+        if(count > 10) {
             return true;
         }
         else {

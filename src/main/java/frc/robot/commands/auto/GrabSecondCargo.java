@@ -8,22 +8,25 @@ import frc.robot.commands.drivetrain.RunProfileCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class GrabCargo extends RunProfileCommand {
+public class GrabSecondCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
 
-    public GrabCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, Pose2d startPose) {
+    public GrabSecondCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.intake = intake;
 
         addRequirements(intake);
 
-        System.out.println("GrabCargo");
+        System.out.println("GrabSecondCargo");
 
-        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
+        addPointTurn(-120, true, false);
+
+        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
                 // //289 inches to the balls -24
-                .forward(42);
+                
+                .splineTo(new Vector2d(88, -90), Math.toRadians(270));
         //        .splineTo(new Vector2d(0, 48), 90);
                 //.lineTo(new Vector2d(24, 0));
         // //.setReversed(true)
@@ -40,8 +43,9 @@ public class GrabCargo extends RunProfileCommand {
 
         // addTrajectory(tb2.build());
 
-        addTrajectory(tb1.build(), true);
-        System.out.println("End GrabCargo");
+        //addTrajectory(tb1.build(), true, true);
+
+        System.out.println("End GrabSecondCargo");
     }
 
     @Override

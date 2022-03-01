@@ -58,9 +58,10 @@ public class TurretCommand extends CommandBase {
       return;
     }
 
+    // Invert the heading as the dpad moves clockwise.
     requestedHeading = 360 - requestedHeading;
 
-    double currentYaw = gyro.getYaw() % 360.0;
+    double currentYaw = (gyro.getYaw() - 90) % 360.0;
 
     if(Math.signum(currentYaw) == -1) {
       currentYaw += 360.0;
@@ -71,10 +72,10 @@ public class TurretCommand extends CommandBase {
       finalHeading += 360.0;
     }
 
-    //SmartDashboard.putNumber("RequestedYaw", requestedHeading);
-    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
-    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
-    //SmartDashboard.putNumber("FinalHeading", finalHeading);    
+    SmartDashboard.putNumber("RequestedHeading", requestedHeading);
+    SmartDashboard.putNumber("Yaw", gyro.getYaw());
+    SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
+    SmartDashboard.putNumber("FinalHeading", finalHeading);    
     
     shooter.turret(finalHeading);
   }

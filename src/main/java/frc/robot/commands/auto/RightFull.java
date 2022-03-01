@@ -1,5 +1,7 @@
 package frc.robot.commands.auto;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -25,18 +27,20 @@ public class RightFull extends SequentialCommandGroup{
         this.intake = intake;
         this.gyro = gyro;
 
-        double x = 89.875;
-        double y = -22.85;
-        double heading = 270;
+        Pose2d startPose = new Pose2d(89.976, -22.85, 0);
 
-        gyro.setYaw(heading);
-        drive.setPosition(x, y, Math.toRadians(heading));
+        gyro.setYaw(Math.toDegrees(startPose.getHeading()));
+        drive.setPosition(startPose);
 
-        Command shoot = new Shoot(shooter, indexer);
-        Command grabCargo = new GrabCargo(drive, intake);
+        drive.resetEncoders();
+
+        var shoot = new Shoot(shooter, indexer);
+        var grabCargo = new GrabCargo(drive, intake, startPose);
+        var grabCargoBack = new GrabSecondCargo(drive, intake, grabCargo.getEndPose());
         
         addCommands(shoot);
         addCommands(grabCargo);
+        addCommands(grabCargoBack);
         
         //addCommands(new AutoShoot());
  

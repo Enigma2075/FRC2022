@@ -11,6 +11,7 @@ import java.util.ResourceBundle.Control;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.profile.AccelerationConstraint;
+import com.acmerobotics.roadrunner.profile.VelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TankVelocityConstraint;
@@ -322,8 +323,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
-  public void setPosition(double x, double y, double heading) {
-    localizer.setPoseEstimate(new Pose2d(x, y, heading));
+  public void setPosition(Pose2d pose) {
+    localizer.setPoseEstimate(pose);
   }
   
   public double getTrackWidth() {
@@ -358,6 +359,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void setupNewProfile() {
     rightOne.clearMotionProfileHasUnderrun();
     rightOne.clearMotionProfileTrajectories();
+    trajStream.Clear();
     setDriveMode(DriveMode.Disable);
   }
 
@@ -370,6 +372,14 @@ public class DriveSubsystem extends SubsystemBase {
     return rightOne.isMotionProfileFinished();
   }
 
+  public TrajectoryVelocityConstraint getVelConstraint() {
+    return kVelConstraint;
+  }
+
+  public TrajectoryAccelerationConstraint getAccelConstraint() {
+    return kAccelConstraint;
+  }
+
   public ControlMode getControlMode() {
     return rightOne.getControlMode();
   }
@@ -378,16 +388,16 @@ public class DriveSubsystem extends SubsystemBase {
     return currentPose;
   }
 
-  public TrajectoryBuilder getTrajectoryBuilder(boolean isReverse) {
-    return getTrajectoryBuilder(isReverse, getCurrentGlobalPosition());
-  }
-
   public TrajectoryBuilder getTrajectoryBuilder(boolean isReverse, double x, double y, double angle) {
     return getTrajectoryBuilder(isReverse, new Pose2d(x, y, Math.toRadians(angle)));
   }
 
   public TrajectoryBuilder getTrajectoryBuilder(boolean isReverse, Pose2d pose) {
     return new TrajectoryBuilder(pose, isReverse, kVelConstraint, kAccelConstraint);    
+  }
+
+  public TrajectoryBuilder getTrajectoryBuilder(double startTan, Pose2d pose) {
+    return new TrajectoryBuilder(pose, startTan, kVelConstraint, kAccelConstraint);    
   }
 
   public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
