@@ -59,7 +59,7 @@ public final class Constants {
         public static final double kSlot0Iz = 0;
         
         public static final double kSlot1F = 0;
-        public static final double kSlot1P = 0.3;
+        public static final double kSlot1P = 0.5;
         public static final double kSlot1I = 0;
         public static final double kSlot1D = 0;
         public static final double kSlot1Iz = 0;

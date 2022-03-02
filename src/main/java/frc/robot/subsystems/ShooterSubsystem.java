@@ -243,8 +243,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public boolean isShooterAtSpeed(double vel) {
     double targetVelocity = vel * maxVel;
-    boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 200;
-    boolean isBottomMotorAtSpeed = Math.abs(bottomMotor.getSelectedSensorVelocity() - targetVelocity) < 200;
+    boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 300;
+    boolean isBottomMotorAtSpeed = Math.abs(bottomMotor.getSelectedSensorVelocity() - targetVelocity) < 300;
     return isTopMotorAtSpeed && isBottomMotorAtSpeed;
   }
 
@@ -268,11 +268,24 @@ public class ShooterSubsystem extends SubsystemBase {
     return turretMotor.getSelectedSensorPosition() / kTurretCountsPerDegree;
   }
 
-  public void shoot(boolean force) {
-    topMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
-    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * .25);
+  public boolean shoot(boolean force) {
+    double speed = .38;
+    topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
+    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     
-    popperMotor.set(1);
+    boolean atSpeed = isShooterAtSpeed(speed);
+    if(atSpeed) {
+      popperMotor.set(1);
+      return true;
+    }
+    else {
+      popperMotor.set(0);
+      return false;
+    }
+  }
+
+  public double getShooterCurrent() {
+    return bottomMotor.getSupplyCurrent();
   }
 
   public boolean shoot(double speed) {
@@ -435,6 +448,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
     SmartDashboard.putBoolean("Shooter:BlueCargo", blueCargo.get());
+    SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
     //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
     //SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
@@ -34,13 +35,21 @@ public class RightFull extends SequentialCommandGroup{
 
         drive.resetEncoders();
 
-        var shoot = new Shoot(shooter, indexer);
-        var grabCargo = new GrabCargo(drive, intake, startPose);
-        var grabCargoBack = new GrabSecondCargo(drive, intake, grabCargo.getEndPose());
+        var shoot1 = new Shoot(shooter, indexer, 155, .43, 1, 10);
+        var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
+        var grabSecondCargo = new GrabSecondCargo(drive, intake, indexer, grabCargo.getEndPose());
+        var shoot2 = new Shoot(shooter, indexer, 200, 0, 2, 10);
+        var grabThirdCargo = new GrabThirdCargo(drive, intake, indexer, grabSecondCargo.getEndPose());
+        var driveToShoot = new DriveToShoot(drive, intake, indexer, grabThirdCargo.getEndPose());
+        var shoot3 = new Shoot(shooter, indexer, 200, 0, 2, 10);
         
-        addCommands(shoot);
+        addCommands(shoot1);
         addCommands(grabCargo);
-        addCommands(grabCargoBack);
+        addCommands(grabSecondCargo);
+        addCommands(shoot2);
+        addCommands(grabThirdCargo);
+        addCommands(driveToShoot);
+        addCommands(shoot3);
         
         //addCommands(new AutoShoot());
  

@@ -10,11 +10,11 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
-public class GrabSecondCargo extends RunProfileCommand {
+public class DriveToShoot extends RunProfileCommand {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
 
-    public GrabSecondCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
+    public DriveToShoot(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.indexer = indexer;
@@ -22,17 +22,15 @@ public class GrabSecondCargo extends RunProfileCommand {
 
         addRequirements(intake);
 
-        System.out.println("GrabSecondCargo");
+        System.out.println("DriveToShoot");
 
-        addPointTurn(Math.toRadians(-140), true, false);
-
-        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
+        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(true, startPose);
         tb1
-            .splineTo(new Vector2d(88, -95), Math.toRadians(270));
+            .splineTo(new Vector2d(88, -90), Math.toRadians(90));
         
         addTrajectory(tb1.build(), true, true);
 
-        System.out.println("End GrabSecondCargo");
+        System.out.println("End DriveToShoot");
     }
 
     @Override
@@ -42,16 +40,10 @@ public class GrabSecondCargo extends RunProfileCommand {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        super.end(interrupted);
-        //intake.pivotTo(PivotPosition.Up);
-    }
-
-    @Override
     public void initialize() {
         super.initialize();
 
-        indexer.index();
+        intake.pivotTo(PivotPosition.Up);
 
         startProfile();
     }

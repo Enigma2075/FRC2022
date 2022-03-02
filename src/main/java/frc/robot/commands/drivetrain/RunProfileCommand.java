@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
+import com.acmerobotics.roadrunner.kinematics.TankKinematics;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -51,9 +52,12 @@ public class RunProfileCommand extends CommandBase {
   }
 
   public void startProfile() {
-    double posOffset = (drivetrain.getRightEnc() + drivetrain.getLeftEnc())/2;
+    double posOffset = drivetrain.getMotionProfilePosition();
     for (TrajectoryPoint t : trajectoryPoints) {
       t.position += posOffset;
+
+      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,PosOffset:%2f", t.position, t.auxiliaryPos, t.velocity, posOffset));
+ 
       drivetrain.loadTrajectoryPoint(t);
     }
 
@@ -76,8 +80,8 @@ public class RunProfileCommand extends CommandBase {
     MotionProfile profile = MotionProfileGenerator.generateSimpleMotionProfile(
       new MotionState(curEndPose.getHeading(), 0.0, 0.0, 0.0),
       new MotionState(curEndPose.getHeading() + angle, 0.0, 0.0, 0.0),
-      Math.toRadians(90),
-      Math.toRadians(90)
+      Math.toRadians(500),
+      Math.toRadians(500)
       );
 
     loadTurn(profile, reverseHeading, lastAction);
@@ -109,19 +113,26 @@ public class RunProfileCommand extends CommandBase {
 
       double curHeading = curState.getX();
 
-      if (Math.toDegrees(curHeading) > 180 && reverseHeading) {
+      if (Math.abs(Math.toDegrees(curHeading)) > 180 && reverseHeading) {
         point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI)) * -1;
       } else {
         point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI));
       }
 
       if (segmentCount == i) {
+        if(curHeading < 0) {
+          curHeading = (Math.PI * 2.0) + curHeading;
+        }
         curEndPose = new Pose2d(curEndPose.vec(), curHeading);
         
         if (lastAction) {
           point.isLastPoint = true;
         }
       }
+
+      trajectoryPoints.add(point);
+
+      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,Heading:%2f", point.position, point.auxiliaryPos, point.velocity, curHeading));
     }
   }
 
@@ -133,8 +144,8 @@ public class RunProfileCommand extends CommandBase {
 
     int segmentCount = (int) (traj.duration() * profileFramesPerSec);
 
-    Vector2d prevLeftVector = null;
-    Vector2d prevRightVector = null;
+    //Vector2d prevLeftVector = null;
+    //Vector2d prevRightVector = null;
 
     // Loops through points based on the resolution of the profile and pushes them
     // to the talon's upper buffer
@@ -149,6 +160,8 @@ public class RunProfileCommand extends CommandBase {
       // Convert the velocity from field oriented to robot orientied.
       var curVelocity = Kinematics.fieldToRobotVelocity(curPositionPose, velocity);
 
+      var wheelVelocities = TankKinematics.robotToWheelVelocities(curVelocity, drivetrain.getTrackWidth());
+
       TrajectoryPoint point = new TrajectoryPoint();
       point.zeroPos = false;
       point.isLastPoint = false;
@@ -159,28 +172,34 @@ public class RunProfileCommand extends CommandBase {
       // We divide this by 10 to get it from sec to 100 ms.
       point.velocity = DriveSubsystem.inchesToEnc(curVelocity.getX()) / 10.0;
 
-      if (Math.toDegrees(curPositionPose.getHeading()) > 180 && reverseHeading) {
-        point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI)) * -1;
+      if (Math.abs(Math.toDegrees(curPositionPose.getHeading())) > 180 && reverseHeading) {
+        point.auxiliaryPos = ((curHeading * -1) + (Math.PI * 2)) * (8192.0/(2.0 * Math.PI)) * -1;
       } else {
         point.auxiliaryPos = curHeading * (8192.0/(2.0 * Math.PI));
       }
 
-      if (i == 0) {
-        prevLeftVector = generateNewVector(curPositionPose);
-        prevRightVector = generateNewVector(curPositionPose);
-      } else {
-        Vector2d curLeftVector = generateNewVector(curPositionPose);
-        Vector2d curRightVector = generateNewVector(curPositionPose);
+      leftEncoder += wheelVelocities.get(0) * Constants.DriveConstants.kProfileResolution;
+      rightEncoder += wheelVelocities.get(1) * Constants.DriveConstants.kProfileResolution;
+        
+      //if (i == 0) {
+      //  prevLeftVector = generateNewVector(curPositionPose, false);
+      //  prevRightVector = generateNewVector(curPositionPose, true);
+      //} 
+      //else {
+        
 
-        double leftSegmentDistance = prevLeftVector.distTo(curLeftVector);
-        double rightSegmentDistance = prevRightVector.distTo(curRightVector);
+      //  Vector2d curLeftVector = generateNewVector(curPositionPose, false);
+      //  Vector2d curRightVector = generateNewVector(curPositionPose, true);
 
-        rightEncoder = rightEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(rightSegmentDistance));
-        leftEncoder = leftEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(leftSegmentDistance));
+      //  double leftSegmentDistance = prevLeftVector.distTo(curLeftVector);
+      //  double rightSegmentDistance = prevRightVector.distTo(curRightVector);
 
-        prevLeftVector = curLeftVector;
-        prevRightVector = curRightVector;
-      }
+      //  rightEncoder = rightEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(rightSegmentDistance));
+      //  leftEncoder = leftEncoder + (Math.signum(point.velocity) * DriveSubsystem.inchesToEnc(leftSegmentDistance));
+
+      //  prevLeftVector = curLeftVector;
+      //  prevRightVector = curRightVector;
+      //}
 
       point.position = ((rightEncoder + leftEncoder) / 2.0) + curProfilePosOffset;
 
@@ -205,15 +224,20 @@ public class RunProfileCommand extends CommandBase {
       return curEndPose;
   }
 
-  private Vector2d generateNewVector(Pose2d pose) {
-    double cos_angle = Math.cos(pose.getHeading() - Math.PI / 2.0);
-    double sin_angle = Math.sin(pose.getHeading() - Math.PI / 2.0);
+  //private Vector2d generateNewVector(Pose2d pose, boolean right) {
+  //  double direction = 1;
+  //  if(right) {
+  //    direction = -1;
+  //  }
 
-    double leftX = pose.getX() - halfTrackWidth * cos_angle;
-    double leftY = pose.getY() - halfTrackWidth * sin_angle;
+  //  double cos_angle = Math.cos(pose.getHeading() + (direction * (Math.PI / 2.0)));
+  //  double sin_angle = Math.sin(pose.getHeading() + (direction * (Math.PI / 2.0)));
 
-    return new Vector2d(leftX, leftY);
-  }
+  //  double leftX = pose.getX() - halfTrackWidth * cos_angle;
+  //  double leftY = pose.getY() - halfTrackWidth * sin_angle;
+
+  //  return new Vector2d(leftX, leftY);
+  //}
 
   // Called when the command is initially scheduled.
   @Override

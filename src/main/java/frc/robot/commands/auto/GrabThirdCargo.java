@@ -10,11 +10,11 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
-public class GrabSecondCargo extends RunProfileCommand {
+public class GrabThirdCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
 
-    public GrabSecondCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
+    public GrabThirdCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.indexer = indexer;
@@ -22,17 +22,15 @@ public class GrabSecondCargo extends RunProfileCommand {
 
         addRequirements(intake);
 
-        System.out.println("GrabSecondCargo");
+        System.out.println("GrabThirdCargo");
 
-        addPointTurn(Math.toRadians(-140), true, false);
-
-        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
+        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
-            .splineTo(new Vector2d(88, -95), Math.toRadians(270));
+            .splineTo(new Vector2d(120, -280), Math.toRadians(300));
         
         addTrajectory(tb1.build(), true, true);
 
-        System.out.println("End GrabSecondCargo");
+        System.out.println("End GrabThirdCargo");
     }
 
     @Override
@@ -41,18 +39,38 @@ public class GrabSecondCargo extends RunProfileCommand {
         indexer.index();
     }
 
+    int count = 0;
+
+    @Override
+    public boolean isFinished() {
+        boolean isFinished = super.isFinished();
+
+        if(isFinished && count > 500) {
+            return true;
+        }
+        else if (isFinished) {
+            count ++;
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    @Override
+    public void initialize() {
+        super.initialize();
+
+        intake.intake();;
+
+        startProfile();
+    }
+
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
         //intake.pivotTo(PivotPosition.Up);
     }
 
-    @Override
-    public void initialize() {
-        super.initialize();
-
-        indexer.index();
-
-        startProfile();
-    }
 }

@@ -70,7 +70,7 @@ public class DriveSubsystem extends SubsystemBase {
   private static final double kMaxVel = encToInches(18000.0 * 10.0) * .9; // 18000/100ms
   private static final double kMaxAngVel = Math.toRadians(90);
   private static final double kTrackWidth = 24.125;
-  private static final double kMaxAccel = kMaxVel * .75;
+  private static final double kMaxAccel = kMaxVel * 2;
 
   private static final TrajectoryVelocityConstraint kVelConstraint = getVelocityConstraint(kMaxVel, kMaxAngVel, kTrackWidth);
   private static final TrajectoryAccelerationConstraint kAccelConstraint = getAccelerationConstraint(kMaxAccel);
@@ -202,6 +202,10 @@ public class DriveSubsystem extends SubsystemBase {
     setDriveMode(DriveMode.Normal);
   }
 
+  public double getMotionProfilePosition() {
+    return rightOne.getSelectedSensorPosition();
+  }
+
   private void configDriveMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
     motor.setNeutralMode(NeutralMode.Coast);
     motor.configAllSettings(config);
@@ -310,7 +314,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
     SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());
 
-    System.out.println(String.format("CurTargetPos:%1$f,CurTargetVel%2$f", rightOne.getActiveTrajectoryPosition(), rightOne.getActiveTrajectoryVelocity()));
+    //System.out.println(String.format("CurTargetPos:%1$f,CurTargetVel%2$f", rightOne.getActiveTrajectoryPosition(), rightOne.getActiveTrajectoryVelocity()));
 
     //System.out.print(String.format("%1$f,%2$f,%3$f,%4$f,%5$f,%6$f", rightOne.getMotorOutputPercent(), rightTwo.getMotorOutputPercent(), rightThree.getMotorOutputPercent(), leftOne.getMotorOutputPercent(), leftTwo.getMotorOutputPercent(), leftThree.getMotorOutputPercent()));
   }
