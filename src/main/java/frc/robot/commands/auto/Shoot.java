@@ -32,6 +32,7 @@ public class Shoot extends CommandBase {
 
     @Override
     public void initialize() {
+        shooter.showVision(true);
         shooter.turret(targetAngle);
     }
 
@@ -56,12 +57,13 @@ public class Shoot extends CommandBase {
             turretAtPosition = true;
 
             if (speed == 0) {
-                // shooting = shooter.shoot();
+                shooting = shooter.shoot();
             } else {
-                // shooting = shooter.shoot(speed); // 114.02 Distance
+                shooting = shooter.shoot(speed); // 114.02 Distance
             }
 
-            shooting = shooter.shoot(true);
+            //safe shot when we don't relly have a target.
+            //shooting = shooter.shoot(true);
         }
 
         if (shooting) {

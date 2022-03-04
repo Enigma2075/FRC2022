@@ -28,7 +28,7 @@ public class GrabSecondCargo extends RunProfileCommand {
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
-            .splineTo(new Vector2d(88, -95), Math.toRadians(270));
+            .splineTo(new Vector2d(98, -127), Math.toRadians(270));
         
         addTrajectory(tb1.build(), true, true);
 
@@ -44,7 +44,8 @@ public class GrabSecondCargo extends RunProfileCommand {
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
-        //intake.pivotTo(PivotPosition.Up);
+
+        intake.pivotTo(PivotPosition.HelpIntake);
     }
 
     @Override

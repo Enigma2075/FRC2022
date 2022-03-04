@@ -4,16 +4,19 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.climber.StartClimb;
+import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.GrabCargo;
 import frc.robot.commands.auto.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
-import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.climber.MoveClimbCommand;
 import frc.robot.commands.climber.Pullup;
 import frc.robot.commands.climber.PullupHigh;
@@ -29,6 +32,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
+import frc.robot.subsystems.DriveSubsystem.DriveMode;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -78,14 +82,17 @@ public class RobotContainer {
     new JoystickButton(operatorController, Button.kRightBumper.value)
       .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem));
 
-    new JoystickButton(driverController, Button.kB.value)
+    new JoystickButton(operatorController, Button.kB.value)
       .whenHeld(new Pullup(climberSubsystem));
 
-    new JoystickButton(driverController, Button.kX.value)
+    new JoystickButton(operatorController, Button.kX.value)
       .whenHeld(new StartClimb(climberSubsystem));
     
-    new JoystickButton(driverController, Button.kY.value)
+    new JoystickButton(operatorController, Button.kY.value)
       .whenHeld(new PullupHigh(climberSubsystem));
+
+    new JoystickButton(driverController, Button.kA.value)
+      .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
   }
 
   /**
@@ -96,6 +103,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     return grabCargoCommand;
+  }
+
+  public void teleopInit() {
+    driveSubsystem.setDriveMode(DriveMode.Normal);
+    driveSubsystem.setNeutralMode(NeutralMode.Coast);
   }
 
   public void updateDrive() {

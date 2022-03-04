@@ -1,6 +1,7 @@
 package frc.robot.commands.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +14,7 @@ import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.DriveSubsystem.DriveMode;
 
 public class RightFull extends SequentialCommandGroup{
     DriveSubsystem drive;
@@ -30,10 +32,10 @@ public class RightFull extends SequentialCommandGroup{
 
         Pose2d startPose = new Pose2d(89.976, -22.85, 0);
 
+        drive.resetEncoders();
+
         gyro.setYaw(Math.toDegrees(startPose.getHeading()));
         drive.setPosition(startPose);
-
-        drive.resetEncoders();
 
         var shoot1 = new Shoot(shooter, indexer, 155, .43, 1, 10);
         var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
@@ -67,5 +69,13 @@ public class RightFull extends SequentialCommandGroup{
         //drivetrain.setGlobalPosition(134, 27.6);
         
         super.initialize();
+    }
+
+    @Override
+    public void end(boolean interupted) {
+        super.end(interupted);
+
+        drive.setDriveMode(DriveMode.Normal);
+        drive.setNeutralMode(NeutralMode.Coast);    
     }
 }

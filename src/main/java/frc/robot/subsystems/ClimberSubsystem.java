@@ -33,7 +33,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public enum WinchPosition {
     OuterOut(2000),//
-    InnerOut(310000),
+    InnerOut(320000),
     InnerLetGo(150000);
     
     private int value;
@@ -67,10 +67,10 @@ public class ClimberSubsystem extends SubsystemBase {
   private static final double kWinchAccelerationVelocity = 11000;
   private static final double kWinchP = 0.05;
 
-  private static final double kWinchForwardLimit = 310000; // 106000
+  private static final double kWinchForwardLimit = 320000; // 106000
   private static final double kWinchReverseLimit = 4500;
 
-  private boolean climbStarted = false;
+  private static boolean climbStarted = false;
 
   private WinchPosition currentWinchPosition = WinchPosition.OuterOut;
 
@@ -94,11 +94,11 @@ public class ClimberSubsystem extends SubsystemBase {
     winch.setSelectedSensorPosition(0, 0, 10);
   }
 
-  public void startClimb() {
+  public static void startClimb() {
     climbStarted = true;
   }
 
-  public boolean hasClimbStarted() {
+  public static boolean hasClimbStarted() {
     return climbStarted;
   }
 
@@ -131,12 +131,12 @@ public class ClimberSubsystem extends SubsystemBase {
     if(Math.abs(winchVel) > .1) {
 
       if(!hasWinchBeenPastHalf) {
-        innerPower = .5;
+        innerPower = 1;
         outerPower = .5;
       }
       else {
-        innerPower = .5 * Math.signum(winchVel);
-        outerPower = innerPower * -1;
+        innerPower = 1 * Math.signum(winchVel);
+        outerPower = .5 * Math.signum(winchVel)  * -1;
       }
 
       if(innerPower < 0) {
@@ -147,7 +147,7 @@ public class ClimberSubsystem extends SubsystemBase {
       }
     }
     else{
-      innerPower = .5;
+      innerPower = 1;
       outerPower = .5;
     }
 
@@ -192,7 +192,7 @@ public class ClimberSubsystem extends SubsystemBase {
           break;
         case InitialGrab:
           outer.setPivot(PivotPosition.ForwardGrab);
-          inner.setPivot(PivotPosition.Middle);
+          inner.setPivot(PivotPosition.Grab);
           break;
       }
     }

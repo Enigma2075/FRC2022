@@ -27,9 +27,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
   
   public enum PivotPosition {
     Forwards(2400),//
-
-    ForwardGrab(2900),
-    ForwardLatch(2400),
+    Grab(1600),
+    ForwardGrab(2500),
+    ForwardLatch(2300),
     //MidFront(2),
     Middle(1700),//0
     //MidBack(4),//
@@ -88,12 +88,12 @@ public class ClimberArmSubsystem extends SubsystemBase {
     pivot.configFactoryDefault(10);
 
     TalonSRXConfiguration tapeConfig = new TalonSRXConfiguration();
-    tapeConfig.continuousCurrentLimit = 2;
-    tapeConfig.peakCurrentLimit = 10;
+    tapeConfig.continuousCurrentLimit = 3;
+    tapeConfig.peakCurrentLimit = 15;
     tapeConfig.peakCurrentDuration = 100;
 
     tapeMeasure.configAllSettings(tapeConfig);
-    tapeMeasure.enableCurrentLimit(true);
+    tapeMeasure.enableCurrentLimit(false);
     tapeMeasure.setNeutralMode(NeutralMode.Coast);
 
     SensorCollection sensors = pivot.getSensorCollection();

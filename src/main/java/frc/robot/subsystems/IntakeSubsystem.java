@@ -26,6 +26,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public enum PivotPosition {
     Down(1810),
     Up(200),
+    HelpIntake(1000),
     FullyUp(0);
 
     private int value;

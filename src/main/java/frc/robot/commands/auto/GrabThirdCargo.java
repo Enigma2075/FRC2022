@@ -26,7 +26,7 @@ public class GrabThirdCargo extends RunProfileCommand {
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
-            .splineTo(new Vector2d(120, -280), Math.toRadians(300));
+            .splineTo(new Vector2d(115, -295), Math.toRadians(300));
         
         addTrajectory(tb1.build(), true, true);
 
@@ -45,7 +45,7 @@ public class GrabThirdCargo extends RunProfileCommand {
     public boolean isFinished() {
         boolean isFinished = super.isFinished();
 
-        if(isFinished && count > 500) {
+        if(isFinished && count > 50) {
             return true;
         }
         else if (isFinished) {

@@ -195,6 +195,7 @@ public class ShooterSubsystem extends SubsystemBase {
     moveLimeLight(LimelightPosition.Default);
 
     setLEDs(false);
+    showVision(false);
   }
 
   private void configShooterMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -239,6 +240,19 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     turretMotor.set(ControlMode.MotionMagic, target);
+  }
+
+  public void showVision(boolean yes) {
+    NetworkTable table = getLimeLightTable();
+
+    NetworkTableEntry entry = table.getEntry("stream");
+    
+    if(yes) {
+        entry.setNumber(1);
+    }
+    else {
+        entry.setNumber(2);
+    }
   }
 
   public boolean isShooterAtSpeed(double vel) {
@@ -307,7 +321,7 @@ public class ShooterSubsystem extends SubsystemBase {
     boolean targetAquired = aquireTarget();
 
     double currentDistance = getDistanceFromTarget();
-    double slope = (.53 - .42)/(114.02 - 53.2);
+    double slope = (.52 - .41)/(114.02 - 53.2);
     double speed = slope * currentDistance + (.53 - (114.02 * slope));
 
     boolean validDistance = currentDistance <= 114.02 && currentDistance >= 53.2;

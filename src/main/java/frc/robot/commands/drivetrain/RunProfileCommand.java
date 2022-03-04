@@ -257,8 +257,13 @@ public class RunProfileCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
-      
+    //System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
+    
+    Pose2d errorPose = Kinematics.calculateFieldPoseError(curEndPose, drivetrain.getCurrentGlobalPosition());
+    if(Math.abs(errorPose.getX()) < 1 && Math.abs(errorPose.getY()) < 1 && Math.abs(errorPose.getHeading()) < Math.toRadians(1)) {
+      return true;
+    }
+    
     return drivetrain.isProfileComplete();
   }
 
@@ -269,7 +274,5 @@ public class RunProfileCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    drivetrain.setDriveMode(DriveMode.Normal);
-    drivetrain.setNeutralMode(NeutralMode.Coast);
   }
 }

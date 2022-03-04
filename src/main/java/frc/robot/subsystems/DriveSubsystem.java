@@ -329,6 +329,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void setPosition(Pose2d pose) {
     localizer.setPoseEstimate(pose);
+    currentPose = localizer.getPoseEstimate();
   }
   
   public double getTrackWidth() {

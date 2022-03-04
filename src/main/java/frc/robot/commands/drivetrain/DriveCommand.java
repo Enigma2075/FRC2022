@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -63,6 +64,11 @@ public class DriveCommand extends CommandBase {
     
     double adjustedThrottle = applyDeadband(throttleValue);
     double adjustedWheel = applyDeadband(wheelValue);
+
+    if(ClimberSubsystem.hasClimbStarted()) {
+      adjustedThrottle = adjustedThrottle * .2;
+      adjustedWheel = adjustedWheel * .2;
+    }
 
     drive.drive(adjustedThrottle, adjustedWheel);
     
