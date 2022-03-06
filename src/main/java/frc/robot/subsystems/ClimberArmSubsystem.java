@@ -28,8 +28,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
   public enum PivotPosition {
     Forwards(2400),//
     Grab(1600),
-    ForwardGrab(2500),
-    ForwardLatch(2300),
+    ForwardGrab(2300),
+    ForwardLatch(3000),
+    LetGo(1200),
     //MidFront(2),
     Middle(1700),//0
     //MidBack(4),//
@@ -155,6 +156,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
   public void setPivotCoast() {
     pivot.setNeutralMode(NeutralMode.Coast);
+    pivot.set(ControlMode.PercentOutput, 0);
     //pivot.set(ControlMode.PercentOutput, -0.2);
   }
 
@@ -187,10 +189,10 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    SensorCollection sensors = pivot.getSensorCollection();
-    SmartDashboard.putNumber("Climber:Pivot:" + side + ":Absolute", sensors.getPulseWidthPosition());
+    //SensorCollection sensors = pivot.getSensorCollection();
+    //SmartDashboard.putNumber("Climber:Pivot:" + side + ":Absolute", sensors.getPulseWidthPosition());
    
-    SmartDashboard.putNumber("Climber:Pivot:" + side + ":Position", pivot.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Climber:Pivot:" + side + ":Position", pivot.getSelectedSensorPosition());
   }
 
   @Override

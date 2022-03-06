@@ -118,6 +118,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kLowAngle = 0;
   private static final double kHighAngle = 0;
 
+  private static boolean shooting = false;
+
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
     
@@ -255,6 +257,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
+  public static boolean isShooting() {
+    return shooting;
+  }
+
   public boolean isShooterAtSpeed(double vel) {
     double targetVelocity = vel * maxVel;
     boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 300;
@@ -288,6 +294,9 @@ public class ShooterSubsystem extends SubsystemBase {
     bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     
     boolean atSpeed = isShooterAtSpeed(speed);
+    
+    shooting = true;
+
     if(atSpeed) {
       popperMotor.set(1);
       return true;
@@ -307,6 +316,9 @@ public class ShooterSubsystem extends SubsystemBase {
     bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     
     boolean atSpeed = isShooterAtSpeed(speed);
+    
+    shooting = true;
+    
     if(atSpeed) {
       popperMotor.set(1);
       return true;
@@ -316,12 +328,12 @@ public class ShooterSubsystem extends SubsystemBase {
       return false;
     }
   }
-
-  public boolean shoot() {
+  
+  public boolean spinUp() {
     boolean targetAquired = aquireTarget();
 
     double currentDistance = getDistanceFromTarget();
-    double slope = (.52 - .41)/(114.02 - 53.2);
+    double slope = (.525 - .415)/(114.02 - 53.2);
     double speed = slope * currentDistance + (.53 - (114.02 * slope));
 
     boolean validDistance = currentDistance <= 114.02 && currentDistance >= 53.2;
@@ -346,9 +358,19 @@ public class ShooterSubsystem extends SubsystemBase {
     boolean atSpeed = isShooterAtSpeed(speed);
     boolean canShoot = validDistance && atSpeed && targetAquired;
 
+    //canShoot = atSpeed;
+    
     SmartDashboard.putBoolean("Shooter:AtSpeed", atSpeed);
     SmartDashboard.putBoolean("Shooter:ValidDistance", validDistance);
     SmartDashboard.putBoolean("Shooter:TargetAquired", targetAquired);
+
+    return canShoot;
+  }
+
+  public boolean shoot() {
+    shooting = true;
+
+    boolean canShoot = spinUp();
 
     if (canShoot) {
       popperMotor.set(1);
@@ -374,7 +396,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     NetworkTableEntry entry = table.getEntry("ledMode");
     if (on) {
-      entry.setNumber(0);
+      entry.setNumber(3);
     } else if (!on) {
       entry.setNumber(1);
     }
@@ -423,7 +445,7 @@ public class ShooterSubsystem extends SubsystemBase {
       output = Math.signum(output);
     }
     else if(Math.abs(output) < .1) {// && Math.abs(tx) >= 1) {
-      output = .06 * Math.signum(output);
+      output = .055 * Math.signum(output);
     }
     
     turretMotor.set(ControlMode.PercentOutput, output);
@@ -448,6 +470,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     turretMotor.set(ControlMode.MotionMagic, turretMotor.getSelectedSensorPosition());
 
+    shooting = false;
+
     setLEDs(false);
   }
 
@@ -460,9 +484,9 @@ public class ShooterSubsystem extends SubsystemBase {
   public void debug() {
     //writeMotorDebug("Top", topMotor);
     //writeMotorDebug("Bottom", bottomMotor);
-    SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
-    SmartDashboard.putBoolean("Shooter:BlueCargo", blueCargo.get());
-    SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
+    //SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    //SmartDashboard.putBoolean("Shooter:BlueCargo", blueCargo.get());
+    //SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
     //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
     //SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }

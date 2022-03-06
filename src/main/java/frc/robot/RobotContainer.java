@@ -17,12 +17,14 @@ import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.GrabCargo;
 import frc.robot.commands.auto.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
+import frc.robot.commands.climber.LatchHigh;
 import frc.robot.commands.climber.MoveClimbCommand;
 import frc.robot.commands.climber.Pullup;
 import frc.robot.commands.climber.PullupHigh;
 import frc.robot.commands.drivetrain.DriveCommand;
 import frc.robot.commands.indexer.IndexerCommand;
 import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.ShootNotCommand;
 import frc.robot.commands.shooter.TurretCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -80,7 +82,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new JoystickButton(operatorController, Button.kRightBumper.value)
-      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem));
+      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getLeftTriggerAxis));
+
+    new JoystickButton(operatorController, Button.kLeftBumper.value)
+      .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem));
 
     new JoystickButton(operatorController, Button.kB.value)
       .whenHeld(new Pullup(climberSubsystem));
@@ -89,7 +94,10 @@ public class RobotContainer {
       .whenHeld(new StartClimb(climberSubsystem));
     
     new JoystickButton(operatorController, Button.kY.value)
-      .whenHeld(new PullupHigh(climberSubsystem));
+      .whenHeld(new PullupHigh(climberSubsystem, driverController::getBButton));
+
+    new JoystickButton(operatorController, Button.kA.value)
+      .whenHeld(new LatchHigh(climberSubsystem));
 
     new JoystickButton(driverController, Button.kA.value)
       .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
@@ -108,6 +116,7 @@ public class RobotContainer {
   public void teleopInit() {
     driveSubsystem.setDriveMode(DriveMode.Normal);
     driveSubsystem.setNeutralMode(NeutralMode.Coast);
+    shooterSubsystem.setLEDs(false);
   }
 
   public void updateDrive() {

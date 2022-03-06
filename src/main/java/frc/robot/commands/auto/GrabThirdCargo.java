@@ -22,7 +22,7 @@ public class GrabThirdCargo extends RunProfileCommand {
 
         addRequirements(intake);
 
-        System.out.println("GrabThirdCargo");
+        //System.out.println("GrabThirdCargo");
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
@@ -30,7 +30,7 @@ public class GrabThirdCargo extends RunProfileCommand {
         
         addTrajectory(tb1.build(), true, true);
 
-        System.out.println("End GrabThirdCargo");
+        //System.out.println("End GrabThirdCargo");
     }
 
     @Override

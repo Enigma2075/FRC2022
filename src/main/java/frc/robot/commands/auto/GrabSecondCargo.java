@@ -22,7 +22,7 @@ public class GrabSecondCargo extends RunProfileCommand {
 
         addRequirements(intake);
 
-        System.out.println("GrabSecondCargo");
+        //System.out.println("GrabSecondCargo");
 
         addPointTurn(Math.toRadians(-140), true, false);
 
@@ -32,7 +32,7 @@ public class GrabSecondCargo extends RunProfileCommand {
         
         addTrajectory(tb1.build(), true, true);
 
-        System.out.println("End GrabSecondCargo");
+        //System.out.println("End GrabSecondCargo");
     }
 
     @Override

@@ -34,6 +34,7 @@ public class Shoot extends CommandBase {
     public void initialize() {
         shooter.showVision(true);
         shooter.turret(targetAngle);
+        shooter.setLEDs(true);
     }
 
     boolean shooting = false;
@@ -50,10 +51,10 @@ public class Shoot extends CommandBase {
             startBall = false;
         }
 
-        System.out.println(String.format("ballsShot:%d,startBall:%b", ballsShot, startBall));
+        //System.out.println(String.format("ballsShot:%d,startBall:%b", ballsShot, startBall));
 
         shooting = false;
-        if (Math.abs(targetAngle - shooter.getTurretAngle()) < 1 || turretAtPosition) {
+        if (Math.abs(targetAngle - shooter.getTurretAngle()) < 3 || turretAtPosition) {
             turretAtPosition = true;
 
             if (speed == 0) {
@@ -102,6 +103,7 @@ public class Shoot extends CommandBase {
 
     @Override
     public void end(boolean interupted) {
+        shooter.setLEDs(false);
         shooter.stop();
     }
 }

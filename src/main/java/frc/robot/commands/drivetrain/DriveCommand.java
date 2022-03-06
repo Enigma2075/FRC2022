@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /** An example command that uses an example subsystem. */
 public class DriveCommand extends CommandBase {
@@ -69,11 +70,15 @@ public class DriveCommand extends CommandBase {
       adjustedThrottle = adjustedThrottle * .2;
       adjustedWheel = adjustedWheel * .2;
     }
+    else if (ShooterSubsystem.isShooting()) {
+      adjustedThrottle = adjustedThrottle * .2;
+      adjustedWheel = adjustedWheel * .2;
+    }
 
     drive.drive(adjustedThrottle, adjustedWheel);
     
-    SmartDashboard.putNumber("Drive Command:Wheel", adjustedWheel);
-    SmartDashboard.putNumber("Drive Command:throttle", adjustedThrottle);
+    //SmartDashboard.putNumber("Drive Command:Wheel", adjustedWheel);
+    //SmartDashboard.putNumber("Drive Command:throttle", adjustedThrottle);
   }
 
   // Called once the command ends or is interrupted.

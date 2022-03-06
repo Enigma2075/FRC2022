@@ -4,6 +4,8 @@
 
 package frc.robot.commands.shooter;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -15,14 +17,17 @@ public class ShootCommand extends CommandBase {
   private final ShooterSubsystem shooter;
   private final IndexerSubsystem indexer;
 
+  private final DoubleSupplier shootSupplier;
+
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShootCommand(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+  public ShootCommand(ShooterSubsystem shooter, IndexerSubsystem indexer, DoubleSupplier shootSupplier) {
     this.shooter = shooter;
     this.indexer = indexer;
+    this.shootSupplier = shootSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
     addRequirements(indexer);
@@ -40,7 +45,16 @@ public class ShootCommand extends CommandBase {
     
     //shooter.shoot(true);
 
-    boolean atSpeed = shooter.shoot(); // 114.02 Distance
+    boolean actuallyShoot = shootSupplier.getAsDouble() > .8;
+
+    //System.out.printf("%b", actuallyShoot);
+    boolean atSpeed = false;
+    if(actuallyShoot) {
+      atSpeed = shooter.shoot(); // 114.02 Distance
+    }
+    else {
+      shooter.spinUp();
+    }
     
     if(atSpeed) {
       indexer.index(true);

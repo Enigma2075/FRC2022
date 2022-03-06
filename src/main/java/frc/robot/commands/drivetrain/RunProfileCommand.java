@@ -56,7 +56,7 @@ public class RunProfileCommand extends CommandBase {
     for (TrajectoryPoint t : trajectoryPoints) {
       t.position += posOffset;
 
-      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,PosOffset:%2f", t.position, t.auxiliaryPos, t.velocity, posOffset));
+      //System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,PosOffset:%2f", t.position, t.auxiliaryPos, t.velocity, posOffset));
  
       drivetrain.loadTrajectoryPoint(t);
     }
@@ -132,7 +132,7 @@ public class RunProfileCommand extends CommandBase {
 
       trajectoryPoints.add(point);
 
-      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,Heading:%2f", point.position, point.auxiliaryPos, point.velocity, curHeading));
+      //System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,Heading:%2f", point.position, point.auxiliaryPos, point.velocity, curHeading));
     }
   }
 
@@ -212,7 +212,7 @@ public class RunProfileCommand extends CommandBase {
         }
       }
      
-      System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,RightEnc:%2f,LeftEnc:%2f,Heading:%2f", point.position, point.auxiliaryPos, point.velocity, rightEncoder, leftEncoder, curPositionPose.getHeading()));
+      //System.out.println(String.format("Pos:%1f,AuxPos:%2f,Vel:%2f,RightEnc:%2f,LeftEnc:%2f,Heading:%2f", point.position, point.auxiliaryPos, point.velocity, rightEncoder, leftEncoder, curPositionPose.getHeading()));
 
       trajectoryPoints.add(point);
     }
@@ -260,7 +260,7 @@ public class RunProfileCommand extends CommandBase {
     //System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
     
     Pose2d errorPose = Kinematics.calculateFieldPoseError(curEndPose, drivetrain.getCurrentGlobalPosition());
-    if(Math.abs(errorPose.getX()) < 1 && Math.abs(errorPose.getY()) < 1 && Math.abs(errorPose.getHeading()) < Math.toRadians(1)) {
+    if(Math.abs(errorPose.getX()) < 2 && Math.abs(errorPose.getY()) < 2 && Math.abs(errorPose.getHeading()) < Math.toRadians(2)) {
       return true;
     }
     

@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.GeneralConstants;
@@ -28,7 +29,9 @@ public class ClimberSubsystem extends SubsystemBase {
     InnerGrab,
     InnerLatch,
     OuterGrab,
-    OuterLatch
+    OuterLatch,
+    InnerLetGo,
+    Coast
   }
 
   public enum WinchPosition {
@@ -131,12 +134,12 @@ public class ClimberSubsystem extends SubsystemBase {
     if(Math.abs(winchVel) > .1) {
 
       if(!hasWinchBeenPastHalf) {
-        innerPower = 1;
-        outerPower = .5;
+        innerPower = .80;
+        outerPower = .50;
       }
       else {
-        innerPower = 1 * Math.signum(winchVel);
-        outerPower = .5 * Math.signum(winchVel)  * -1;
+        innerPower = .80 * Math.signum(winchVel);
+        outerPower = .50 * Math.signum(winchVel)  * -1;
       }
 
       if(innerPower < 0) {
@@ -147,9 +150,11 @@ public class ClimberSubsystem extends SubsystemBase {
       }
     }
     else{
-      innerPower = 1;
-      outerPower = .5;
+      innerPower = .1;
+      outerPower = .1;
     }
+
+    //runTapes(.55,.40);
 
     runTapes(innerPower, outerPower);
   }
@@ -157,6 +162,10 @@ public class ClimberSubsystem extends SubsystemBase {
   private void runTapes(double innerPower, double outerPower) {
     inner.setTape(innerPower);
     outer.setTape(outerPower);
+  }
+
+  public boolean shouldLetGo() {
+    return winch.getSelectedSensorPosition() < (WinchPosition.InnerOut.value/2);
   }
 
   public boolean isWinchHalfWay() {
@@ -174,12 +183,19 @@ public class ClimberSubsystem extends SubsystemBase {
   public void pivot(ArmPosition position, boolean force) {
     if(!climbStarted || force) {
       switch(position) {
+        case InnerLatch:
+          inner.setPivot(PivotPosition.LetGo);
+          inner.setPivotCoast();
         case BothMiddle:
           inner.setPivot(PivotPosition.Middle);
           outer.setPivot(PivotPosition.Middle);
           break;
         case OuterGrab:
           outer.setPivot(PivotPosition.ForwardGrab);
+          inner.setPivotCoast();
+          break;
+        case Coast:
+          outer.setPivotCoast();
           inner.setPivotCoast();
           break;
         case OuterLatch:
@@ -220,8 +236,15 @@ public class ClimberSubsystem extends SubsystemBase {
     return Math.abs(currentWinchPosition.value - winch.getSelectedSensorPosition()) < 100;
   }
 
+  public double getWinchError() {
+    return Math.abs(currentWinchPosition.value - winch.getSelectedSensorPosition());
+  }
+
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Climb:WinchError", getWinchError());
+
     // This method will be called once per scheduler run
   }
 

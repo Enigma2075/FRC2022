@@ -22,7 +22,7 @@ public class DriveToShoot extends RunProfileCommand {
 
         addRequirements(intake);
 
-        System.out.println("DriveToShoot");
+        //System.out.println("DriveToShoot");
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(true, startPose);
         tb1
@@ -30,7 +30,7 @@ public class DriveToShoot extends RunProfileCommand {
         
         addTrajectory(tb1.build(), true, true);
 
-        System.out.println("End DriveToShoot");
+        //System.out.println("End DriveToShoot");
     }
 
     @Override

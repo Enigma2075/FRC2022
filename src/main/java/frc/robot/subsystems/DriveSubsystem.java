@@ -311,8 +311,8 @@ public class DriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Drive:Y", currentPose.getY());
       SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
     }
-    SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());
 
     //System.out.println(String.format("CurTargetPos:%1$f,CurTargetVel%2$f", rightOne.getActiveTrajectoryPosition(), rightOne.getActiveTrajectoryVelocity()));
 

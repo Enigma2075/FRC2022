@@ -10,7 +10,7 @@ import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 
 /** An example command that uses an example subsystem. */
-public class Pullup extends CommandBase {
+public class LatchHigh extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
 
@@ -19,7 +19,7 @@ public class Pullup extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public Pullup(ClimberSubsystem climber) {
+  public LatchHigh(ClimberSubsystem climber) {
     this.climber = climber;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
@@ -29,8 +29,8 @@ public class Pullup extends CommandBase {
   @Override
   public void initialize() {
     climber.runTapes();
-    climber.winch(WinchPosition.OuterOut, true);
-  }
+    climber.pivot(ArmPosition.OuterLatch, true);
+}
 
   @Override
   public boolean isFinished() {

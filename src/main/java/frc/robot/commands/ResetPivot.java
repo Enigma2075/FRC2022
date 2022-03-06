@@ -35,6 +35,7 @@ public class ResetPivot extends CommandBase {
   @Override
   public void initialize() {
     climber.pivot(ArmPosition.BothMiddle, true);
+    //climber.runTapes();
     intake.pivotTo(PivotPosition.FullyUp);
   }
 

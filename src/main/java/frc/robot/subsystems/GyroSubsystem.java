@@ -43,7 +43,7 @@ public class GyroSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    SmartDashboard.putNumber("Gyro:Yaw", pigeon.getYaw());
+    //SmartDashboard.putNumber("Gyro:Yaw", pigeon.getYaw());
   }
 
   @Override
