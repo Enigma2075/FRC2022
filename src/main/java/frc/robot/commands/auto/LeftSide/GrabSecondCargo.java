@@ -1,4 +1,4 @@
-package frc.robot.commands.auto;
+package frc.robot.commands.auto.LeftSide;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -23,8 +23,6 @@ public class GrabSecondCargo extends RunProfileCommand {
         addRequirements(intake);
 
         //System.out.println("GrabSecondCargo");
-
-        addPointTurn(Math.toRadians(-140), true, false);
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1

@@ -31,14 +31,21 @@ public class ShootNotCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.showVision(true);
+    //shooter.showVision(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     boolean atSpeed = shooter.shoot(.32);
-  
+    
+    //boolean atSpeed = shooter.shoot(.592);
+    //boolean atSpeed = shooter.shoot(.478);
+
+    //double atDistance = shooter.getDistanceFromTarget();
+    //shooter.setLEDs(true);
+    //SmartDashboard.putNumber("Shooter:Distance", atDistance);
+
     if(atSpeed) {
       indexer.index(true);
     }
@@ -50,7 +57,7 @@ public class ShootNotCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.showVision(false);
+    //shooter.showVision(false);
     shooter.stop();
     indexer.stop();
   }

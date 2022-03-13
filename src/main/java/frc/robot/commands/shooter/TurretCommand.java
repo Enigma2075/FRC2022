@@ -16,9 +16,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class TurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem shooter;
-  private final DoubleSupplier headingSupplier;
-  private final DoubleSupplier headingX;
-  private final DoubleSupplier headingY;
+  private final DoubleSupplier headingXSupplier;
+  private final DoubleSupplier headingYSupplier;
   private final GyroSubsystem gyro;
   
   /**
@@ -26,11 +25,10 @@ public class TurretCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public TurretCommand(ShooterSubsystem shooter, GyroSubsystem gyro, DoubleSupplier headingSupplier, DoubleSupplier headingX, DoubleSupplier headingY) {
+  public TurretCommand(ShooterSubsystem shooter, GyroSubsystem gyro, DoubleSupplier headingXSupplier, DoubleSupplier headingYSupplier) {
     this.shooter = shooter;
-    this.headingSupplier = headingSupplier;
-    this.headingX = headingX;
-    this.headingY = headingY;
+    this.headingXSupplier = headingXSupplier;
+    this.headingYSupplier = headingYSupplier;
     this.gyro = gyro;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
@@ -53,18 +51,23 @@ public class TurretCommand extends CommandBase {
 
     double requestedHeading = -1;
     
-    //if(headingY.getAsDouble() > .2 && headingX.getAsDouble() >.2) {
-    //  requestedHeading = Math.atan2(headingY.getAsDouble(), headingX.getAsDouble()) - Math.PI / 4;
-    //}
-        
-    requestedHeading = headingSupplier.getAsDouble();
+    double headingX = headingXSupplier.getAsDouble();
+    double headingY = headingYSupplier.getAsDouble() * -1;
+
+    if(Math.abs(headingX) > .3 || Math.abs(headingY) > .3) {
+      requestedHeading = Math.toDegrees(Math.atan2(headingY, headingX));  
+    }
+
     if(requestedHeading == -1) {
       shooter.turret(20);
       return;
     }
 
     // Invert the heading as the dpad moves clockwise.
-    requestedHeading = 360 - requestedHeading;
+    requestedHeading = (requestedHeading - 90);
+    if(requestedHeading < 0) {
+      requestedHeading = 360 + requestedHeading;
+    }
 
     double currentYaw = (gyro.getYaw() - 90) % 360.0;
 
@@ -73,14 +76,16 @@ public class TurretCommand extends CommandBase {
     }
     
     double finalHeading = requestedHeading - currentYaw;
+
     if(Math.signum(finalHeading) == -1) {
       finalHeading += 360.0;
     }
 
-    //SmartDashboard.putNumber("RequestedHeading", requestedHeading);
-    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
-    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
-    //SmartDashboard.putNumber("FinalHeading", finalHeading);    
+    SmartDashboard.putNumber("RequestedHeading", requestedHeading);
+    SmartDashboard.putNumber("Yaw", gyro.getYaw());
+    SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
+    SmartDashboard.putNumber("FinalHeading", finalHeading);    
+    SmartDashboard.putNumber("RequestedHeading", requestedHeading);    
     
     shooter.turret(finalHeading);
   }

@@ -36,12 +36,11 @@ public final class Constants {
         public static final int kBottomCanId = 9;
         public static final int kLimeLightRightPwmPort = 1;
         public static final int kLimeLightLeftPwmPort = 0;
-        public static final int kBlueCargoDioPort = 3;
-
-        public static final double kSlot0P = 0.255;
-        public static final double kSlot0I = 0;
-        public static final double kSlot0D = 0;
-        public static final double kSlot0F = 0.05148;
+        
+        public static final double kSlot0P = 0.25;//0.255;
+        public static final double kSlot0I = 0.004;
+        public static final double kSlot0D = 0.1;
+        public static final double kSlot0F = 0.049;
     }
 
     public static final class DriveConstants {
@@ -68,7 +67,7 @@ public final class Constants {
     }
 
     public static final class intakeConstants {
-        public static final int kBarCanId = 1;
+        public static final int kBarCanId = 3;
         public static final int kPivotCanId = 16;
  
 
@@ -99,7 +98,8 @@ public final class Constants {
     public static final class IndexerConstants {
         public static final int kIndexerCanId = 15;
         public static final int kSingulizerCanId = 2;
- 
+        public static final int kRedCargoDioPort = 3;
+
         public static final int kSensor1DioPort = 0;
         public static final int kSensor2DioPort = 1;
         public static final int kSensor3DioPort = 2;

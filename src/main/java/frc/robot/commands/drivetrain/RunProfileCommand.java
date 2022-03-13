@@ -13,6 +13,7 @@ import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -120,9 +121,9 @@ public class RunProfileCommand extends CommandBase {
       }
 
       if (segmentCount == i) {
-        if(curHeading < 0) {
-          curHeading = (Math.PI * 2.0) + curHeading;
-        }
+        //if(curHeading < 0) {
+        //  curHeading = (Math.PI * 2.0) + curHeading;
+        //}
         curEndPose = new Pose2d(curEndPose.vec(), curHeading);
         
         if (lastAction) {
@@ -260,6 +261,10 @@ public class RunProfileCommand extends CommandBase {
     //System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
     
     Pose2d errorPose = Kinematics.calculateFieldPoseError(curEndPose, drivetrain.getCurrentGlobalPosition());
+    SmartDashboard.putNumber("Xerror", errorPose.getX());
+    SmartDashboard.putNumber("Yerror", errorPose.getY());
+    SmartDashboard.putNumber("Headingerror", errorPose.getHeading());
+    
     if(Math.abs(errorPose.getX()) < 2 && Math.abs(errorPose.getY()) < 2 && Math.abs(errorPose.getHeading()) < Math.toRadians(2)) {
       return true;
     }

@@ -111,9 +111,9 @@ public class DriveSubsystem extends SubsystemBase {
     leftEncConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
     rightEncConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
-    rightConfig.diff0Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice(); //Local Integrated Sensor
-    rightConfig.diff1Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Aux Selected Sensor
-    rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 - Sum1
+    rightConfig.diff0Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Integrated Sensor
+    rightConfig.diff1Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice(); //Aux Selected Sensor
+    rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorDifference.toFeedbackDevice(); //Sum0 - Sum1
 
     rightConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
 
@@ -121,7 +121,7 @@ public class DriveSubsystem extends SubsystemBase {
     leftConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
 
     /* Configure the Remote (Left) Talon's selected sensor as a remote sensor for the right Talon */
-    rightConfig.remoteFilter0.remoteSensorDeviceID = gyro.getCanId(); //Device ID of Remote Source
+    rightConfig.remoteFilter0.remoteSensorDeviceID = leftOne.getDeviceID(); //Device ID of Remote Source
     rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; //Remote Source Type
     
     /** Heading Configs */
@@ -183,6 +183,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftOne.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
     leftTwo.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
+    rightOne.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
     rightTwo.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
     
     rightOne.changeMotionControlFramePeriod(5);
@@ -278,6 +279,10 @@ public class DriveSubsystem extends SubsystemBase {
         leftThree.follow(rightOne, FollowerType.AuxOutput1);
         break;
     }
+  }
+
+  public void hold() {
+    rightOne.set(ControlMode.MotionProfile, 2);
   }
 
   public void setNeutralMode(NeutralMode mode) {

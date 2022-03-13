@@ -1,4 +1,4 @@
-package frc.robot.commands.auto;
+package frc.robot.commands.auto.RightSide;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -10,11 +10,11 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
-public class DriveToShoot extends RunProfileCommand {
+public class GrabSecondCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
 
-    public DriveToShoot(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
+    public GrabSecondCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.indexer = indexer;
@@ -22,15 +22,15 @@ public class DriveToShoot extends RunProfileCommand {
 
         addRequirements(intake);
 
-        //System.out.println("DriveToShoot");
+        //System.out.println("GrabSecondCargo");
 
-        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(true, startPose);
+        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
-            .splineTo(new Vector2d(88, -90), Math.toRadians(90));
+            .splineTo(new Vector2d(98, -140), Math.toRadians(270));
         
         addTrajectory(tb1.build(), true, true);
 
-        //System.out.println("End DriveToShoot");
+        //System.out.println("End GrabSecondCargo");
     }
 
     @Override
@@ -40,10 +40,18 @@ public class DriveToShoot extends RunProfileCommand {
     }
 
     @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+
+        intake.pivotTo(PivotPosition.HelpIntake);
+    }
+
+    @Override
     public void initialize() {
         super.initialize();
 
-        intake.pivotTo(PivotPosition.Up);
+        indexer.index();
+        intake.intake();
 
         startProfile();
     }

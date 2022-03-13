@@ -6,6 +6,8 @@ package frc.robot.commands.shooter;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -36,7 +38,7 @@ public class ShootCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.showVision(true);
+    //shooter.showVision(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -49,7 +51,21 @@ public class ShootCommand extends CommandBase {
 
     //System.out.printf("%b", actuallyShoot);
     boolean atSpeed = false;
-    if(actuallyShoot) {
+    Boolean redCargo = indexer.isRedCargoAtPosition3();
+
+    boolean wrongCargo = false;
+    //if(redCargo != null) {
+    //  if(redCargo && DriverStation.getAlliance() != Alliance.Red) {
+    //    wrongCargo = true;
+    //  }
+    //  else if(!redCargo && DriverStation.getAlliance() != Alliance.Blue) {
+    //    wrongCargo = true;
+    //  }
+    //}
+
+    if(wrongCargo) {
+      atSpeed = shooter.shoot(.25);
+    } else if(actuallyShoot) {
       atSpeed = shooter.shoot(); // 114.02 Distance
     }
     else {
@@ -67,7 +83,7 @@ public class ShootCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.showVision(false);
+    //shooter.showVision(false);
     shooter.stop();
     indexer.stop();
   }

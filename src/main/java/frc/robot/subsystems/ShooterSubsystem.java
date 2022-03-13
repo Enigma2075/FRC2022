@@ -16,6 +16,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAlternateEncoder;
@@ -34,6 +35,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.external.Interpolable;
+import frc.external.InterpolatingDouble;
+import frc.external.InterpolatingTreeMap;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.ShooterConstants;
 
@@ -75,8 +79,6 @@ public class ShooterSubsystem extends SubsystemBase {
   
   public final PWM limeLightRight = new PWM(ShooterConstants.kLimeLightRightPwmPort);
   public final PWM limeLightLeft = new PWM(ShooterConstants.kLimeLightLeftPwmPort);
-
-  private DigitalInput blueCargo = new DigitalInput(ShooterConstants.kBlueCargoDioPort);
   
   private final SparkMaxPIDController hoodPid;
   private final RelativeEncoder hoodEncoder;
@@ -118,10 +120,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kLowAngle = 0;
   private static final double kHighAngle = 0;
 
+  private static final InterpolatingTreeMap kPowerMap = new InterpolatingTreeMap<InterpolatingDouble,InterpolatingDouble>(4);
+
   private static boolean shooting = false;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
+    // Setup power treemap
+    //kPowerMap.put(new InterpolatingDouble(val), new InterpolatingDouble(val));
+    //kPowerMap.put(new InterpolatingDouble(val), new InterpolatingDouble(val));
     
     // Reset all motors to factory default
     turretMotor.configFactoryDefault(10);
@@ -197,7 +204,7 @@ public class ShooterSubsystem extends SubsystemBase {
     moveLimeLight(LimelightPosition.Default);
 
     setLEDs(false);
-    showVision(false);
+    //showVision(false);
   }
 
   private void configShooterMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -218,6 +225,9 @@ public class ShooterSubsystem extends SubsystemBase {
     config.supplyCurrLimit.currentLimit = 40;
 
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+
+    config.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_1Ms;
+    config.velocityMeasurementWindow = 32;
 
     config.slot0.kP = ShooterConstants.kSlot0P;
     config.slot0.kI = ShooterConstants.kSlot0I;
@@ -263,8 +273,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public boolean isShooterAtSpeed(double vel) {
     double targetVelocity = vel * maxVel;
-    boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 300;
-    boolean isBottomMotorAtSpeed = Math.abs(bottomMotor.getSelectedSensorVelocity() - targetVelocity) < 300;
+    boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 100;
+    boolean isBottomMotorAtSpeed = Math.abs(bottomMotor.getSelectedSensorVelocity() - targetVelocity) < 100;
     return isTopMotorAtSpeed && isBottomMotorAtSpeed;
   }
 
@@ -272,12 +282,13 @@ public class ShooterSubsystem extends SubsystemBase {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     double ty = table.getEntry("ty").getDouble(0);
 
-    // Angle = 52 From Vertical
-    // Height = 26.4325
-
-    double limelightAngle = 42;
-    double targetHeight = 102.25;
-    double limelightHeight = 26.4325;
+    //double limelightAngle = 42;
+    //double targetHeight = 102.25;
+    //double limelightHeight = 26.4325;
+    double limelightAngle = 33.6;
+    //double targetHeight = 103;
+    double targetHeight = 104;
+    double limelightHeight = 26.375;
 
     double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + ty)));
 
@@ -328,15 +339,27 @@ public class ShooterSubsystem extends SubsystemBase {
       return false;
     }
   }
+
+  //public power getSeedForDistance(double distance) {
+  //  return kPowerMap.getInterpolated(distance);
+  //}
   
   public boolean spinUp() {
     boolean targetAquired = aquireTarget();
 
     double currentDistance = getDistanceFromTarget();
-    double slope = (.525 - .415)/(114.02 - 53.2);
-    double speed = slope * currentDistance + (.53 - (114.02 * slope));
+    //double slope = (.525 - .415)/(114.02 - 53.2);
+    //double speed = slope * currentDistance + (.53 - (114.02 * slope));
 
-    boolean validDistance = currentDistance <= 114.02 && currentDistance >= 53.2;
+    double maxDist = 177;
+    double maxDistSpeed = .592;
+    double minDist = 94;
+    double minDistSpeed = .478;
+
+    double slope = (maxDistSpeed - minDistSpeed)/(maxDist - minDist);
+    double speed = slope * currentDistance + (maxDistSpeed - (maxDist * slope));
+
+    boolean validDistance = currentDistance <= maxDist && currentDistance >= minDist;
 
     // Works at 20 foot and wrench under front of shooter
     // topMotor.set(TalonFXControlMode.Velocity, maxVel * .675);
@@ -415,8 +438,8 @@ public class ShooterSubsystem extends SubsystemBase {
     double error = -tx;
     double output = 0.0;
 
-    double kP = .045;
-    double kF = .015;
+    double kP = .025;
+    double kF = .05;
     
     if (tv == 0) {
       // if((turretTalon.getControlMode() == ControlMode.MotionMagic &&
@@ -431,24 +454,21 @@ public class ShooterSubsystem extends SubsystemBase {
       return false;
     }
 
-    // if(error < 2) {
-    // table.getEntry("pipeline").setNumber(1);
-    // }
-
-    //if (tx < -1.0) {
-      output = kP * error + kF;
-    //} else if (tx > 1.0) {
-    //  output = kP * error - kF;
-    //}
+    output = (Math.abs(kP * error) + kF) * Math.signum(error);
 
     if (Math.abs(output) > 1) {
       output = Math.signum(output);
     }
-    else if(Math.abs(output) < .1) {// && Math.abs(tx) >= 1) {
-      output = .055 * Math.signum(output);
-    }
     
+    if(Math.abs(error) < .5) {
+      output = 0;
+    }
+
     turretMotor.set(ControlMode.PercentOutput, output);
+    
+    SmartDashboard.putNumber("Vision:output", output);
+    SmartDashboard.putNumber("Vision:tx", tx);
+    SmartDashboard.putNumber("Vision:error", error);
 
     if(Math.abs(tx) < 1) {
       return true;
@@ -457,9 +477,11 @@ public class ShooterSubsystem extends SubsystemBase {
       return false;
     }
 
-    //SmartDashboard.putNumber("Vision:output", output);
-    //SmartDashboard.putNumber("Vision:tx", tx);
-    //SmartDashboard.putNumber("Vision:error", error);
+  }
+
+  public void disableTurret() {
+    turretMotor.set(ControlMode.PercentOutput, 0);
+    turretMotor.disable();
   }
 
   public void stop() {
@@ -478,17 +500,16 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    debug();
+    //debug();
   }
 
   public void debug() {
-    //writeMotorDebug("Top", topMotor);
-    //writeMotorDebug("Bottom", bottomMotor);
-    //SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
-    //SmartDashboard.putBoolean("Shooter:BlueCargo", blueCargo.get());
-    //SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
-    //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
-    //SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
+    writeMotorDebug("Top", topMotor);
+    writeMotorDebug("Bottom", bottomMotor);
+    SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
+    SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
+    SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }
 
   public void writeMotorDebug(String prefix, WPI_TalonFX motor) {

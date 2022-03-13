@@ -12,11 +12,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
 /** An example command that uses an example subsystem. */
-public class IntakeCommand extends CommandBase {
+public class IntakeForceCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final IntakeSubsystem intakeSubsystem;
-  private final DoubleSupplier intake;
-  private final DoubleSupplier outtake;
+  private IntakeSubsystem intakeSubsystem;
 
   /**
    * Creates a new ExampleCommand.
@@ -24,14 +22,11 @@ public class IntakeCommand extends CommandBase {
    * @param subsystem The subsystem used by this command.
    * @return 
    */
-  public IntakeCommand(IntakeSubsystem intakeSubsystem, DoubleSupplier intake, DoubleSupplier outtake) {
+  public IntakeForceCommand(IntakeSubsystem intakeSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
-    this.intake = intake;
-    this.outtake = outtake;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(intakeSubsystem);
-
   }
 
   // Called when the command is initially scheduled.
@@ -42,20 +37,8 @@ public class IntakeCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(ClimberSubsystem.hasClimbStarted()) {
       intakeSubsystem.pivotTo(PivotPosition.Down);
-      return;
-    }
-
-    if(intake.getAsDouble() > .1) {
       intakeSubsystem.intake();
-    }
-    else if(outtake.getAsDouble() > .1) {
-      intakeSubsystem.outtake();
-    }
-    else {
-      intakeSubsystem.stop();
-    }
   }
 
   // Called once the command ends or is interrupted.

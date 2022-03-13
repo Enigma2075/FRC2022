@@ -9,13 +9,16 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
-import frc.robot.commands.auto.GrabCargo;
-import frc.robot.commands.auto.RightFull;
+import frc.robot.commands.auto.LeftSide.LeftFull;
+import frc.robot.commands.auto.RightSide.GrabCargo;
+import frc.robot.commands.auto.RightSide.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.LatchHigh;
 import frc.robot.commands.climber.MoveClimbCommand;
@@ -55,8 +58,11 @@ public class RobotContainer {
   private final DriveSubsystem driveSubsystem = new DriveSubsystem(gyroSubsystem);
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-  
-  private final RightFull grabCargoCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
+
+  private final LeftFull leftFullCommand = new LeftFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
+  private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
+
+  private SendableChooser<Command> chooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -65,13 +71,20 @@ public class RobotContainer {
 
     climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftY));
     
-    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, climberSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
     driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getPOV, operatorController::getLeftX, operatorController::getLeftY));
+    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
+
+    // Add commands to the autonomous command chooser
+    chooser.setDefaultOption("Right", rightFullCommand);
+    chooser.addOption("Left", leftFullCommand);
+
+    // Put the chooser on the dashboard
+    SmartDashboard.putData(chooser);
   }
 
   /**
@@ -82,7 +95,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new JoystickButton(operatorController, Button.kRightBumper.value)
-      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getLeftTriggerAxis));
+      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis));
 
     new JoystickButton(operatorController, Button.kLeftBumper.value)
       .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem));
@@ -110,7 +123,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return grabCargoCommand;
+    return chooser.getSelected();
   }
 
   public void teleopInit() {

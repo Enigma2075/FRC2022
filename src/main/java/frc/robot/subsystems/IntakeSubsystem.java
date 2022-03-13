@@ -13,13 +13,18 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.intakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -51,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
-  private final WPI_VictorSPX barMotor = new WPI_VictorSPX(intakeConstants.kBarCanId);
+  private final WPI_TalonFX barMotor = new WPI_TalonFX(intakeConstants.kBarCanId, Constants.GeneralConstants.kCanBusRioName);
   private final WPI_TalonSRX pivotMotor = new WPI_TalonSRX(intakeConstants.kPivotCanId);
 
   private static final double kPivotZeroOffset = 3756; // To get this value 
@@ -66,8 +71,13 @@ public class IntakeSubsystem extends SubsystemBase {
     barMotor.configFactoryDefault(10);
     pivotMotor.configFactoryDefault(10);
 
-    barMotor.setInverted(InvertType.InvertMotorOutput);
     barMotor.setNeutralMode(NeutralMode.Coast);
+    //var currentLimitConfig = new SupplyCurrentLimitConfiguration();
+    //currentLimitConfig.enable = true;
+    //currentLimitConfig.currentLimit = 8;
+    //currentLimitConfig.triggerThresholdCurrent = 10;
+    //currentLimitConfig.triggerThresholdTime = .01;
+    //barMotor.configSupplyCurrentLimit(currentLimitConfig);
 
     SensorCollection sensors = pivotMotor.getSensorCollection();
     sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kPivotZeroOffset), 10);
@@ -121,12 +131,12 @@ public class IntakeSubsystem extends SubsystemBase {
   // }
 
   public void intake() {
-    barMotor.set(ControlMode.PercentOutput, 1.00);
+    barMotor.set(ControlMode.PercentOutput, .70);
     pivotTo(PivotPosition.Down);
   }
 
   public void outtake() {
-    barMotor.set(ControlMode.PercentOutput, -1.00);
+    barMotor.set(ControlMode.PercentOutput, -.70);
   }
 
   public void stop() {
@@ -147,35 +157,18 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotMotor.set(ControlMode.MotionMagic, position.getValue(), DemandType.ArbitraryFeedForward, arbitraryFF);
   }
 
-  // private double calculatePivotTarget(double target) {
-  //   return target + kPivotZeroOffset;
-  // }
-
-  // public double getPivotSensorPosition() {
-  //   return pivotMotor.getSelectedSensorPosition() - kPivotZeroOffset;
-  // }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    //debug();
+    debug();
   }
 
   public void debug() {
     SensorCollection sensors = pivotMotor.getSensorCollection();
     
-    //SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
-    //SmartDashboard.putNumber("Intake:Pivot:PositionRaw", pivotMotor.getSelectedSensorPosition());
-    //SmartDashboard.putNumber("Intake:Pivot:Position", getPivotSensorPosition());
+    SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
+    SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
   }
-  /*
-   * public void writeMotorDebug(String prefix, WPI_TalonFX motor) {
-   * SmartDashboard.putNumber("Shooter:" + prefix + ":Velocity",
-   * motor.getSelectedSensorVelocity());
-   * SmartDashboard.putNumber("Shooter:" + prefix + ":Error",
-   * motor.getClosedLoopError());
-   * }
-   */
 
   @Override
   public void simulationPeriodic() {

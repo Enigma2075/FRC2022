@@ -26,6 +26,8 @@ public class IndexerSubsystem extends SubsystemBase {
   private DigitalInput position2 = new DigitalInput(IndexerConstants.kSensor2DioPort);
   private DigitalInput position3 = new DigitalInput(IndexerConstants.kSensor3DioPort);
 
+  private DigitalInput redCargo = new DigitalInput(IndexerConstants.kRedCargoDioPort);
+
   /** Creates a new ExampleSubsystem. */
   public IndexerSubsystem() {
     indexerMotor.configFactoryDefault();
@@ -63,24 +65,38 @@ public class IndexerSubsystem extends SubsystemBase {
     return config;
   }
 
+  private Boolean lastCargoAtPosition3 = null;
+
+  public Boolean isRedCargoAtPosition3() {
+    if(getPosition3() && redCargo.get()) {
+      lastCargoAtPosition3 = true;
+    }
+    else if (getPosition3() && !redCargo.get()) {
+      lastCargoAtPosition3 = false;
+    }
+
+    return lastCargoAtPosition3;
+  }
+
   public void index() {
     index(false);
   }
 
   public void index(boolean force) {
     // Force both motors to run if the caller is forcing.
+    
     if (force) {
       indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, .80);
-
+      singleMotor.set(ControlMode.PercentOutput, 1);
+    
       return;
     }
 
     // If we don't have a ball in any position then don't run
     if(!getPosition1() && !getPosition3() && !getPosition2()) {
       indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 0);
-
+      singleMotor.set(ControlMode.PercentOutput, 1);
+    
       return;
     }
 
@@ -92,20 +108,20 @@ public class IndexerSubsystem extends SubsystemBase {
     // We have cargo in position3 && position1 but not position2
     else if (getPosition3() && !getPosition2() && getPosition1()) {
       indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, .80);
+      singleMotor.set(ControlMode.PercentOutput, 1);
     } 
     // We have cargo only in position1
     else if (!getPosition3() && !getPosition2() && getPosition1()) {
       indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, .80);
+      singleMotor.set(ControlMode.PercentOutput, 1);
     }
     else if (getPosition2() && !getPosition3()) {
       indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, .80);
+      singleMotor.set(ControlMode.PercentOutput, 1);
     }
     else {
       indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 0);
+      singleMotor.set(ControlMode.PercentOutput, 1);
     }
 
     /*
@@ -147,9 +163,9 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void debug() {
-    //SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
-    //SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
-    //SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
+    SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
+    SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
+    SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
     
     // writeMotorDebug("Index", indexerMotor);
     // writeMotorDebug("Singulizer", singulizerMotor);

@@ -1,14 +1,12 @@
-package frc.robot.commands.auto;
+package frc.robot.commands.auto.RightSide;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Robot;
+import frc.robot.commands.Intake.IntakeForceCommand;
+import frc.robot.commands.auto.Shoot;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -37,16 +35,16 @@ public class RightFull extends SequentialCommandGroup{
         gyro.setYaw(Math.toDegrees(startPose.getHeading()));
         drive.setPosition(startPose);
 
-        var shoot1 = new Shoot(shooter, indexer, 155, .43, 1, 10);
         var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
+        var shoot1 = new Shoot(shooter, indexer, 310, .478, 2, 10);
         var grabSecondCargo = new GrabSecondCargo(drive, intake, indexer, grabCargo.getEndPose());
-        var shoot2 = new Shoot(shooter, indexer, 200, 0, 2, 10);
+        var shoot2 = new Shoot(shooter, indexer, 200, 0, 1, 10);
         var grabThirdCargo = new GrabThirdCargo(drive, intake, indexer, grabSecondCargo.getEndPose());
         var driveToShoot = new DriveToShoot(drive, intake, indexer, grabThirdCargo.getEndPose());
         var shoot3 = new Shoot(shooter, indexer, 200, 0, 2, 10);
         
-        addCommands(shoot1);
         addCommands(grabCargo);
+        addCommands(new ParallelRaceGroup(shoot1, new IntakeForceCommand(intake)));
         addCommands(grabSecondCargo);
         addCommands(shoot2);
         addCommands(grabThirdCargo);
