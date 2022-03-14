@@ -26,7 +26,7 @@ public class GrabCargo extends RunProfileCommand {
                 .forward(46);
         addTrajectory(tb1.build(), true);
 
-        addPointTurn(Math.toRadians(-140), true, true);
+        //addPointTurn(Math.toRadians(-140), true, true);
     }
 
     @Override

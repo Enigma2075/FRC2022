@@ -20,6 +20,7 @@ public class RightFull extends SequentialCommandGroup{
     IndexerSubsystem indexer;
     IntakeSubsystem intake;
     GyroSubsystem gyro;
+    private final Pose2d startPose;
 
     public RightFull(GyroSubsystem gyro, DriveSubsystem drive, ShooterSubsystem shooter, IndexerSubsystem indexer, IntakeSubsystem intake) {
         this.drive = drive;
@@ -28,12 +29,7 @@ public class RightFull extends SequentialCommandGroup{
         this.intake = intake;
         this.gyro = gyro;
 
-        Pose2d startPose = new Pose2d(89.976, -22.85, 0);
-
-        drive.resetEncoders();
-
-        gyro.setYaw(Math.toDegrees(startPose.getHeading()));
-        drive.setPosition(startPose);
+        startPose = new Pose2d(89.976, -22.85, Math.toRadians(0));
 
         var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
         var shoot1 = new Shoot(shooter, indexer, 310, .478, 2, 10);
@@ -62,9 +58,10 @@ public class RightFull extends SequentialCommandGroup{
 
     @Override
     public void initialize() {
-        //System.out.println("LeftFull");
+        drive.resetEncoders();
 
-        //drivetrain.setGlobalPosition(134, 27.6);
+        gyro.setYaw(Math.toDegrees(startPose.getHeading()));
+        drive.setPosition(startPose);
         
         super.initialize();
     }

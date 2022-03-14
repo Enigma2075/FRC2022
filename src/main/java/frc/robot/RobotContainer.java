@@ -101,19 +101,19 @@ public class RobotContainer {
       .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem));
 
     new JoystickButton(operatorController, Button.kB.value)
-      .whenHeld(new Pullup(climberSubsystem));
+     .whenHeld(new Pullup(climberSubsystem));
 
     new JoystickButton(operatorController, Button.kX.value)
-      .whenHeld(new StartClimb(climberSubsystem));
+     .whenHeld(new StartClimb(climberSubsystem));
     
     new JoystickButton(operatorController, Button.kY.value)
-      .whenHeld(new PullupHigh(climberSubsystem, driverController::getBButton));
+     .whenHeld(new PullupHigh(climberSubsystem, driverController::getBButton));
 
     new JoystickButton(operatorController, Button.kA.value)
-      .whenHeld(new LatchHigh(climberSubsystem));
+     .whenHeld(new LatchHigh(climberSubsystem));
 
     new JoystickButton(driverController, Button.kA.value)
-      .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
+     .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
   }
 
   /**

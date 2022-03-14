@@ -55,16 +55,16 @@ public class ShootCommand extends CommandBase {
 
     boolean wrongCargo = false;
     //if(redCargo != null) {
-    //  if(redCargo && DriverStation.getAlliance() != Alliance.Red) {
+    //  if(redCargo && DriverStation.getAlliance() == Alliance.Blue) {
     //    wrongCargo = true;
     //  }
-    //  else if(!redCargo && DriverStation.getAlliance() != Alliance.Blue) {
+    //  else if(!redCargo && DriverStation.getAlliance() == Alliance.Red) {
     //    wrongCargo = true;
     //  }
     //}
 
     if(wrongCargo) {
-      atSpeed = shooter.shoot(.25);
+      atSpeed = shooter.shoot(.35);
     } else if(actuallyShoot) {
       atSpeed = shooter.shoot(); // 114.02 Distance
     }

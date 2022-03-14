@@ -76,6 +76,9 @@ public class ShooterSubsystem extends SubsystemBase {
   public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId,
       GeneralConstants.kCanBusRioName);
   public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId, GeneralConstants.kCanBusRioName);
+  // public final WPI_TalonFX bottomMotor = new WPI_TalonFX(ShooterConstants.kBottomCanId,
+  //     GeneralConstants.kCanBusAltName);
+  // public final WPI_TalonFX topMotor = new WPI_TalonFX(ShooterConstants.kTopCanId, GeneralConstants.kCanBusAltName);
   
   public final PWM limeLightRight = new PWM(ShooterConstants.kLimeLightRightPwmPort);
   public final PWM limeLightLeft = new PWM(ShooterConstants.kLimeLightLeftPwmPort);

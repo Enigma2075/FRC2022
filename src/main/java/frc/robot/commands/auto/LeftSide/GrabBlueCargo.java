@@ -10,11 +10,11 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
-public class GrabSecondCargo extends RunProfileCommand {
+public class GrabBlueCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
 
-    public GrabSecondCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
+    public GrabBlueCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.indexer = indexer;
@@ -23,12 +23,24 @@ public class GrabSecondCargo extends RunProfileCommand {
         addRequirements(intake);
 
         //System.out.println("GrabSecondCargo");
+        
+        double targetHeading = 345;
+
+        addPointTurn(Math.toRadians(targetHeading - 225), false, false);
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
-            .splineTo(new Vector2d(98, -127), Math.toRadians(270));
+            .splineTo(new Vector2d(50, -127), Math.toRadians(targetHeading));
         
-        addTrajectory(tb1.build(), true, true);
+        addTrajectory(tb1.build(), false, false);
+
+        addPointTurn(Math.toRadians(-180), false, true);
+
+        //TrajectoryBuilder tb2 = drivetrain.getTrajectoryBuilder(false, getEndPose());
+        //tb2
+        //    .splineTo(new Vector2d(-140, -80), Math.toRadians(targetHeading - 180));
+        
+        //addTrajectory(tb2.build(), false, true);
 
         //System.out.println("End GrabSecondCargo");
     }

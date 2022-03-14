@@ -21,6 +21,7 @@ import frc.robot.Constants.IndexerConstants;
 public class IndexerSubsystem extends SubsystemBase {
   public final WPI_TalonSRX indexerMotor = new WPI_TalonSRX(IndexerConstants.kIndexerCanId);
   public final WPI_VictorSPX singleMotor = new WPI_VictorSPX(IndexerConstants.kSingulizerCanId);
+  // public final WPI_TalonSRX singleMotor = new WPI_TalonSRX(IndexerConstants.kSingulizerCanId);
 
   private DigitalInput position1 = new DigitalInput(IndexerConstants.kSensor1DioPort);
   private DigitalInput position2 = new DigitalInput(IndexerConstants.kSensor2DioPort);
@@ -166,7 +167,10 @@ public class IndexerSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
     SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
     SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
-    
+    if(isRedCargoAtPosition3() != null) {
+      SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
+    }
+
     // writeMotorDebug("Index", indexerMotor);
     // writeMotorDebug("Singulizer", singulizerMotor);
   }
