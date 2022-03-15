@@ -36,11 +36,13 @@ public class ClimbCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(climber.hasClimbStarted()) {
-      climber.runTapes();
-    }
+    //if(ClimberSubsystem.hasClimbStarted()) {
+    //  climber.runTapes();
+    //}
     climber.pivot(ArmPosition.Default);
-    //climber.testTapes(tapePower.getAsDouble());
+
+    //climber.pivot(ArmPosition.Coast, true);
+    //climber.disablePivot();
   }
 
   // Called once the command ends or is interrupted.

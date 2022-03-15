@@ -37,6 +37,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public enum WinchPosition {
     OuterOut(2000),//
     InnerOut(320000),
+    InnerOutTwo(280000),
     InnerLetGo(150000);
     
     private int value;
@@ -134,27 +135,26 @@ public class ClimberSubsystem extends SubsystemBase {
     if(Math.abs(winchVel) > .1) {
 
       if(!hasWinchBeenPastHalf) {
-        innerPower = .80;
-        outerPower = .50;
+        innerPower = .70;
+        outerPower = .70;
       }
       else {
-        innerPower = .80 * Math.signum(winchVel);
-        outerPower = .50 * Math.signum(winchVel)  * -1;
+        innerPower = .70 * Math.signum(winchVel);
+        outerPower = .70 * Math.signum(winchVel)  * -1;
       }
 
       if(innerPower < 0) {
-        innerPower = 0;
+        innerPower = innerPower * .35;
       }
+      
       if(outerPower < 0) {
-        outerPower = 0;
+        outerPower = outerPower * .35;
       }
     }
     else{
       innerPower = .1;
       outerPower = .1;
     }
-
-    //runTapes(.55,.40);
 
     runTapes(innerPower, outerPower);
   }
@@ -210,6 +210,9 @@ public class ClimberSubsystem extends SubsystemBase {
           outer.setPivot(PivotPosition.ForwardGrab);
           inner.setPivot(PivotPosition.Grab);
           break;
+        case InnerLetGo:
+          inner.setPivot(PivotPosition.LetGo);
+          outer.setPivotCoast();
       }
     }
   }
@@ -230,6 +233,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void winchRaw(double power) {
     winch.set(ControlMode.PercentOutput, power);
+  }
+
+  public boolean isWinchFinished() {
+    return Math.abs(currentWinchPosition.value - winch.getSelectedSensorPosition()) < 100;
   }
 
   public boolean isFinished() {

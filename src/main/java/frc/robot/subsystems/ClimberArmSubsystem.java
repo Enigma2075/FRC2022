@@ -26,11 +26,11 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
   
   public enum PivotPosition {
-    Forwards(2400),//
-    Grab(1600),
+    Forwards(2550),//
+    Grab(1700),
     ForwardGrab(2300),
-    ForwardLatch(3000),
-    LetGo(1200),
+    ForwardLatch(2900),
+    LetGo(1400),
     //MidFront(2),
     Middle(1700),//0
     //MidBack(4),//

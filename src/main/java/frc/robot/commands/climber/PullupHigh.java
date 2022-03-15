@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 
@@ -33,7 +34,7 @@ public class PullupHigh extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.winch(WinchPosition.InnerOut, true);
+    climber.winch(WinchPosition.InnerOutTwo, true);
   }
 
   @Override
@@ -53,9 +54,15 @@ public class PullupHigh extends CommandBase {
       climber.pivot(ArmPosition.Coast, true);
     }
     
-    if(liftOff.getAsBoolean()) {
-      //climber.pivot(ArmPosition.InnerLetGo, true);
+    climber.runTapes();
+
+    if(climber.getWinchError() < 12000) {
+      climber.pivot(ArmPosition.InnerLetGo, true);
     }
+
+    //if(liftOff.getAsBoolean()) {
+      //climber.pivot(ArmPosition.InnerLetGo, true);
+    //}
   }
 
   // Called once the command ends or is interrupted.

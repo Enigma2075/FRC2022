@@ -29,7 +29,7 @@ public class StartClimb extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.startClimb();
+    ClimberSubsystem.startClimb();
     climber.pivot(ArmPosition.InitialGrab, true);
     climber.winch(WinchPosition.InnerOut);
     climber.runTapes();
@@ -44,13 +44,12 @@ public class StartClimb extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return false;//climber.isFinished();
+    return false;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //climber.winchRaw(0);
     climber.stop();
   }
 }
