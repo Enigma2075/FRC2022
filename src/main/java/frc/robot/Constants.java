@@ -63,6 +63,14 @@ public final class Constants {
         public static final double kSlot1D = 0;
         public static final double kSlot1Iz = 0;
         
+        public static final double kSlot2F = 0.06;
+        public static final double kSlot2P = 0.001;
+        public static final double kSlot2I = 0;
+        public static final double kSlot2D = 0;
+        public static final double kSlot2Iz = 0;
+
+        public static final double kMaxVel = 4000;
+        
         public static final double kProfileResolution = 10.0; // Time in milliseconds for each point
     }
 

@@ -67,15 +67,14 @@ public class DriveCommand extends CommandBase {
     double adjustedWheel = applyDeadband(wheelValue);
 
     if(ClimberSubsystem.hasClimbStarted()) {
-      adjustedThrottle = adjustedThrottle * .2;
-      adjustedWheel = adjustedWheel * .2;
+      drive.driveSlow(adjustedThrottle, adjustedWheel);
     }
     else if (ShooterSubsystem.isShooting()) {
-      adjustedThrottle = adjustedThrottle * .2;
-      adjustedWheel = adjustedWheel * .2;
+      drive.driveSlow(adjustedThrottle, adjustedWheel);
     }
-
-    drive.drive(adjustedThrottle, adjustedWheel);
+    else {
+      drive.drive(adjustedThrottle, adjustedWheel);
+    }
     
     //SmartDashboard.putNumber("Drive Command:Wheel", adjustedWheel);
     //SmartDashboard.putNumber("Drive Command:throttle", adjustedThrottle);

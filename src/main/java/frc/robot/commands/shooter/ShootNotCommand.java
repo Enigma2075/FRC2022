@@ -31,7 +31,7 @@ public class ShootNotCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //shooter.showVision(true);
+    shooter.showVision(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -57,7 +57,7 @@ public class ShootNotCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //shooter.showVision(false);
+    shooter.showVision(false);
     shooter.stop();
     indexer.stop();
   }

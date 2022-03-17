@@ -140,7 +140,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void stop() {
-    barMotor.set(ControlMode.PercentOutput, 0);
+    barMotor.set(ControlMode.PercentOutput, 0.2);
     pivotTo(PivotPosition.Up);
   }
 

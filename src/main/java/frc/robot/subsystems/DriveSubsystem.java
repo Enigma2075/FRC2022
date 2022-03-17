@@ -234,7 +234,12 @@ public class DriveSubsystem extends SubsystemBase {
     config.slot0.kI = DriveConstants.kSlot1I;
     config.slot0.kD = DriveConstants.kSlot1D;
     config.slot0.kF = DriveConstants.kSlot1F;
-    
+
+    config.slot2.kP = DriveConstants.kSlot2P;
+    config.slot2.kI = DriveConstants.kSlot2I;
+    config.slot2.kD = DriveConstants.kSlot2D;
+    config.slot2.kF = DriveConstants.kSlot2F;
+
     return config;
   }
 
@@ -259,6 +264,28 @@ public class DriveSubsystem extends SubsystemBase {
     rightOne.set(ControlMode.PercentOutput, signal.rightMotor);
     leftOne.set(ControlMode.PercentOutput, signal.leftMotor);
   }
+  
+  public void driveSlow(double throttle, double wheel) {
+    boolean quickTurn = false;
+    if(throttle <= .2) {
+      quickTurn = true;
+      wheel *= .75;
+    }
+    
+    driveSlow(throttle, wheel, quickTurn);
+  }
+  
+  public void driveSlow(double throttle, double wheel, boolean quickturn) {
+    DriveSignal signal = cheesyDriveHelper.cheesyDrive(throttle, wheel, quickturn);
+    
+    //System.out.print(String.format("%1$f,%2$f,%3$f,%4$f", signal.rightMotor, signal.leftMotor, throttle, wheel));
+
+    rightOne.selectProfileSlot(2, 0);
+    leftOne.selectProfileSlot(2, 0);
+    rightOne.set(ControlMode.Velocity, signal.rightMotor * DriveConstants.kMaxVel);
+    leftOne.set(ControlMode.Velocity, signal.leftMotor * DriveConstants.kMaxVel);
+  }
+  
   // --END Teleop Drive Functionality
 
   public void setDriveMode(DriveMode mode) {
@@ -274,6 +301,7 @@ public class DriveSubsystem extends SubsystemBase {
         rightThree.follow(rightOne);
         break;
       case MotionProfile:
+        rightOne.selectProfileSlot(0, 0);
         leftOne.follow(rightOne, FollowerType.AuxOutput1);
         leftTwo.follow(rightOne, FollowerType.AuxOutput1);
         leftThree.follow(rightOne, FollowerType.AuxOutput1);

@@ -32,7 +32,7 @@ public class Shoot extends CommandBase {
 
     @Override
     public void initialize() {
-        //shooter.showVision(true);
+        shooter.showVision(true);
         shooter.turret(targetAngle);
         shooter.setLEDs(true);
     }

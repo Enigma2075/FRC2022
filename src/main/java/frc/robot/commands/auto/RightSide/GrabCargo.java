@@ -8,6 +8,7 @@ import frc.robot.commands.drivetrain.RunProfileCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
 public class GrabCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
@@ -42,6 +43,12 @@ public class GrabCargo extends RunProfileCommand {
     public void execute() {
         super.execute();
         indexer.index();
+
+        var pose = drivetrain.getCurrentGlobalPosition();
+        var headingDeg = Math.toDegrees(pose.getHeading());
+        if(headingDeg < 355 && headingDeg > 340) {
+            intake.pivotTo(PivotPosition.HelpIntake);
+        }
     }
 
     @Override
@@ -55,6 +62,8 @@ public class GrabCargo extends RunProfileCommand {
 
     @Override
     public void end(boolean interrupted) {
+        intake.pivotTo(PivotPosition.Down);
+
         super.end(interrupted);
     }
 }

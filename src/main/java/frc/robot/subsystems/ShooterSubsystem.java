@@ -110,7 +110,14 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kTurretInitialCount = kTurretCountsPerDegree * 82.0;
   private static final double kTurretCruiseVelocity = 18000; // Measured max velocity 20890
   private static final double kTurretAccelerationVelocity = 60000;
-  private static final double kTurretP = .2;
+  private static final double kTurretPID0P = .2;
+  private static final double kTurretPID0I = 0;
+  private static final double kTurretPID0D = 0;
+  private static final double kTurretPID0F = 0;
+  private static final double kTurretPID1P = 0.001;
+  private static final double kTurretPID1I = 0;
+  private static final double kTurretPID1D = 0;
+  private static final double kTurretPID1F = .0465;
   private static final double kTurretForwardLimit = 111000;
   private static final double kTurretReverseLimit = kTurretInitialCount + 1000;
   
@@ -173,7 +180,10 @@ public class ShooterSubsystem extends SubsystemBase {
     turretConfig.reverseSoftLimitEnable = true;
     turretConfig.reverseSoftLimitThreshold = kTurretReverseLimit;
 
-    turretConfig.slot0.kP = kTurretP;
+    turretConfig.slot0.kP = kTurretPID0P;
+
+    turretConfig.slot1.kF = kTurretPID1F;
+    turretConfig.slot1.kP = kTurretPID1P;
 
     turretMotor.configAllSettings(turretConfig);
 
@@ -207,7 +217,7 @@ public class ShooterSubsystem extends SubsystemBase {
     moveLimeLight(LimelightPosition.Default);
 
     setLEDs(false);
-    //showVision(false);
+    showVision(false);
   }
 
   private void configShooterMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -254,6 +264,7 @@ public class ShooterSubsystem extends SubsystemBase {
       target = kTurretReverseLimit;
     }
 
+    turretMotor.selectProfileSlot(0, 0);
     turretMotor.set(ControlMode.MotionMagic, target);
   }
 
@@ -370,8 +381,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // topMotor.set(TalonFXControlMode.Velocity, 1650);
     // bottomMotor.set(TalonFXControlMode.Velocity, 1650);
+    
     topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
+    
     // topMotor.set(ControlMode.PercentOutput, .8);
     // bottomMotor.set(ControlMode.PercentOutput, .8);
 
@@ -441,8 +454,8 @@ public class ShooterSubsystem extends SubsystemBase {
     double error = -tx;
     double output = 0.0;
 
-    double kP = .025;
-    double kF = .05;
+    double kP = .01;
+    double kF = 0;
     
     if (tv == 0) {
       // if((turretTalon.getControlMode() == ControlMode.MotionMagic &&
@@ -450,8 +463,9 @@ public class ShooterSubsystem extends SubsystemBase {
       // || turretTalon.getSelectedSensorPosition() > Constants.TURRET_F_LIMIT - 500){
       // turretTalon.set(ControlMode.Velocity, -1600);
       // }
-      if(turretMotor.getControlMode() == ControlMode.PercentOutput) {
-        turretMotor.set(ControlMode.PercentOutput, 0);
+      if(turretMotor.getControlMode() == ControlMode.Velocity) {
+        turretMotor.selectProfileSlot(1, 0);
+        turretMotor.set(ControlMode.Velocity, 0);
       }
 
       return false;
@@ -467,11 +481,13 @@ public class ShooterSubsystem extends SubsystemBase {
       output = 0;
     }
 
-    turretMotor.set(ControlMode.PercentOutput, output);
+    turretMotor.selectProfileSlot(1, 0);
+    turretMotor.set(ControlMode.Velocity, output * kTurretCruiseVelocity);
     
-    SmartDashboard.putNumber("Vision:output", output);
-    SmartDashboard.putNumber("Vision:tx", tx);
-    SmartDashboard.putNumber("Vision:error", error);
+    //SmartDashboard.putNumber("Vision:output", output);
+    //SmartDashboard.putNumber("Vision:tx", tx);
+    //SmartDashboard.putNumber("Vision:error", error);
+    //SmartDashboard.putNumber("Vision:vel", output * kTurretCruiseVelocity);
 
     if(Math.abs(tx) < 1) {
       return true;
@@ -482,17 +498,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
   }
 
-  public void disableTurret() {
-    turretMotor.set(ControlMode.PercentOutput, 0);
-    turretMotor.disable();
-  }
-
   public void stop() {
     bottomMotor.set(ControlMode.PercentOutput, 0);
     topMotor.set(ControlMode.PercentOutput, 0);
 
     popperMotor.set(0);
 
+    turretMotor.selectProfileSlot(0, 0);
     turretMotor.set(ControlMode.MotionMagic, turretMotor.getSelectedSensorPosition());
 
     shooting = false;
