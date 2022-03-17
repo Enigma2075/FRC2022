@@ -166,8 +166,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public void debug() {
     SensorCollection sensors = pivotMotor.getSensorCollection();
     
-    SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
-    SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
+    //SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
   }
 
   @Override

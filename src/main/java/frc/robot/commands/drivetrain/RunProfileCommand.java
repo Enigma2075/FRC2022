@@ -261,9 +261,9 @@ public class RunProfileCommand extends CommandBase {
     //System.out.println(String.format("RightEnc:%2f,Left:%2f", drivetrain.getRightEnc(), drivetrain.getLeftEnc()));
     
     Pose2d errorPose = Kinematics.calculateFieldPoseError(curEndPose, drivetrain.getCurrentGlobalPosition());
-    SmartDashboard.putNumber("Xerror", errorPose.getX());
-    SmartDashboard.putNumber("Yerror", errorPose.getY());
-    SmartDashboard.putNumber("Headingerror", errorPose.getHeading());
+    //SmartDashboard.putNumber("Xerror", errorPose.getX());
+    //SmartDashboard.putNumber("Yerror", errorPose.getY());
+    //SmartDashboard.putNumber("Headingerror", errorPose.getHeading());
     
     if(Math.abs(errorPose.getX()) < 2 && Math.abs(errorPose.getY()) < 2 && Math.abs(errorPose.getHeading()) < Math.toRadians(2)) {
       return true;

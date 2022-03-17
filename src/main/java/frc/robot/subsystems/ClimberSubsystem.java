@@ -249,8 +249,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Climb:WinchError", getWinchError());
+    //SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Climb:WinchError", getWinchError());
 
     // This method will be called once per scheduler run
   }
