@@ -35,6 +35,7 @@ public class Shoot extends CommandBase {
         shooter.showVision(true);
         shooter.turret(targetAngle);
         shooter.setLEDs(true);
+        shooter.startShoot();
     }
 
     boolean shooting = false;

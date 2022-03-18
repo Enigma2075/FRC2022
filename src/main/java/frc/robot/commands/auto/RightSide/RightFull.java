@@ -32,9 +32,9 @@ public class RightFull extends SequentialCommandGroup{
         startPose = new Pose2d(89.976, -22.85, Math.toRadians(0));
 
         var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
-        var shoot1 = new Shoot(shooter, indexer, 310, .478, 2, 10);
+        var shoot1 = new Shoot(shooter, indexer, 318, .478, 2, 10);
         var grabSecondCargo = new GrabSecondCargo(drive, intake, indexer, grabCargo.getEndPose());
-        var shoot2 = new Shoot(shooter, indexer, 200, 0, 1, 10);
+        var shoot2 = new Shoot(shooter, indexer, 200, 0, 1, 15);
         var grabThirdCargo = new GrabThirdCargo(drive, intake, indexer, grabSecondCargo.getEndPose());
         var driveToShoot = new DriveToShoot(drive, intake, indexer, grabThirdCargo.getEndPose());
         var shoot3 = new Shoot(shooter, indexer, 200, 0, 2, 10);

@@ -135,12 +135,12 @@ public class ClimberSubsystem extends SubsystemBase {
     if(Math.abs(winchVel) > .1) {
 
       if(!hasWinchBeenPastHalf) {
-        innerPower = .70;
-        outerPower = .70;
+        innerPower = .80;
+        outerPower = .80;
       }
       else {
-        innerPower = .70 * Math.signum(winchVel);
-        outerPower = .70 * Math.signum(winchVel)  * -1;
+        innerPower = .80 * Math.signum(winchVel);
+        outerPower = .80 * Math.signum(winchVel)  * -1;
       }
 
       if(innerPower < 0) {

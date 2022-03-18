@@ -114,7 +114,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kTurretPID0I = 0;
   private static final double kTurretPID0D = 0;
   private static final double kTurretPID0F = 0;
-  private static final double kTurretPID1P = 0.001;
+  private static final double kTurretPID1P = 0.0055;
   private static final double kTurretPID1I = 0;
   private static final double kTurretPID1D = 0;
   private static final double kTurretPID1F = .0465;
@@ -366,9 +366,9 @@ public class ShooterSubsystem extends SubsystemBase {
     //double speed = slope * currentDistance + (.53 - (114.02 * slope));
 
     double maxDist = 177;
-    double maxDistSpeed = .592;
+    double maxDistSpeed = .58;
     double minDist = 94;
-    double minDistSpeed = .478;
+    double minDistSpeed = .477;
 
     double slope = (maxDistSpeed - minDistSpeed)/(maxDist - minDist);
     double speed = slope * currentDistance + (maxDistSpeed - (maxDist * slope));
@@ -441,6 +441,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
+  private PIDController aquireTargetController = new PIDController(.015, 0, 0);
+
+  public void startShoot() {
+    aquireTargetController.reset();
+  }
+
   public boolean aquireTarget() {
     setLEDs(true);
 
@@ -452,10 +458,11 @@ public class ShooterSubsystem extends SubsystemBase {
     double ta = table.getEntry("ta").getDouble(0);
 
     double error = -tx;
-    double output = 0.0;
-
-    double kP = .01;
-    double kF = 0;
+    //double output = aquireTargetController.calculate(error, 0);
+    double output = 0;
+    
+    double kP = .0145;
+    double kF = 0.026;
     
     if (tv == 0) {
       // if((turretTalon.getControlMode() == ControlMode.MotionMagic &&
@@ -477,6 +484,10 @@ public class ShooterSubsystem extends SubsystemBase {
       output = Math.signum(output);
     }
     
+    //if(Math.abs(error) < 5) {
+    //  output = .0 * Math.signum(error);
+    //}
+    
     if(Math.abs(error) < .5) {
       output = 0;
     }
@@ -489,7 +500,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //SmartDashboard.putNumber("Vision:error", error);
     //SmartDashboard.putNumber("Vision:vel", output * kTurretCruiseVelocity);
 
-    if(Math.abs(tx) < 1) {
+    if(Math.abs(tx) < 1.2) {
       return true;
     }
     else {
