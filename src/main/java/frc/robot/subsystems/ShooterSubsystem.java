@@ -366,9 +366,9 @@ public class ShooterSubsystem extends SubsystemBase {
     //double speed = slope * currentDistance + (.53 - (114.02 * slope));
 
     double maxDist = 177;
-    double maxDistSpeed = .58;
+    double maxDistSpeed = .585;
     double minDist = 94;
-    double minDistSpeed = .477;
+    double minDistSpeed = .4765;
 
     double slope = (maxDistSpeed - minDistSpeed)/(maxDist - minDist);
     double speed = slope * currentDistance + (maxDistSpeed - (maxDist * slope));
@@ -500,7 +500,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //SmartDashboard.putNumber("Vision:error", error);
     //SmartDashboard.putNumber("Vision:vel", output * kTurretCruiseVelocity);
 
-    if(Math.abs(tx) < 1.2) {
+    if(Math.abs(tx) < 1.25) {
       return true;
     }
     else {
