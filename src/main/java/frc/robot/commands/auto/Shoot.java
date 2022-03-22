@@ -35,7 +35,6 @@ public class Shoot extends CommandBase {
         shooter.showVision(true);
         shooter.turret(targetAngle);
         shooter.setLEDs(true);
-        shooter.startShoot();
     }
 
     boolean shooting = false;
@@ -79,10 +78,10 @@ public class Shoot extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if(ballsShot == ballCount && count == wait) {
+        if(ballsShot >= ballCount && count >= wait) {
             return true;
         }
-        else if(ballsShot == ballCount){
+        else if(ballsShot >= ballCount){
             count++;
             return false;
         }

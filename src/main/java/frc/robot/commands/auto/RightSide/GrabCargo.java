@@ -8,17 +8,20 @@ import frc.robot.commands.drivetrain.RunProfileCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
 
 public class GrabCargo extends RunProfileCommand {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
+    private final ShooterSubsystem shooter;
 
-    public GrabCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, Pose2d startPose) {
+    public GrabCargo(DriveSubsystem driveSubsystem, IntakeSubsystem intake, IndexerSubsystem indexer, ShooterSubsystem shooter, Pose2d startPose) {
         super(driveSubsystem, startPose);
         
         this.indexer = indexer;
         this.intake = intake;
+        this.shooter = shooter;
 
         addRequirements(intake);
 
@@ -54,6 +57,8 @@ public class GrabCargo extends RunProfileCommand {
     @Override
     public void initialize() {
         super.initialize();
+
+        shooter.turret(320);
 
         intake.intake();
 

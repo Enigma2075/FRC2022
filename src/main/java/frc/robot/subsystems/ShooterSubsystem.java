@@ -443,10 +443,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private PIDController aquireTargetController = new PIDController(.015, 0, 0);
 
-  public void startShoot() {
-    aquireTargetController.reset();
-  }
-
   public boolean aquireTarget() {
     setLEDs(true);
 
