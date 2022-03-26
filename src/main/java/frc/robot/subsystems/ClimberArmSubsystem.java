@@ -69,7 +69,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
   private static final double kInnerPivotAccelerationVelocity = 500;
 
   
-  private final WPI_TalonSRX tapeMeasure;
+  //private final WPI_TalonSRX tapeMeasure;
   private final WPI_TalonSRX pivot;
 
   private final double pivotOffset;
@@ -83,10 +83,10 @@ public class ClimberArmSubsystem extends SubsystemBase {
   public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId, Side side) {
     this.side = side;
 
-    tapeMeasure = new WPI_TalonSRX(tapeMasureCanId);
+    //tapeMeasure = new WPI_TalonSRX(tapeMasureCanId);
     pivot = new WPI_TalonSRX(pivotCanId);
 
-    tapeMeasure.configFactoryDefault(10);
+    //tapeMeasure.configFactoryDefault(10);
     pivot.configFactoryDefault(10);
 
     TalonSRXConfiguration tapeConfig = new TalonSRXConfiguration();
@@ -94,9 +94,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
     tapeConfig.peakCurrentLimit = 15;
     tapeConfig.peakCurrentDuration = 100;
 
-    tapeMeasure.configAllSettings(tapeConfig);
-    tapeMeasure.enableCurrentLimit(false);
-    tapeMeasure.setNeutralMode(NeutralMode.Coast);
+    //tapeMeasure.configAllSettings(tapeConfig);
+    //tapeMeasure.enableCurrentLimit(false);
+    //tapeMeasure.setNeutralMode(NeutralMode.Coast);
 
     SensorCollection sensors = pivot.getSensorCollection();
     
@@ -116,7 +116,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
       //sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kInnerPivotOffset), 10);
       pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
       
-      tapeMeasure.setInverted(InvertType.InvertMotorOutput);
+      //tapeMeasure.setInverted(InvertType.InvertMotorOutput);
 
       this.pivotOffset = kInnerPivotOffset;
       this.pivotMaxGravityFF = kInnerPivotMaxGravityFF;
@@ -147,9 +147,9 @@ public class ClimberArmSubsystem extends SubsystemBase {
   //  servo.setBounds(2, 1.6, 1.5, 1.4, 1);
   //}
 
-  public void setTape(double power) {
-    tapeMeasure.set(ControlMode.PercentOutput, power);
-  }
+  //public void setTape(double power) {
+  //  tapeMeasure.set(ControlMode.PercentOutput, power);
+  //}
 
   public void holdPivot() {
     pivot.set(ControlMode.MotionMagic, pivot.getSelectedSensorPosition());

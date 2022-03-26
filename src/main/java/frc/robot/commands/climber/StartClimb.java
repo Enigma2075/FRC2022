@@ -32,14 +32,14 @@ public class StartClimb extends CommandBase {
     ClimberSubsystem.startClimb();
     climber.pivot(ArmPosition.InitialGrab, true);
     climber.winch(WinchPosition.InnerOut);
-    climber.runTapes();
+    //climber.runTapes();
     //climber.winchRaw(-.5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    climber.runTapes();
+    //climber.runTapes();
   }
 
   @Override

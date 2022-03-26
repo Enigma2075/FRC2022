@@ -28,7 +28,7 @@ public class LatchHigh extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.runTapes();
+    //climber.runTapes();
     climber.pivot(ArmPosition.OuterLatch, true);
 }
 
@@ -40,7 +40,7 @@ public class LatchHigh extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    climber.runTapes();
+    //climber.runTapes();
   }
 
   // Called once the command ends or is interrupted.

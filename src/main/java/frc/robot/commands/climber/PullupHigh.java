@@ -54,7 +54,7 @@ public class PullupHigh extends CommandBase {
       climber.pivot(ArmPosition.Coast, true);
     }
     
-    climber.runTapes();
+    //climber.runTapes();
 
     if(climber.getWinchError() < 12000) {
       climber.pivot(ArmPosition.InnerLetGo, true);

@@ -12,10 +12,10 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+//import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.GeneralConstants;
@@ -122,47 +122,47 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private boolean hasWinchBeenPastHalf = false;
 
-  public void runTapes() {
-    double innerPower = 0;
-    double outerPower = 0;
+  //public void runTapes() {
+  //  double innerPower = 0;
+  //  double outerPower = 0;
 
-    double winchVel = winch.getSelectedSensorVelocity() / kWinchCruiseVelocity;
+  //  double winchVel = winch.getSelectedSensorVelocity() / kWinchCruiseVelocity;
 
-    if(!hasWinchBeenPastHalf && winch.getSelectedSensorPosition() > (kWinchForwardLimit/2) - 10000) {
-      hasWinchBeenPastHalf = true;
-    }
+  //  if(!hasWinchBeenPastHalf && winch.getSelectedSensorPosition() > (kWinchForwardLimit/2) - 10000) {
+  //    hasWinchBeenPastHalf = true;
+  //  }
 
-    if(Math.abs(winchVel) > .1) {
+  //  if(Math.abs(winchVel) > .1) {
 
-      if(!hasWinchBeenPastHalf) {
-        innerPower = .80;
-        outerPower = .80;
-      }
-      else {
-        innerPower = .80 * Math.signum(winchVel);
-        outerPower = .80 * Math.signum(winchVel)  * -1;
-      }
+  //    if(!hasWinchBeenPastHalf) {
+  //      innerPower = .80;
+  //      outerPower = .80;
+  //    }
+  //    else {
+  //      innerPower = .80 * Math.signum(winchVel);
+  //      outerPower = .80 * Math.signum(winchVel)  * -1;
+  //    }
 
-      if(innerPower < 0) {
-        innerPower = innerPower * .35;
-      }
+  //    if(innerPower < 0) {
+  //      innerPower = innerPower * .35;
+  //    }
       
-      if(outerPower < 0) {
-        outerPower = outerPower * .35;
-      }
-    }
-    else{
-      innerPower = .1;
-      outerPower = .1;
-    }
+  //    if(outerPower < 0) {
+  //      outerPower = outerPower * .35;
+  //    }
+  //  }
+  //  else{
+  //    innerPower = .1;
+  //    outerPower = .1;
+  //  }
 
-    runTapes(innerPower, outerPower);
-  }
+    //runTapes(innerPower, outerPower);
+ // }
 
-  private void runTapes(double innerPower, double outerPower) {
-    inner.setTape(innerPower);
-    outer.setTape(outerPower);
-  }
+  //private void runTapes(double innerPower, double outerPower) {
+  //  inner.setTape(innerPower);
+  //  outer.setTape(outerPower);
+  //}
 
   public boolean shouldLetGo() {
     return winch.getSelectedSensorPosition() < (WinchPosition.InnerOut.value/2);
@@ -172,9 +172,9 @@ public class ClimberSubsystem extends SubsystemBase {
     return winch.getSelectedSensorPosition() > (WinchPosition.InnerOut.value/2);
   }
 
-  public void testTapes(double power) {
-    inner.setTape(power);
-  }
+  //public void testTapes(double power) {
+  //  inner.setTape(power);
+  //}
 
   public void pivot(ArmPosition position) {
     pivot(position, false);
