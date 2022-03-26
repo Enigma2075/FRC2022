@@ -69,11 +69,11 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftY));
+    //climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftY));
     
-    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
+    //intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
-    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
+    //driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
