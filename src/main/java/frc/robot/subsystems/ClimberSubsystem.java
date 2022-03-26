@@ -62,8 +62,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 }
   
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerTapeCanId, ClimberConstants.kInnerPivotCanId, ClimberArmSubsystem.Side.Inner);
-  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterTapeCanId, ClimberConstants.kOuterPivotCanId, ClimberArmSubsystem.Side.Outer);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerPivotCanId, ClimberArmSubsystem.Side.Inner);
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterPivotCanId, ClimberArmSubsystem.Side.Outer);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, GeneralConstants.kCanBusAltName);
 

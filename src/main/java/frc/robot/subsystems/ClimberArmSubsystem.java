@@ -80,7 +80,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
   private final Side side;
   
   /** Creates a new ExampleSubsystem. */
-  public ClimberArmSubsystem(int tapeMasureCanId, int pivotCanId, Side side) {
+  public ClimberArmSubsystem(int pivotCanId, Side side) {
     this.side = side;
 
     //tapeMeasure = new WPI_TalonSRX(tapeMasureCanId);
