@@ -26,14 +26,14 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
   
   public enum PivotPosition {
-    Forwards(2550),//
-    
-    Grab(1650),
+    Forwards(4300), // MAX
+    Hold(0),
+    Grab(3300),
     ForwardGrab(2300),
     ForwardLatch(2900),
     LetGo(1400),
     //MidFront(2),
-    Middle(1700),//0
+    Middle(3300), // Straight Up
     //MidBack(4),//
     Backwards(500);///
 
@@ -59,21 +59,19 @@ public class ClimberArmSubsystem extends SubsystemBase {
     }
 }
 
-  private static final double kOuterPivotOffset = 4096-4020;
-  private static final double kInnerPivotOffset = 710;
+  //private static final double kOuterPivotOffset = 4096-4020;
+  //private static final double kInnerPivotOffset = 710;
   private static final double kOuterPivotMaxGravityFF = 0;//.075
   private static final double kInnerPivotMaxGravityFF = 0;//.05
-  private static final double kOuterPivotCruiseVelocity = 600; // Measured max velocity 860
-  private static final double kInnerPivotCruiseVelocity = 600; // Measured max velocity 860
-  private static final double kOuterPivotAccelerationVelocity = 500;
-  private static final double kInnerPivotAccelerationVelocity = 500;
+  private static final double kOuterPivotCruiseVelocity = 1200; // Measured max velocity 860
+  private static final double kInnerPivotCruiseVelocity = 1200; // Measured max velocity 860
+  private static final double kOuterPivotAccelerationVelocity = 1200;
+  private static final double kInnerPivotAccelerationVelocity = 1200;
 
   
   //private final WPI_TalonSRX tapeMeasure;
   private final WPI_TalonSRX pivot;
 
-  private final double pivotOffset;
-  private final double pivotMaxGravityFF;
   private final double pivotCruiseVelocity;
   private final double pivotAccelerationVelocity;
 
@@ -98,28 +96,28 @@ public class ClimberArmSubsystem extends SubsystemBase {
     //tapeMeasure.enableCurrentLimit(false);
     //tapeMeasure.setNeutralMode(NeutralMode.Coast);
 
-    SensorCollection sensors = pivot.getSensorCollection();
+    //SensorCollection sensors = pivot.getSensorCollection();
     
     double pivotPoistion = 0;
 
     if (this.side == Side.Outer) {
-      pivot.setInverted(InvertType.InvertMotorOutput);
-      pivotPoistion = Math.abs((int)(4096.0 - sensors.getPulseWidthPosition() - kOuterPivotOffset));
+      //pivotPoistion = Math.abs((int)(4096.0 - sensors.getPulseWidthPosition() - kOuterPivotOffset));
       //pivot.setSelectedSensorPosition(Math.abs((int)(4096.0 - sensors.getPulseWidthPosition() - kOuterPivotOffset)), 0, 10);
       
-      this.pivotOffset = kOuterPivotOffset;    
-      this.pivotMaxGravityFF = kOuterPivotMaxGravityFF;
+      //this.pivotOffset = kOuterPivotOffset;    
+      //this.pivotMaxGravityFF = kOuterPivotMaxGravityFF;
       this.pivotCruiseVelocity = kOuterPivotCruiseVelocity;
       this.pivotAccelerationVelocity = kOuterPivotAccelerationVelocity; 
     }
     else {
+      pivot.setInverted(InvertType.InvertMotorOutput);
       //sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kInnerPivotOffset), 10);
-      pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
+      //pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
       
       //tapeMeasure.setInverted(InvertType.InvertMotorOutput);
 
-      this.pivotOffset = kInnerPivotOffset;
-      this.pivotMaxGravityFF = kInnerPivotMaxGravityFF;
+      //this.pivotOffset = kInnerPivotOffset;
+      //this.pivotMaxGravityFF = kInnerPivotMaxGravityFF;
       this.pivotCruiseVelocity = kInnerPivotCruiseVelocity;
       this.pivotAccelerationVelocity = kInnerPivotAccelerationVelocity; 
     }

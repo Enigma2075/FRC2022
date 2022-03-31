@@ -13,16 +13,18 @@ public class Shoot extends CommandBase {
     private final IndexerSubsystem indexer;
     private final double targetAngle;
     private final double speed;
+    private final double hoodPosition;
     private final int ballCount;
 
     private double wait;
     private boolean turretAtPosition = false;
 
-    public Shoot(ShooterSubsystem shooter, IndexerSubsystem indexer, double targetAngle, double speed, int ballCount, double wait) {
+    public Shoot(ShooterSubsystem shooter, IndexerSubsystem indexer, double targetAngle, double speed, double hoodPosition, int ballCount, double wait) {
         this.shooter = shooter;
         this.indexer = indexer;
         this.targetAngle = targetAngle;
         this.speed = speed;
+        this.hoodPosition = hoodPosition;
         this.wait = wait;
         this.ballCount = ballCount;
 
@@ -60,7 +62,7 @@ public class Shoot extends CommandBase {
             if (speed == 0) {
                 shooting = shooter.shoot();
             } else {
-                shooting = shooter.shoot(speed); // 114.02 Distance
+                shooting = shooter.shoot(speed, hoodPosition); // 114.02 Distance
             }
 
             //safe shot when we don't relly have a target.

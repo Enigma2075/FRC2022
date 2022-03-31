@@ -39,7 +39,7 @@ public class ClimbCommand extends CommandBase {
     //if(ClimberSubsystem.hasClimbStarted()) {
     //  climber.runTapes();
     //}
-    climber.pivot(ArmPosition.Default);
+    climber.pivot(ArmPosition.Hold);
 
     //climber.pivot(ArmPosition.Coast, true);
     //climber.disablePivot();

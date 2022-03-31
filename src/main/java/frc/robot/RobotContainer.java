@@ -77,7 +77,7 @@ public class RobotContainer {
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
+    //shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
 
     // Add commands to the autonomous command chooser
     chooser.setDefaultOption("Right", rightFullCommand);

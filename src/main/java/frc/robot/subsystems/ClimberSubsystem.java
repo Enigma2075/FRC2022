@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 //import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
@@ -25,7 +26,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public enum ArmPosition {
     InitialGrab,
     BothMiddle,
-    Default,
+    Hold,
     InnerGrab,
     InnerLatch,
     OuterGrab,
@@ -35,9 +36,9 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public enum WinchPosition {
-    OuterOut(2000),//
-    InnerOut(320000),
-    InnerOutTwo(280000),
+    OuterOut(5000),//
+    InnerOut(200000),
+    InnerOutTwo(50000),
     InnerLetGo(150000);
     
     private int value;
@@ -62,17 +63,18 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 }
   
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerPivotCanId, ClimberArmSubsystem.Side.Inner);
   private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterPivotCanId, ClimberArmSubsystem.Side.Outer);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerPivotCanId, ClimberArmSubsystem.Side.Inner);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, GeneralConstants.kCanBusAltName);
 
-  private static final double kWinchCruiseVelocity = 11000; // Measured max velocity 22000
-  private static final double kWinchAccelerationVelocity = 11000;
+  private static final double kWinchInitialSensorPos = 20000;  
+  private static final double kWinchCruiseVelocity = 18000; // Measured max velocity 22000
+  private static final double kWinchAccelerationVelocity = 30000;
   private static final double kWinchP = 0.05;
 
-  private static final double kWinchForwardLimit = 320000; // 106000
-  private static final double kWinchReverseLimit = 4500;
+  private static final double kWinchForwardLimit = 244000; // 106000
+  private static final double kWinchReverseLimit = 0;
 
   private static boolean climbStarted = false;
 
@@ -91,11 +93,16 @@ public class ClimberSubsystem extends SubsystemBase {
     config.motionCruiseVelocity = kWinchCruiseVelocity;
     config.motionAcceleration = kWinchAccelerationVelocity;
 
+    config.forwardSoftLimitEnable = true;
+    config.forwardSoftLimitThreshold = kWinchForwardLimit;
+    config.reverseSoftLimitEnable = true;
+    config.reverseSoftLimitThreshold = kWinchReverseLimit;
+
     config.slot0.kP = kWinchP;
 
     winch.configAllSettings(config);
 
-    winch.setSelectedSensorPosition(0, 0, 10);
+    winch.setSelectedSensorPosition(kWinchInitialSensorPos, 0, 10);
   }
 
   public static void startClimb() {
@@ -116,11 +123,15 @@ public class ClimberSubsystem extends SubsystemBase {
     //  outer.setTape(0);  
     }
     winch.set(ControlMode.MotionMagic, winch.getSelectedSensorPosition());
-    inner.holdPivot();
-    outer.holdPivot();
+    //inner.holdPivot();
+    //outer.holdPivot();
   }
 
-  private boolean hasWinchBeenPastHalf = false;
+//  public void runWinch() {
+//    winch.set(ControlMode.PercentOutput, .15);
+//  }
+
+  //private boolean hasWinchBeenPastHalf = false;
 
   //public void runTapes() {
   //  double innerPower = 0;
@@ -176,6 +187,12 @@ public class ClimberSubsystem extends SubsystemBase {
   //  inner.setTape(power);
   //}
 
+//public void pivotArm() {
+//  
+  //inner.setPivot(PivotPosition.Test);
+  //outer.setPivot(PivotPosition.Test);
+//}
+
   public void pivot(ArmPosition position) {
     pivot(position, false);
   }
@@ -202,9 +219,9 @@ public class ClimberSubsystem extends SubsystemBase {
           outer.setPivot(PivotPosition.ForwardLatch);
           inner.setPivotCoast();
           break;
-        case Default:
-          outer.setPivot(PivotPosition.Forwards);
-          inner.setPivot(PivotPosition.Forwards);
+        case Hold:
+          outer.setPivot(PivotPosition.Hold);
+          inner.setPivot(PivotPosition.Hold);
           break;
         case InitialGrab:
           outer.setPivot(PivotPosition.ForwardGrab);
@@ -249,8 +266,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
-    //SmartDashboard.putNumber("Climb:WinchError", getWinchError());
+    SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Climb:WinchError", getWinchError());
 
     // This method will be called once per scheduler run
   }

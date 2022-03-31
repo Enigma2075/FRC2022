@@ -38,12 +38,15 @@ public class TurretCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.setLEDs(true);
+    //shooter.setLEDs(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    return;
+
+    /*
     if(ClimberSubsystem.hasClimbStarted()) {
       shooter.turret(180);
       return;
@@ -89,6 +92,7 @@ public class TurretCommand extends CommandBase {
     //SmartDashboard.putNumber("RequestedHeading", requestedHeading);    
     
     shooter.turret(finalHeading);
+    */
   }
 
   // Called once the command ends or is interrupted.

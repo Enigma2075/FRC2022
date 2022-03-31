@@ -87,9 +87,9 @@ public final class Constants {
 
     public static final class ClimberConstants {
         //public static final int kOuterTapeCanId = 14;
-        public static final int kOuterPivotCanId = 12;
+        public static final int kInnerPivotCanId = 12;
         //public static final int kInnerTapeCanId = 13;
-        public static final int kInnerPivotCanId = 11;
+        public static final int kOuterPivotCanId = 11;
         public static final int kWinchCanId = 8;
 
         public static final int kInnerCanId = -0;//these are only here becasue I couldn't be bothered to alter all of ClimbSubsystem -A

@@ -85,7 +85,7 @@ public class ShooterSubsystem extends SubsystemBase {
   
   private final SparkMaxPIDController hoodPid;
   private final RelativeEncoder hoodEncoder;
-  private double hoodOffset = 0;
+  //private double hoodOffset = 0;
   //private final RelativeEncoder hoodEncoder;
 
   // Measured Max Velocity 20300;
@@ -94,16 +94,16 @@ public class ShooterSubsystem extends SubsystemBase {
   // Positive X Right
   // Positive Y Forward
 
-  private static final double kHoodP = 0.01;
+  private static final double kHoodP = 0.00000002;
   private static final double kHoodI = 0;
   private static final double kHoodD = 0;
   private static final double kHoodIz = 0;
-  private static final double kHoodFF = 0.0005;
+  private static final double kHoodFF = 0.0001;
   private static final int kHoodMagicSlot = 0;
   private static final double kHoodMaxVel = 5000;
   private static final double kHoodMinVel = 0;
-  private static final double kHoodMaxAcc = 10000;
-  private static final double kHoodAllowedError = 0;
+  private static final double kHoodMaxAcc = 30000;
+  private static final double kHoodAllowedError = 1.5;
 
   private static final double kTurretCountsPerRotation = 55.625 * 2048.0;
   private static final double kTurretCountsPerDegree = kTurretCountsPerRotation / 365.0;
@@ -130,7 +130,59 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double kLowAngle = 0;
   private static final double kHighAngle = 0;
 
-  private static final InterpolatingTreeMap kPowerMap = new InterpolatingTreeMap<InterpolatingDouble,InterpolatingDouble>(4);
+  private static final InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kSpeedMap = new InterpolatingTreeMap<InterpolatingDouble,InterpolatingDouble>();
+  private static final InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kHoodMap = new InterpolatingTreeMap<InterpolatingDouble,InterpolatingDouble>();
+
+  private static double kSafeZoneDistance = 0;
+  private static double kSafeZoneSpeed = 0;
+  private static double kSafeZoneHood = 0;
+  private static double kWallDistance = 0;
+  private static double kWallSpeed = 0;
+  private static double kWallHood = 0;
+  private static double kMaxDistance = 17*12;
+  private static double kMinDistance = 90;
+
+
+    //atSpeed = shooter.shoot(.610, 38); //17 ft 90
+    //atSpeed = shooter.shoot(.545, 21); //13 ft 124
+    //atSpeed = shooter.shoot(.490, 0); //9 ft 170
+    //atSpeed = shooter.shoot(.45, 0); //6 ft 216
+
+  public static double[][] kDistanceSpeedValues = {
+    { 90, .45 },
+    { 124, .49 },
+    { 170, .545},
+    { 216, .61}
+  };
+
+  static {
+    for (double[] pair : kDistanceSpeedValues) {
+      kSpeedMap.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
+    }
+    
+    kWallSpeed = kSpeedMap
+            .getInterpolated(new InterpolatingDouble(kWallDistance)).value;
+    kSafeZoneSpeed = kSpeedMap
+            .getInterpolated(new InterpolatingDouble(kSafeZoneDistance)).value;
+  }
+
+  public static double[][] kDistanceHoodValues = {
+    { 90, 0 },
+    { 124, 0 },
+    { 170, 21},
+    { 216, 38}
+  };
+
+  static {
+    for (double[] pair : kDistanceHoodValues) {
+      kHoodMap.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
+    }
+    
+    kWallHood = kHoodMap
+            .getInterpolated(new InterpolatingDouble(kWallDistance)).value;
+    kSafeZoneHood = kHoodMap
+            .getInterpolated(new InterpolatingDouble(kSafeZoneDistance)).value;
+  }
 
   private static boolean shooting = false;
 
@@ -144,14 +196,15 @@ public class ShooterSubsystem extends SubsystemBase {
     turretMotor.configFactoryDefault(10);
     bottomMotor.configFactoryDefault(10);
     topMotor.configFactoryDefault(10);
-    hoodMotor.restoreFactoryDefaults(true);
-    popperMotor.restoreFactoryDefaults(true);
+    hoodMotor.restoreFactoryDefaults();
+    popperMotor.restoreFactoryDefaults();
 
     // Configure hood motor
     //hoodEncoder = hoodMotor.getAlternateEncoder(Type.kQuadrature, 8192);
-    hoodMotor.setInverted(true);
+    hoodMotor.setInverted(false);
     hoodEncoder = hoodMotor.getEncoder();
-    hoodOffset = hoodEncoder.getPosition();
+    hoodEncoder.setPosition(0);
+    //hoodOffset = hoodEncoder.getPosition();
     hoodPid = hoodMotor.getPIDController();
 
     hoodPid.setP(kHoodP);
@@ -292,6 +345,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return isTopMotorAtSpeed && isBottomMotorAtSpeed;
   }
 
+  public boolean isHoodAtPosition(double targetPosition) {
+    return Math.abs(hoodEncoder.getPosition() - targetPosition) < .5;
+  }
+
   public double getDistanceFromTarget() {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     double ty = table.getEntry("ty").getDouble(0);
@@ -299,13 +356,15 @@ public class ShooterSubsystem extends SubsystemBase {
     //double limelightAngle = 42;
     //double targetHeight = 102.25;
     //double limelightHeight = 26.4325;
-    double limelightAngle = 33.6;
+    double limelightAngle = 25; //33.6;
     //double targetHeight = 103;
-    double targetHeight = 104;
-    double limelightHeight = 26.375;
+    double targetHeight = 102;
+    double limelightHeight = 39.6;
 
     double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + ty)));
 
+    SmartDashboard.putNumber("Shooter:AtDistance", currentDistance);
+    
     return currentDistance;
   }
 
@@ -336,11 +395,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return bottomMotor.getSupplyCurrent();
   }
 
-  public boolean shoot(double speed) {
-    topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
-    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
+  public boolean shoot(double shooterSpeed, double hoodPosition) {
+    setHood(hoodPosition);
+    topMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
+    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
     
-    boolean atSpeed = isShooterAtSpeed(speed);
+    boolean atSpeed = isShooterAtSpeed(shooterSpeed);
     
     shooting = true;
     
@@ -358,22 +418,30 @@ public class ShooterSubsystem extends SubsystemBase {
   //  return kPowerMap.getInterpolated(distance);
   //}
   
+  public double getSpeedForDistance(double distance) {
+    return kSpeedMap.getInterpolated(new InterpolatingDouble(distance)).value;
+  }
+
+  public double getHoodForDistance(double distance) {
+    return kHoodMap.getInterpolated(new InterpolatingDouble(distance)).value;
+  }
+
   public boolean spinUp() {
-    boolean targetAquired = aquireTarget();
+    return spinUp(true);
+  }
+  
+  public boolean spinUp(boolean aquireTarget) {
+    boolean targetAquired = true;
+    
+    if(aquireTarget) {
+      targetAquired = aquireTarget();
+    }
 
     double currentDistance = getDistanceFromTarget();
-    //double slope = (.525 - .415)/(114.02 - 53.2);
-    //double speed = slope * currentDistance + (.53 - (114.02 * slope));
+    double speed = getSpeedForDistance(currentDistance);
+    double hoodPosition = getHoodForDistance(currentDistance);
 
-    double maxDist = 177;
-    double maxDistSpeed = .585;
-    double minDist = 94;
-    double minDistSpeed = .4765;
-
-    double slope = (maxDistSpeed - minDistSpeed)/(maxDist - minDist);
-    double speed = slope * currentDistance + (maxDistSpeed - (maxDist * slope));
-
-    boolean validDistance = currentDistance <= maxDist && currentDistance >= minDist;
+    boolean validDistance = currentDistance <= kMaxDistance && currentDistance >= kMinDistance;
 
     // Works at 20 foot and wrench under front of shooter
     // topMotor.set(TalonFXControlMode.Velocity, maxVel * .675);
@@ -382,6 +450,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // topMotor.set(TalonFXControlMode.Velocity, 1650);
     // bottomMotor.set(TalonFXControlMode.Velocity, 1650);
     
+    setHood(hoodPosition);
+
     topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
     
@@ -394,14 +464,30 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // return false;
 
+    boolean atHoodPosition = isHoodAtPosition(hoodPosition);
     boolean atSpeed = isShooterAtSpeed(speed);
-    boolean canShoot = validDistance && atSpeed && targetAquired;
+    boolean canShoot = validDistance && atSpeed && targetAquired && atHoodPosition;
 
     //canShoot = atSpeed;
     
     SmartDashboard.putBoolean("Shooter:AtSpeed", atSpeed);
     SmartDashboard.putBoolean("Shooter:ValidDistance", validDistance);
     SmartDashboard.putBoolean("Shooter:TargetAquired", targetAquired);
+    SmartDashboard.putBoolean("Shooter:AtHoodPosition", atHoodPosition);
+
+    return canShoot;
+  }
+
+  public boolean shootNoAquireTarget() {
+    shooting = true;
+
+    boolean canShoot = spinUp(false);
+
+    if (canShoot) {
+      popperMotor.set(1);
+    } else {
+      popperMotor.set(0);
+    }
 
     return canShoot;
   }
@@ -420,10 +506,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return canShoot;
   }
 
-  public void setHood(){
+  public void setHood(double position){
     //hoodPid.setReference(1, ControlType.kSmartVelocity);
     //hoodMotor.set(1);
-    hoodPid.setReference(hoodOffset + 5, ControlType.kSmartMotion);
+    hoodPid.setReference(position, ControlType.kSmartMotion);
   }
 
   private NetworkTable getLimeLightTable() {
@@ -441,8 +527,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  private PIDController aquireTargetController = new PIDController(.015, 0, 0);
-
   public boolean aquireTarget() {
     setLEDs(true);
 
@@ -450,9 +534,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     double tv = table.getEntry("tv").getDouble(0);
     double tx = table.getEntry("tx").getDouble(0);
-    double ty = table.getEntry("ty").getDouble(0);
-    double ta = table.getEntry("ta").getDouble(0);
-
+ 
     double error = -tx;
     //double output = aquireTargetController.calculate(error, 0);
     double output = 0;
@@ -523,6 +605,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     //debug();
+    SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
   }
 
   public void debug() {
@@ -530,7 +613,7 @@ public class ShooterSubsystem extends SubsystemBase {
     writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
     SmartDashboard.putNumber("Turret:Angle", getTurretAngle());
-    SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition() - hoodOffset);
+    SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition());
     SmartDashboard.putNumber("Shooter:Hood:Velocity", hoodEncoder.getVelocity());
   }
 

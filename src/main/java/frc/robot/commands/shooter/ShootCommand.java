@@ -63,11 +63,23 @@ public class ShootCommand extends CommandBase {
     //  }
     //}
 
-    shooter.setLEDs(true);
+    //shooter.setHood(39.5);
 
-    atSpeed = shooter.shoot(.46);
-    //atSpeed = shooter.shoot(.605); //21ft 9in
-    //atSpeed = shooter.shoot(.655); //22ft 8in
+    shooter.setLEDs(true);
+    shooter.showVision(true);
+ /*
+   
+    atSpeed = shooter.shoot(.46, 1);
+    */
+
+    //Distance is calculated from the edge of the right side of the robot to the front of the vision tape
+
+    atSpeed = shooter.shootNoAquireTarget();
+    //atSpeed = shooter.shoot(.610, 38); //17 ft
+    //atSpeed = shooter.shoot(.545, 21); //13 ft
+    //atSpeed = shooter.shoot(.490, 0); //9 ft
+    //atSpeed = shooter.shoot(.45, 0); //6 ft
+
 /*
     if(wrongCargo) {
       atSpeed = shooter.shoot(.35);

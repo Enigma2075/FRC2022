@@ -51,13 +51,13 @@ public class PullupHigh extends CommandBase {
       count ++;
     }
     else {
-      climber.pivot(ArmPosition.Coast, true);
+    //  climber.pivot(ArmPosition.Coast, true);
     }
     
     //climber.runTapes();
 
     if(climber.getWinchError() < 12000) {
-      climber.pivot(ArmPosition.InnerLetGo, true);
+    //  climber.pivot(ArmPosition.InnerLetGo, true);
     }
 
     //if(liftOff.getAsBoolean()) {
