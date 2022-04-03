@@ -55,7 +55,7 @@ public class GrabBlueCargo extends RunProfileCommand {
     public void end(boolean interrupted) {
         super.end(interrupted);
 
-        intake.pivotTo(PivotPosition.HelpIntake);
+        intake.helpIntake();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class ResetPivot extends CommandBase {
   public void initialize() {
     climber.pivot(ArmPosition.BothMiddle, true);
     //climber.runTapes();
-    intake.pivotTo(PivotPosition.FullyUp);
+    intake.fullyUp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -8,21 +8,19 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
+import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 
 /** An example command that uses an example subsystem. */
 public class ClimbCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
-  private final DoubleSupplier tapePower;
-  
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ClimbCommand(ClimberSubsystem climber, DoubleSupplier tapePower) {
+  public ClimbCommand(ClimberSubsystem climber) {
     this.climber = climber;
-    this.tapePower = tapePower;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
@@ -35,14 +33,18 @@ public class ClimbCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    //if(ClimberSubsystem.hasClimbStarted()) {
-    //  climber.runTapes();
-    //}
-    climber.pivot(ArmPosition.Hold);
-
-    //climber.pivot(ArmPosition.Coast, true);
-    //climber.disablePivot();
+  public void execute() {    
+    if(!ClimberSubsystem.hasClimbStarted()) {
+      climber.pivot(ArmPosition.Hold);
+      
+      if(Math.abs(climber.getWinchError()) > 8000) {
+        climber.winch(WinchPosition.Hold);
+      }
+      else if (Math.abs(climber.getWinchError()) < 100) {
+        climber.winchStop();
+      }
+      //climber.winch(WinchPosition.Hold);
+    }
   }
 
   // Called once the command ends or is interrupted.

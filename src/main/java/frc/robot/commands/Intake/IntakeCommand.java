@@ -43,7 +43,7 @@ public class IntakeCommand extends CommandBase {
   @Override
   public void execute() {
     if(ClimberSubsystem.hasClimbStarted()) {
-      intakeSubsystem.pivotTo(PivotPosition.Down);
+      intakeSubsystem.downAndOff();
       return;
     }
 

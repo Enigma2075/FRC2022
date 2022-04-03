@@ -38,15 +38,12 @@ public class ShootCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //shooter.showVision(true);
+    shooter.setVision(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-    //shooter.shoot(true);
-
     boolean actuallyShoot = shootSupplier.getAsDouble() > .8;
 
     //System.out.printf("%b", actuallyShoot);
@@ -54,42 +51,35 @@ public class ShootCommand extends CommandBase {
     Boolean redCargo = indexer.isRedCargoAtPosition3();
 
     boolean wrongCargo = false;
-    //if(redCargo != null) {
-    //  if(redCargo && DriverStation.getAlliance() == Alliance.Blue) {
-    //    wrongCargo = true;
-    //  }
-    //  else if(!redCargo && DriverStation.getAlliance() == Alliance.Red) {
-    //    wrongCargo = true;
-    //  }
-    //}
+    if(redCargo != null) {
+      if(redCargo && DriverStation.getAlliance() == Alliance.Blue) {
+        wrongCargo = true;
+        
+      }
+      else if(!redCargo && DriverStation.getAlliance() == Alliance.Red) {
+        wrongCargo = true;
+      }
+    }
 
-    //shooter.setHood(39.5);
-
-    shooter.setLEDs(true);
-    shooter.showVision(true);
- /*
-   
-    atSpeed = shooter.shoot(.46, 1);
-    */
+    //atSpeed = shooter.shoot();
 
     //Distance is calculated from the edge of the right side of the robot to the front of the vision tape
-
-    atSpeed = shooter.shootNoAquireTarget();
     //atSpeed = shooter.shoot(.610, 38); //17 ft
     //atSpeed = shooter.shoot(.545, 21); //13 ft
     //atSpeed = shooter.shoot(.490, 0); //9 ft
     //atSpeed = shooter.shoot(.45, 0); //6 ft
 
-/*
+    shooter.updateVisionData();
+
     if(wrongCargo) {
-      atSpeed = shooter.shoot(.35);
+      atSpeed = shooter.shoot(.38, 38);
     } else if(actuallyShoot) {
-      atSpeed = shooter.shoot(); // 114.02 Distance
+      atSpeed = shooter.shoot();
     }
     else {
       shooter.spinUp();
     }
-  */
+  
     
     if(atSpeed) {
       indexer.index(true);

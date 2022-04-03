@@ -22,63 +22,71 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 
-public class ClimberSubsystem extends SubsystemBase { 
+public class ClimberSubsystem extends SubsystemBase {
   public enum ArmPosition {
     InitialGrab,
     BothMiddle,
     Hold,
     InnerGrab,
-    InnerLatch,
-    OuterGrab,
     OuterLatch,
-    InnerLetGo,
+    OuterGrab,
+    LatchHigh,
+    OuterLetGo,
+    High,
     Coast
   }
 
   public enum WinchPosition {
-    OuterOut(5000),//
-    InnerOut(200000),
-    InnerOutTwo(50000),
-    InnerLetGo(150000);
-    
+    // 10526 per inch
+    Hold(-5000),
+    //InnerOut(-20000), //
+    OuterOut(170000),
+    PullUp(-25000),
+    OuterOutTwo(5000),
+    OuterLetGo(145000);
+
     private int value;
     private static Map map = new HashMap<>();
 
     private WinchPosition(int value) {
-        this.value = value;
+      this.value = value;
     }
 
     static {
-        for (WinchPosition winchPosition : WinchPosition.values()) {
-            map.put(winchPosition.value, winchPosition);
-        }
+      for (WinchPosition winchPosition : WinchPosition.values()) {
+        map.put(winchPosition.value, winchPosition);
+      }
     }
 
     public static WinchPosition valueOf(int winchPosition) {
-        return (WinchPosition) map.get(winchPosition);
+      return (WinchPosition) map.get(winchPosition);
     }
 
     public int getValue() {
-        return value;
+      return value;
     }
-}
-  
-  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterPivotCanId, ClimberArmSubsystem.Side.Outer);
-  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerPivotCanId, ClimberArmSubsystem.Side.Inner);
+  }
+
+  private ClimberArmSubsystem outer = new ClimberArmSubsystem(ClimberConstants.kOuterPivotCanId,
+      ClimberArmSubsystem.Side.Outer);
+  private ClimberArmSubsystem inner = new ClimberArmSubsystem(ClimberConstants.kInnerPivotCanId,
+      ClimberArmSubsystem.Side.Inner);
 
   private WPI_TalonFX winch = new WPI_TalonFX(ClimberConstants.kWinchCanId, GeneralConstants.kCanBusAltName);
 
-  private static final double kWinchInitialSensorPos = 20000;  
+  //private static final double kWinchInitialSensorPos = 20000;
   private static final double kWinchCruiseVelocity = 18000; // Measured max velocity 22000
   private static final double kWinchAccelerationVelocity = 30000;
-  private static final double kWinchP = 0.05;
+  private static final double kWinchP = 0.06;
+  private static final double kWinchI = 0.0001;
+  private static final double kWinchIZone = 4000;
 
   private static final double kWinchForwardLimit = 244000; // 106000
-  private static final double kWinchReverseLimit = 0;
+  private static final double kWinchReverseLimit = -25000;
 
   private static boolean climbStarted = false;
 
-  private WinchPosition currentWinchPosition = WinchPosition.OuterOut;
+  private WinchPosition currentWinchPosition = WinchPosition.Hold;
 
   /** Creates a new ExampleSubsystem. */
   public ClimberSubsystem() {
@@ -99,10 +107,13 @@ public class ClimberSubsystem extends SubsystemBase {
     config.reverseSoftLimitThreshold = kWinchReverseLimit;
 
     config.slot0.kP = kWinchP;
+    config.slot0.kI = kWinchI;
+    config.slot0.integralZone = kWinchIZone;
+    
 
     winch.configAllSettings(config);
 
-    winch.setSelectedSensorPosition(kWinchInitialSensorPos, 0, 10);
+//    winch.setSelectedSensorPosition(kWinchInitialSensorPos, 0, 10);
   }
 
   public static void startClimb() {
@@ -118,91 +129,33 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void stop(boolean force) {
-    if(!climbStarted || force) {
-    //  inner.setTape(0);
-    //  outer.setTape(0);  
+    if (!climbStarted || force) {
+      // inner.setTape(0);
+      // outer.setTape(0);
     }
     winch.set(ControlMode.MotionMagic, winch.getSelectedSensorPosition());
-    //inner.holdPivot();
-    //outer.holdPivot();
+    // inner.holdPivot();
+    // outer.holdPivot();
   }
 
-//  public void runWinch() {
-//    winch.set(ControlMode.PercentOutput, .15);
-//  }
-
-  //private boolean hasWinchBeenPastHalf = false;
-
-  //public void runTapes() {
-  //  double innerPower = 0;
-  //  double outerPower = 0;
-
-  //  double winchVel = winch.getSelectedSensorVelocity() / kWinchCruiseVelocity;
-
-  //  if(!hasWinchBeenPastHalf && winch.getSelectedSensorPosition() > (kWinchForwardLimit/2) - 10000) {
-  //    hasWinchBeenPastHalf = true;
-  //  }
-
-  //  if(Math.abs(winchVel) > .1) {
-
-  //    if(!hasWinchBeenPastHalf) {
-  //      innerPower = .80;
-  //      outerPower = .80;
-  //    }
-  //    else {
-  //      innerPower = .80 * Math.signum(winchVel);
-  //      outerPower = .80 * Math.signum(winchVel)  * -1;
-  //    }
-
-  //    if(innerPower < 0) {
-  //      innerPower = innerPower * .35;
-  //    }
-      
-  //    if(outerPower < 0) {
-  //      outerPower = outerPower * .35;
-  //    }
-  //  }
-  //  else{
-  //    innerPower = .1;
-  //    outerPower = .1;
-  //  }
-
-    //runTapes(innerPower, outerPower);
- // }
-
-  //private void runTapes(double innerPower, double outerPower) {
-  //  inner.setTape(innerPower);
-  //  outer.setTape(outerPower);
-  //}
-
   public boolean shouldLetGo() {
-    return winch.getSelectedSensorPosition() < (WinchPosition.InnerOut.value/2);
+    return winch.getSelectedSensorPosition() < (WinchPosition.OuterOut.value / 2);
   }
 
   public boolean isWinchHalfWay() {
-    return winch.getSelectedSensorPosition() > (WinchPosition.InnerOut.value/2);
+    return winch.getSelectedSensorPosition() > (WinchPosition.OuterOut.value / 2);
   }
-
-  //public void testTapes(double power) {
-  //  inner.setTape(power);
-  //}
-
-//public void pivotArm() {
-//  
-  //inner.setPivot(PivotPosition.Test);
-  //outer.setPivot(PivotPosition.Test);
-//}
 
   public void pivot(ArmPosition position) {
     pivot(position, false);
   }
 
   public void pivot(ArmPosition position, boolean force) {
-    if(!climbStarted || force) {
-      switch(position) {
-        case InnerLatch:
+    if (!climbStarted || force) {
+      switch (position) {
+        case OuterLatch:
           inner.setPivot(PivotPosition.LetGo);
-          inner.setPivotCoast();
+          outer.setPivotCoast();
         case BothMiddle:
           inner.setPivot(PivotPosition.Middle);
           outer.setPivot(PivotPosition.Middle);
@@ -215,37 +168,48 @@ public class ClimberSubsystem extends SubsystemBase {
           outer.setPivotCoast();
           inner.setPivotCoast();
           break;
-        case OuterLatch:
-          outer.setPivot(PivotPosition.ForwardLatch);
-          inner.setPivotCoast();
+        case LatchHigh:
+          outer.setPivot(PivotPosition.Middle);
+          inner.setPivot(PivotPosition.ForwardLatch);
+          break;
+        case High:
+          outer.setPivot(PivotPosition.LetGo);
+          inner.setPivot(PivotPosition.Middle);
           break;
         case Hold:
           outer.setPivot(PivotPosition.Hold);
           inner.setPivot(PivotPosition.Hold);
           break;
         case InitialGrab:
-          outer.setPivot(PivotPosition.ForwardGrab);
-          inner.setPivot(PivotPosition.Grab);
+          outer.setPivot(PivotPosition.Grab);
+          inner.setPivot(PivotPosition.ForwardGrab);
           break;
-        case InnerLetGo:
-          inner.setPivot(PivotPosition.LetGo);
-          outer.setPivotCoast();
+        case OuterLetGo:
+          outer.setPivot(PivotPosition.LetGo);
+          inner.setPivotCoast();
       }
     }
   }
 
   public void winch(WinchPosition position) {
-    winch(position, false);    
+    winch(position, false);
   }
 
   public void winch(WinchPosition position, boolean addFF) {
     currentWinchPosition = position;
-    if(addFF) {
+    if (addFF) {
       winch.set(ControlMode.MotionMagic, position.value, DemandType.ArbitraryFeedForward, .25);
-    }
-    else {
+    } else {
       winch.set(ControlMode.MotionMagic, position.value);
     }
+  }
+
+  public WinchPosition getWinchPos() {
+    return currentWinchPosition;
+  }
+
+  public double getWinchEnc() {
+    return winch.getSelectedSensorPosition();
   }
 
   public void winchRaw(double power) {
@@ -264,10 +228,14 @@ public class ClimberSubsystem extends SubsystemBase {
     return Math.abs(currentWinchPosition.value - winch.getSelectedSensorPosition());
   }
 
+  public void winchStop() {
+    winch.set(ControlMode.PercentOutput, 0);
+  }
+
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Climb:WinchError", getWinchError());
+    // SmartDashboard.putNumber("Climb:Winch", winch.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Climb:WinchError", getWinchError());
 
     // This method will be called once per scheduler run
   }
@@ -275,5 +243,13 @@ public class ClimberSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+  }
+
+  public double getOuterPivotError() {
+    return outer.getPivotError();
+  }
+
+  public double getInnerPivotError() {
+    return inner.getPivotError();
   }
 }

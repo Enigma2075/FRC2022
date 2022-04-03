@@ -28,6 +28,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAlternateEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -94,10 +95,14 @@ public class ShooterSubsystem extends SubsystemBase {
   // Positive X Right
   // Positive Y Forward
 
-  private static final double kHoodP = 0.00000002;
-  private static final double kHoodI = 0;
+  private static final double kPipeOff = 0;
+  private static final double kPipeWide = 1;
+  private static final double kPipeZoom = 2;
+
+  private static final double kHoodP = 0.000001;
+  private static final double kHoodI = 0.02;
   private static final double kHoodD = 0;
-  private static final double kHoodIz = 0;
+  private static final double kHoodIz = 1;
   private static final double kHoodFF = 0.0001;
   private static final int kHoodMagicSlot = 0;
   private static final double kHoodMaxVel = 5000;
@@ -142,11 +147,18 @@ public class ShooterSubsystem extends SubsystemBase {
   private static double kMaxDistance = 17*12;
   private static double kMinDistance = 90;
 
+  private double currentTx = 0;
+  private double currentTy = 0;
 
-    //atSpeed = shooter.shoot(.610, 38); //17 ft 90
-    //atSpeed = shooter.shoot(.545, 21); //13 ft 124
-    //atSpeed = shooter.shoot(.490, 0); //9 ft 170
-    //atSpeed = shooter.shoot(.45, 0); //6 ft 216
+  //private LinearFilter txFilter = LinearFilter.movingAverage(3);
+  private LinearFilter tyFilter = LinearFilter.movingAverage(3);
+
+  private double currentTv = 0;
+
+    //atSpeed = shooter.shoot(.610, 38); //17 ft/216 in
+    //atSpeed = shooter.shoot(.545, 21); //13 ft/170 in
+    //atSpeed = shooter.shoot(.490, 0); //9 ft/124 in
+    //atSpeed = shooter.shoot(.45, 0); //6 ft/90 in
 
   public static double[][] kDistanceSpeedValues = {
     { 90, .45 },
@@ -167,8 +179,8 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public static double[][] kDistanceHoodValues = {
-    { 90, 0 },
-    { 124, 0 },
+    { 90, 0.0 },
+    { 124, 0.1 },
     { 170, 21},
     { 216, 38}
   };
@@ -269,8 +281,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     moveLimeLight(LimelightPosition.Default);
 
-    setLEDs(false);
-    showVision(false);
+    setVision(false);
   }
 
   private void configShooterMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -321,19 +332,6 @@ public class ShooterSubsystem extends SubsystemBase {
     turretMotor.set(ControlMode.MotionMagic, target);
   }
 
-  public void showVision(boolean yes) {
-    NetworkTable table = getLimeLightTable();
-
-    NetworkTableEntry entry = table.getEntry("stream");
-    
-    if(yes) {
-        entry.setNumber(1);
-    }
-    else {
-        entry.setNumber(2);
-    }
-  }
-
   public static boolean isShooting() {
     return shooting;
   }
@@ -346,24 +344,17 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isHoodAtPosition(double targetPosition) {
-    return Math.abs(hoodEncoder.getPosition() - targetPosition) < .5;
+    return Math.abs(hoodEncoder.getPosition() - targetPosition) < 1;
   }
 
   public double getDistanceFromTarget() {
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    double ty = table.getEntry("ty").getDouble(0);
-
-    //double limelightAngle = 42;
-    //double targetHeight = 102.25;
-    //double limelightHeight = 26.4325;
     double limelightAngle = 25; //33.6;
-    //double targetHeight = 103;
-    double targetHeight = 102;
+    double targetHeight = 103; // 102 at West
     double limelightHeight = 39.6;
 
-    double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + ty)));
+    double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + currentTy)));
 
-    SmartDashboard.putNumber("Shooter:AtDistance", currentDistance);
+    //SmartDashboard.putNumber("Shooter:AtDistance", currentDistance);
     
     return currentDistance;
   }
@@ -466,10 +457,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     boolean atHoodPosition = isHoodAtPosition(hoodPosition);
     boolean atSpeed = isShooterAtSpeed(speed);
-    boolean canShoot = validDistance && atSpeed && targetAquired && atHoodPosition;
+    boolean canShoot = validDistance && atSpeed && targetAquired && atHoodPosition && currentTv != 0;
 
-    //canShoot = atSpeed;
-    
     SmartDashboard.putBoolean("Shooter:AtSpeed", atSpeed);
     SmartDashboard.putBoolean("Shooter:ValidDistance", validDistance);
     SmartDashboard.putBoolean("Shooter:TargetAquired", targetAquired);
@@ -510,30 +499,62 @@ public class ShooterSubsystem extends SubsystemBase {
     //hoodPid.setReference(1, ControlType.kSmartVelocity);
     //hoodMotor.set(1);
     hoodPid.setReference(position, ControlType.kSmartMotion);
+
+    //SmartDashboard.putNumber("Shooter:HoodTarget", position);
   }
 
   private NetworkTable getLimeLightTable() {
     return NetworkTableInstance.getDefault().getTable("limelight");
   }
 
-  public void setLEDs(boolean on) {
+  public void setVision(boolean shooting) {
     NetworkTable table = getLimeLightTable();
 
-    NetworkTableEntry entry = table.getEntry("ledMode");
-    if (on) {
-      entry.setNumber(3);
-    } else if (!on) {
-      entry.setNumber(1);
+    NetworkTableEntry pipe = table.getEntry("pipeline");
+    NetworkTableEntry stream = table.getEntry("stream");
+
+    if (shooting) {
+      stream.setNumber(1);
+      pipe.setNumber(kPipeWide);
+    } else if (!shooting) {
+      stream.setNumber(2);
+      pipe.setNumber(kPipeOff);
+    }
+  }
+
+  public void updateVisionData() {
+    NetworkTable table = getLimeLightTable();
+
+    double oldTv = currentTv;
+    currentTv = table.getEntry("tv").getDouble(0);
+
+    if(currentTv !=0 && oldTv == 0) {
+      //txFilter.reset();
+      tyFilter.reset();
+    }
+
+    if(currentTv != 0) { 
+      currentTx = table.getEntry("tx").getDouble(0); //txFilter.calculate(table.getEntry("tx").getDouble(0));
+      currentTy = tyFilter.calculate(table.getEntry("ty").getDouble(0));
     }
   }
 
   public boolean aquireTarget() {
-    setLEDs(true);
-
     NetworkTable table = getLimeLightTable();
+    NetworkTableEntry pipe = table.getEntry("pipeline");
 
-    double tv = table.getEntry("tv").getDouble(0);
-    double tx = table.getEntry("tx").getDouble(0);
+    double tv = currentTv;
+    double tx = currentTx;
+
+    if(tv == 0) {
+      pipe.setNumber(kPipeWide);
+    }
+    else if (Math.abs(tx) < 5) {
+      pipe.setNumber(kPipeWide);
+    }
+    else {
+      pipe.setNumber(kPipeWide);
+    }
  
     double error = -tx;
     //double output = aquireTargetController.calculate(error, 0);
@@ -597,15 +618,16 @@ public class ShooterSubsystem extends SubsystemBase {
     turretMotor.set(ControlMode.MotionMagic, turretMotor.getSelectedSensorPosition());
 
     shooting = false;
-
-    setLEDs(false);
+    setVision(false);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     //debug();
-    SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    //updateVisionData();
+    //SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());
+    //SmartDashboard.putNumber("Shooter:Hood:Position", hoodEncoder.getPosition());
   }
 
   public void debug() {

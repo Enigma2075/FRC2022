@@ -34,9 +34,6 @@ public class Rumble extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.pivot(ArmPosition.BothMiddle, true);
-    //climber.runTapes();
-    intake.pivotTo(PivotPosition.FullyUp);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

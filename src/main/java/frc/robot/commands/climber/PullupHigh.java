@@ -17,16 +17,21 @@ import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 public class PullupHigh extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
-  private final BooleanSupplier liftOff;
+  public enum State {
+    Initialize,
+    WinchToLetGo,
+    CoastArms
+  }
+
+  State currentState = State.Initialize;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public PullupHigh(ClimberSubsystem climber, BooleanSupplier liftOff) {
+  public PullupHigh(ClimberSubsystem climber) {
     this.climber = climber;
-    this.liftOff= liftOff;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
   }
@@ -34,7 +39,6 @@ public class PullupHigh extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.winch(WinchPosition.InnerOutTwo, true);
   }
 
   @Override
@@ -42,27 +46,31 @@ public class PullupHigh extends CommandBase {
     return false;
   }
 
-  int count = 0;
+  public void reset() {
+    currentState = State.Initialize;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(count < 8) {
-      count ++;
-    }
-    else {
-    //  climber.pivot(ArmPosition.Coast, true);
-    }
-    
-    //climber.runTapes();
 
-    if(climber.getWinchError() < 12000) {
-    //  climber.pivot(ArmPosition.InnerLetGo, true);
+    switch (currentState) {
+      case Initialize:
+        currentState = State.WinchToLetGo;    
+      break;
+      case WinchToLetGo:
+        climber.winch(WinchPosition.OuterLetGo);     
+        if(WinchPosition.PullUp.getValue() + 20000 < climber.getWinchEnc() ) {
+          climber.pivot(ArmPosition.High, true);
+          currentState = State.CoastArms;
+        }
+      break;
+      case CoastArms:
+        if(Math.abs(climber.getWinchError()) < 10000) {
+          //climber.pivot(ArmPosition.OuterLetGo);
+        }
+      break;
     }
-
-    //if(liftOff.getAsBoolean()) {
-      //climber.pivot(ArmPosition.InnerLetGo, true);
-    //}
   }
 
   // Called once the command ends or is interrupted.

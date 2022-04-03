@@ -27,11 +27,11 @@ public class ClimberArmSubsystem extends SubsystemBase {
   
   public enum PivotPosition {
     Forwards(4300), // MAX
-    Hold(0),
-    Grab(3300),
-    ForwardGrab(2300),
-    ForwardLatch(2900),
-    LetGo(1400),
+    Hold(-100),
+    Grab(3100),
+    ForwardGrab(3900),
+    ForwardLatch(4650),
+    LetGo(2500),
     //MidFront(2),
     Middle(3300), // Straight Up
     //MidBack(4),//
@@ -87,10 +87,10 @@ public class ClimberArmSubsystem extends SubsystemBase {
     //tapeMeasure.configFactoryDefault(10);
     pivot.configFactoryDefault(10);
 
-    TalonSRXConfiguration tapeConfig = new TalonSRXConfiguration();
-    tapeConfig.continuousCurrentLimit = 3;
-    tapeConfig.peakCurrentLimit = 15;
-    tapeConfig.peakCurrentDuration = 100;
+    //TalonSRXConfiguration tapeConfig = new TalonSRXConfiguration();
+    //tapeConfig.continuousCurrentLimit = 3;
+    //tapeConfig.peakCurrentLimit = 15;
+    //tapeConfig.peakCurrentDuration = 100;
 
     //tapeMeasure.configAllSettings(tapeConfig);
     //tapeMeasure.enableCurrentLimit(false);
@@ -135,7 +135,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
     pivot.configAllSettings(pivotConfig);
 
-    pivot.setSelectedSensorPosition(pivotPoistion, 0, 10);
+    //pivot.setSelectedSensorPosition(pivotPoistion, 0, 10);
       
     //configServo(top, topPort);
     //configServo(bottom, bottomPort);
@@ -160,6 +160,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
   }
 
   public void setPivot(PivotPosition position) {
+    currentPivotTarget = position.value;
     pivot.set(ControlMode.MotionMagic, position.value);
     
     //pivot.set(ControlMode.PercentOutput, 1);
@@ -180,6 +181,12 @@ public class ClimberArmSubsystem extends SubsystemBase {
   // public double getPosition() {
   //   return pivot.getSelectedSensorPosition() - pivotOffset; 
   // }
+
+  double currentPivotTarget = 0;
+
+  public double getPivotError() {
+    return pivot.getSelectedSensorPosition() - currentPivotTarget;
+  }
 
   @Override
   public void periodic() {

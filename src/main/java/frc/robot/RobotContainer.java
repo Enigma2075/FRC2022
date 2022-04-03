@@ -20,8 +20,7 @@ import frc.robot.commands.auto.LeftSide.LeftFull;
 import frc.robot.commands.auto.RightSide.GrabCargo;
 import frc.robot.commands.auto.RightSide.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
-import frc.robot.commands.climber.LatchHigh;
-import frc.robot.commands.climber.MoveClimbCommand;
+import frc.robot.commands.climber.ResetClimb;
 import frc.robot.commands.climber.Pullup;
 import frc.robot.commands.climber.PullupHigh;
 import frc.robot.commands.drivetrain.DriveCommand;
@@ -69,15 +68,15 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    //climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getLeftY));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem));
     
     //intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
-    //driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
+    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
 
-    indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
+    //indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    //shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
+    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
 
     // Add commands to the autonomous command chooser
     chooser.setDefaultOption("Right", rightFullCommand);
@@ -104,13 +103,14 @@ public class RobotContainer {
      .whenHeld(new Pullup(climberSubsystem));
 
     new JoystickButton(operatorController, Button.kX.value)
-     .whenHeld(new StartClimb(climberSubsystem));
+     .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem));
     
+    PullupHigh pullUpHigh = new PullupHigh(climberSubsystem);
     new JoystickButton(operatorController, Button.kY.value)
-     .whenHeld(new PullupHigh(climberSubsystem, driverController::getBButton));
+     .whenHeld(pullUpHigh);
 
     new JoystickButton(operatorController, Button.kA.value)
-     .whenHeld(new LatchHigh(climberSubsystem));
+     .whenHeld(new ResetClimb(climberSubsystem, pullUpHigh));
 
     new JoystickButton(driverController, Button.kA.value)
      .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
@@ -129,7 +129,7 @@ public class RobotContainer {
   public void teleopInit() {
     driveSubsystem.setDriveMode(DriveMode.Normal);
     driveSubsystem.setNeutralMode(NeutralMode.Coast);
-    shooterSubsystem.setLEDs(false);
+    shooterSubsystem.setVision(false);
   }
 
   public void updateDrive() {

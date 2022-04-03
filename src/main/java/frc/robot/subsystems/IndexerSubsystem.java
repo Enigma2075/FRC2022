@@ -14,14 +14,24 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IndexerConstants;
 
 public class IndexerSubsystem extends SubsystemBase {
+  public enum IndexerState {
+    Stop,
+    OnlySingulizer,
+    Run
+  }
+
+  private IndexerState currentState = IndexerState.OnlySingulizer;
+
   public final WPI_TalonSRX indexerMotor = new WPI_TalonSRX(IndexerConstants.kIndexerCanId);
   public final WPI_VictorSPX singleMotor = new WPI_VictorSPX(IndexerConstants.kSingulizerCanId);
-  // public final WPI_TalonSRX singleMotor = new WPI_TalonSRX(IndexerConstants.kSingulizerCanId);
+  // public final WPI_TalonSRX singleMotor = new
+  // WPI_TalonSRX(IndexerConstants.kSingulizerCanId);
 
   private DigitalInput position1 = new DigitalInput(IndexerConstants.kSensor1DioPort);
   private DigitalInput position2 = new DigitalInput(IndexerConstants.kSensor2DioPort);
@@ -67,12 +77,18 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   private Boolean lastCargoAtPosition3 = null;
+  private double lastCargoAtPosition3timestamp = 0;
 
   public Boolean isRedCargoAtPosition3() {
-    if(getPosition3() && redCargo.get()) {
+    double currentTimestamp = Timer.getFPGATimestamp();
+    boolean timeElapsed = currentTimestamp - lastCargoAtPosition3timestamp > .5;
+    if (getPosition3() && redCargo.get() && (lastCargoAtPosition3 == null || lastCargoAtPosition3 == false)
+        && timeElapsed) {
+      lastCargoAtPosition3timestamp = currentTimestamp;
       lastCargoAtPosition3 = true;
-    }
-    else if (getPosition3() && !redCargo.get()) {
+    } else if (getPosition3() && !redCargo.get() && (lastCargoAtPosition3 == null || lastCargoAtPosition3 == true)
+        && timeElapsed) {
+      lastCargoAtPosition3timestamp = currentTimestamp;
       lastCargoAtPosition3 = false;
     }
 
@@ -85,44 +101,57 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public void index(boolean force) {
     // Force both motors to run if the caller is forcing.
-    
+    boolean curPosition1 = getPosition1();
+    boolean curPosition2 = getPosition2();
+    boolean curPosition3 = getPosition3();
+
+    IndexerState requestedState = IndexerState.OnlySingulizer;
+
     if (force) {
-      indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, 1);
-    
-      return;
+      requestedState = IndexerState.Run;
     }
 
     // If we don't have a ball in any position then don't run
-    if(!getPosition1() && !getPosition3() && !getPosition2()) {
-      indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 1);
-    
-      return;
+    if (!curPosition1 && !curPosition3 && !curPosition2) {
+      requestedState = IndexerState.OnlySingulizer;
     }
 
     // We already have all cargo in indexer
-    if (getPosition3() && getPosition2()) {
-      indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 0);
-    } 
+    if (curPosition3 && curPosition2) {
+      requestedState = IndexerState.Stop;
+    }
     // We have cargo in position3 && position1 but not position2
-    else if (getPosition3() && !getPosition2() && getPosition1()) {
-      indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 1);
-    } 
+    else if (curPosition3 && !curPosition2 && curPosition1) {
+      requestedState = IndexerState.OnlySingulizer;
+    }
     // We have cargo only in position1
-    else if (!getPosition3() && !getPosition2() && getPosition1()) {
-      indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, 1);
+    else if (!curPosition3 && !curPosition2 && curPosition1) {
+      requestedState = IndexerState.Run;
+    } else if (curPosition2 && !curPosition3) {
+      requestedState = IndexerState.Run;
+    } else {
+      requestedState = IndexerState.OnlySingulizer;
     }
-    else if (getPosition2() && !getPosition3()) {
-      indexerMotor.set(ControlMode.PercentOutput, .80);
-      singleMotor.set(ControlMode.PercentOutput, 1);
+
+    if (requestedState == currentState) {
+      return;
     }
-    else {
-      indexerMotor.set(ControlMode.PercentOutput, 0);
-      singleMotor.set(ControlMode.PercentOutput, 1);
+
+    currentState = requestedState;
+    switch (currentState) {
+      case Run:
+        indexerMotor.set(ControlMode.PercentOutput, .80);
+        singleMotor.set(ControlMode.PercentOutput, 1);
+        break;
+      case Stop:
+        indexerMotor.set(ControlMode.PercentOutput, 0);
+        singleMotor.set(ControlMode.PercentOutput, 0);
+        break;
+      case OnlySingulizer:
+      default:
+        indexerMotor.set(ControlMode.PercentOutput, .80);
+        singleMotor.set(ControlMode.PercentOutput, 1);
+        break;
     }
 
     /*
@@ -160,16 +189,20 @@ public class IndexerSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    debug();
+    // debug();
   }
 
   public void debug() {
     SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
     SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
     SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
-    //if(isRedCargoAtPosition3() != null) {
-      //SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
-    //}
+    Boolean redCargo = isRedCargoAtPosition3();
+    if (redCargo != null) {
+      SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
+    }
+    // if(isRedCargoAtPosition3() != null) {
+    // SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
+    // }
 
     // writeMotorDebug("Index", indexerMotor);
     // writeMotorDebug("Singulizer", singulizerMotor);

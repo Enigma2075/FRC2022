@@ -43,7 +43,7 @@ public class DriveToShoot extends RunProfileCommand {
     public void initialize() {
         super.initialize();
 
-        intake.pivotTo(PivotPosition.Up);
+        intake.stop();
 
         startProfile();
     }

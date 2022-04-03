@@ -28,6 +28,17 @@ import frc.robot.Constants;
 import frc.robot.Constants.intakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
+  public enum IntakeState {
+    Intake,
+    Outtake,
+    DownAndOff,
+    PartialIntake,
+    FullyUp,
+    Stop
+  }
+
+  private IntakeState currentState = IntakeState.Stop;
+
   public enum PivotPosition {
     Down(1810),
     Up(200),
@@ -72,12 +83,6 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotMotor.configFactoryDefault(10);
 
     barMotor.setNeutralMode(NeutralMode.Coast);
-    //var currentLimitConfig = new SupplyCurrentLimitConfiguration();
-    //currentLimitConfig.enable = true;
-    //currentLimitConfig.currentLimit = 8;
-    //currentLimitConfig.triggerThresholdCurrent = 10;
-    //currentLimitConfig.triggerThresholdTime = .01;
-    //barMotor.configSupplyCurrentLimit(currentLimitConfig);
 
     SensorCollection sensors = pivotMotor.getSensorCollection();
     sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kPivotZeroOffset), 10);
@@ -87,11 +92,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     TalonSRXConfiguration config = new TalonSRXConfiguration();
 
-    // config.supplyCurrLimit.enable = true;
-    // config.supplyCurrLimit.triggerThresholdCurrent = 50;
-    // config.supplyCurrLimit.triggerThresholdTime = 50;
-    // config.supplyCurrLimit.currentLimit = 40;
-
     config.primaryPID.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
     config.motionCruiseVelocity = kPivotCruiseVelocity;
     config.motionAcceleration = kPivotAccelerationVelocity;
@@ -99,52 +99,56 @@ public class IntakeSubsystem extends SubsystemBase {
     config.slot0.kP = kPivotP;
 
     pivotMotor.configAllSettings(config);
-
-    // config.slot0.kP = intakeConstants.kSlot1P;
-    // config.slot0.kI = intakeConstants.kSlot1I;
-    // config.slot0.kD = intakeConstants.kSlot1D;
-    /// config.slot0.kF = intakeConstants.kSlot1F;
   }
 
-  // private void configBarMotor(WPI_VictorSPX motor, VictorSPXConfiguration
-  // config) {
-  // motor.setNeutralMode(NeutralMode.Coast);
-  // motor.configAllSettings(config);
-  // }
-
-  // private VictorSPXConfiguration getCommonIntakeMotorConfig() {
-  // VictorSPXConfiguration config = new VictorSPXConfiguration();
-
-  // config.supplyCurrLimit.enable = true;
-  // config.supplyCurrLimit.triggerThresholdCurrent = 50;
-  // config.supplyCurrLimit.triggerThresholdTime = 50;
-  // config.supplyCurrLimit.currentLimit = 40;
-
-  // config.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
-
-  // config.slot0.kP = intakeConstants.kSlot1P;
-  // config.slot0.kI = intakeConstants.kSlot1I;
-  // config.slot0.kD = intakeConstants.kSlot1D;
-  /// config.slot0.kF = intakeConstants.kSlot1F;
-
-  // return config;
-  // }
+  public void downAndOff() {
+    if(currentState != IntakeState.DownAndOff) {
+      barMotor.set(ControlMode.PercentOutput, 0);
+      pivotTo(PivotPosition.Down);
+      currentState = IntakeState.DownAndOff;
+    }
+  }
 
   public void intake() {
-    barMotor.set(ControlMode.PercentOutput, .70);
-    pivotTo(PivotPosition.Down);
+    if(currentState != IntakeState.Intake) {
+      barMotor.set(ControlMode.PercentOutput, .80);
+      pivotTo(PivotPosition.Down);
+      currentState = IntakeState.Intake;
+    }
+  }
+
+  public void fullyUp() {
+    if(currentState != IntakeState.FullyUp) {
+      barMotor.set(ControlMode.PercentOutput, 0);
+      pivotTo(PivotPosition.FullyUp);
+      currentState = IntakeState.FullyUp;
+    }
   }
 
   public void outtake() {
-    barMotor.set(ControlMode.PercentOutput, -.70);
+    if(currentState != IntakeState.Outtake) {
+      currentState = IntakeState.Outtake;
+      barMotor.set(ControlMode.PercentOutput, -.70);
+    }
+  }
+
+  public void helpIntake() {
+    if(currentState != IntakeState.PartialIntake) {
+      barMotor.set(ControlMode.PercentOutput, .80);
+      pivotTo(PivotPosition.HelpIntake);
+      currentState = IntakeState.PartialIntake;
+    }
   }
 
   public void stop() {
-    barMotor.set(ControlMode.PercentOutput, 0.2);
-    pivotTo(PivotPosition.Up);
+    if(currentState != IntakeState.Stop) {
+      barMotor.set(ControlMode.PercentOutput, 0.2);
+      pivotTo(PivotPosition.Up);
+      currentState = IntakeState.Stop;
+    }
   }
 
-  public void pivotTo(PivotPosition position) {
+  private void pivotTo(PivotPosition position) {
     double kMeasuredPosHorizontal = 840; //Position measured when arm is horizontal
     double kTicksPerDegree = PivotPosition.Down.value / 90.0; // The pivot moves 90 degrees
     double currentPos = pivotMotor.getSelectedSensorPosition();
@@ -160,14 +164,14 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    debug();
+    //debug();
   }
 
   public void debug() {
     SensorCollection sensors = pivotMotor.getSensorCollection();
     
-    //SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
-    //SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Intake:Pivot:Absolute", sensors.getPulseWidthPosition());
+    SmartDashboard.putNumber("Intake:Pivot:Position", pivotMotor.getSelectedSensorPosition());
   }
 
   @Override

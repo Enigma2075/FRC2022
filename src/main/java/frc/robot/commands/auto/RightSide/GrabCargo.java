@@ -50,7 +50,7 @@ public class GrabCargo extends RunProfileCommand {
         var pose = drivetrain.getCurrentGlobalPosition();
         var headingDeg = Math.toDegrees(pose.getHeading());
         if(headingDeg < 355 && headingDeg > 340) {
-            intake.pivotTo(PivotPosition.HelpIntake);
+            intake.helpIntake();
         }
     }
 
@@ -67,7 +67,7 @@ public class GrabCargo extends RunProfileCommand {
 
     @Override
     public void end(boolean interrupted) {
-        intake.pivotTo(PivotPosition.Down);
+        intake.intake();
 
         super.end(interrupted);
     }

@@ -43,13 +43,14 @@ public class GrabSecondCargo extends RunProfileCommand {
     public void end(boolean interrupted) {
         super.end(interrupted);
 
-        intake.pivotTo(PivotPosition.HelpIntake);
+        intake.helpIntake();
     }
 
     @Override
     public void initialize() {
         super.initialize();
 
+        
         indexer.index();
         intake.intake();
 
