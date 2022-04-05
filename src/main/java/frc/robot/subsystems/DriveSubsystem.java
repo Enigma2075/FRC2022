@@ -209,7 +209,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private void configDriveMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
     motor.setNeutralMode(NeutralMode.Coast);
-    motor.configAllSettings(config);
+    motor.configAllSettings(config, 10);
   }
 
   private TalonFXConfiguration getCommonDriveMotorConfig() {

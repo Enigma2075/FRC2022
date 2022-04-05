@@ -55,7 +55,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   private void configIndexerMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
     motor.setNeutralMode(NeutralMode.Coast);
-    motor.configAllSettings(config);
+    motor.configAllSettings(config, 10);
   }
 
   private TalonFXConfiguration getCommonIndexerMotorConfig() {
@@ -107,10 +107,6 @@ public class IndexerSubsystem extends SubsystemBase {
 
     IndexerState requestedState = IndexerState.OnlySingulizer;
 
-    if (force) {
-      requestedState = IndexerState.Run;
-    }
-
     // If we don't have a ball in any position then don't run
     if (!curPosition1 && !curPosition3 && !curPosition2) {
       requestedState = IndexerState.OnlySingulizer;
@@ -133,6 +129,10 @@ public class IndexerSubsystem extends SubsystemBase {
       requestedState = IndexerState.OnlySingulizer;
     }
 
+    if (force) {
+      requestedState = IndexerState.Run;
+    }
+
     if (requestedState == currentState) {
       return;
     }
@@ -149,7 +149,7 @@ public class IndexerSubsystem extends SubsystemBase {
         break;
       case OnlySingulizer:
       default:
-        indexerMotor.set(ControlMode.PercentOutput, .80);
+        indexerMotor.set(ControlMode.PercentOutput, 0);
         singleMotor.set(ControlMode.PercentOutput, 1);
         break;
     }
@@ -182,14 +182,17 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void stop() {
-    indexerMotor.set(ControlMode.PercentOutput, 0);
-    singleMotor.set(ControlMode.PercentOutput, 0);
+    if(currentState != IndexerState.Stop) {
+      currentState = IndexerState.Stop;
+      indexerMotor.set(ControlMode.PercentOutput, 0);
+      singleMotor.set(ControlMode.PercentOutput, 0);
+    }
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // debug();
+    debug();
   }
 
   public void debug() {
@@ -200,6 +203,7 @@ public class IndexerSubsystem extends SubsystemBase {
     if (redCargo != null) {
       SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
     }
+    SmartDashboard.putString("Indexer:State", currentState.name());
     // if(isRedCargoAtPosition3() != null) {
     // SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
     // }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.Faults;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -250,7 +251,7 @@ public class ShooterSubsystem extends SubsystemBase {
     turretConfig.slot1.kF = kTurretPID1F;
     turretConfig.slot1.kP = kTurretPID1P;
 
-    turretMotor.configAllSettings(turretConfig);
+    turretMotor.configAllSettings(turretConfig, 10);
 
     turretMotor.setSelectedSensorPosition(kTurretInitialCount);
 
@@ -286,7 +287,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private void configShooterMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
     motor.setNeutralMode(NeutralMode.Coast);
-    motor.configAllSettings(config);
+    motor.configAllSettings(config, 10);
   }
 
   private void moveLimeLight(LimelightPosition position) {
@@ -394,7 +395,7 @@ public class ShooterSubsystem extends SubsystemBase {
     boolean atSpeed = isShooterAtSpeed(shooterSpeed);
     
     shooting = true;
-    
+ 
     if(atSpeed) {
       popperMotor.set(1);
       return true;

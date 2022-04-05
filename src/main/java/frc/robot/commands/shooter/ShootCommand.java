@@ -72,7 +72,7 @@ public class ShootCommand extends CommandBase {
     shooter.updateVisionData();
 
     if(wrongCargo) {
-      atSpeed = shooter.shoot(.38, 38);
+      atSpeed = shooter.shoot(.35, 38);
     } else if(actuallyShoot) {
       atSpeed = shooter.shoot();
     }

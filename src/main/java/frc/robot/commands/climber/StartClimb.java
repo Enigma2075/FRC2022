@@ -47,7 +47,7 @@ public class StartClimb extends CommandBase {
       climber.pivot(ArmPosition.InitialGrab, true);
 
       if(Math.abs(climber.getOuterPivotError()) < 1000) {
-        climber.winch(WinchPosition.OuterOut);
+        climber.winch(WinchPosition.InitialGrab);
       }
    }
   }

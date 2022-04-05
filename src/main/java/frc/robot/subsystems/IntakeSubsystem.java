@@ -98,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     config.slot0.kP = kPivotP;
 
-    pivotMotor.configAllSettings(config);
+    pivotMotor.configAllSettings(config, 10);
   }
 
   public void downAndOff() {

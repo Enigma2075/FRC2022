@@ -70,11 +70,11 @@ public class RobotContainer {
 
     climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem));
     
-    //intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
     driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
 
-    //indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
+    indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
     shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
 

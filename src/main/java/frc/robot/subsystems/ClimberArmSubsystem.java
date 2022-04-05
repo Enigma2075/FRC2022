@@ -31,7 +31,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
     Grab(3100),
     ForwardGrab(3900),
     ForwardLatch(4650),
-    LetGo(2500),
+    LetGo(2800),
     //MidFront(2),
     Middle(3300), // Straight Up
     //MidBack(4),//
@@ -133,7 +133,7 @@ public class ClimberArmSubsystem extends SubsystemBase {
 
     pivotConfig.slot0.kP = 1.5;
 
-    pivot.configAllSettings(pivotConfig);
+    pivot.configAllSettings(pivotConfig, 10);
 
     //pivot.setSelectedSensorPosition(pivotPoistion, 0, 10);
       

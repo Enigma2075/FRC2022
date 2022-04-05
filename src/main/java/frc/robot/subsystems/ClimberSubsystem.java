@@ -40,7 +40,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // 10526 per inch
     Hold(-5000),
     //InnerOut(-20000), //
-    OuterOut(170000),
+    InitialGrab(175000),
     PullUp(-25000),
     OuterOutTwo(5000),
     OuterLetGo(145000);
@@ -111,7 +111,7 @@ public class ClimberSubsystem extends SubsystemBase {
     config.slot0.integralZone = kWinchIZone;
     
 
-    winch.configAllSettings(config);
+    winch.configAllSettings(config, 10);
 
 //    winch.setSelectedSensorPosition(kWinchInitialSensorPos, 0, 10);
   }
@@ -139,11 +139,11 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public boolean shouldLetGo() {
-    return winch.getSelectedSensorPosition() < (WinchPosition.OuterOut.value / 2);
+    return winch.getSelectedSensorPosition() < (WinchPosition.InitialGrab.value / 2);
   }
 
   public boolean isWinchHalfWay() {
-    return winch.getSelectedSensorPosition() > (WinchPosition.OuterOut.value / 2);
+    return winch.getSelectedSensorPosition() > (WinchPosition.InitialGrab.value / 2);
   }
 
   public void pivot(ArmPosition position) {

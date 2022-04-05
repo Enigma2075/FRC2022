@@ -37,7 +37,7 @@ public class ShootNotCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    boolean atSpeed = shooter.shoot(.45, 0);
+    boolean atSpeed = shooter.shoot(.35, 38);
     
     //boolean atSpeed = shooter.shoot(.32, 1);
     
