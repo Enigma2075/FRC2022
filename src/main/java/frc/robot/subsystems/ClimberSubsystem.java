@@ -43,7 +43,7 @@ public class ClimberSubsystem extends SubsystemBase {
     InitialGrab(175000),
     PullUp(-25000),
     OuterOutTwo(5000),
-    OuterLetGo(145000);
+    PullupHigh(170000);
 
     private int value;
     private static Map map = new HashMap<>();

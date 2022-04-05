@@ -59,7 +59,7 @@ public class PullupHigh extends CommandBase {
         currentState = State.WinchToLetGo;    
       break;
       case WinchToLetGo:
-        climber.winch(WinchPosition.OuterLetGo);     
+        climber.winch(WinchPosition.PullupHigh);     
         if(WinchPosition.PullUp.getValue() + 20000 < climber.getWinchEnc() ) {
           climber.pivot(ArmPosition.High, true);
           currentState = State.CoastArms;
