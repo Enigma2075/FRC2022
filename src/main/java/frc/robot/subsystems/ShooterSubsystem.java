@@ -165,7 +165,7 @@ public class ShooterSubsystem extends SubsystemBase {
     { 90, .45 },
     { 124, .49 },
     { 170, .545},
-    { 216, .61}
+    { 216, .625}
   };
 
   static {
