@@ -14,6 +14,9 @@ import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 public class ClimbCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
+
+  private boolean isHolding = false;
+
   /**
    * Creates a new ExampleCommand.
    *
@@ -29,18 +32,23 @@ public class ClimbCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if(!ClimberSubsystem.hasClimbStarted()) {
+      climber.pivot(ArmPosition.Hold);
+      climber.winchStop();
+      isHolding = false;
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {    
     if(!ClimberSubsystem.hasClimbStarted()) {
-      climber.pivot(ArmPosition.Hold);
-      
-      if(Math.abs(climber.getWinchError()) > 8000) {
+      if(Math.abs(climber.getWinchError()) > 8000 && !isHolding) {
+        isHolding = true;
         climber.winch(WinchPosition.Hold);
       }
-      else if (Math.abs(climber.getWinchError()) < 100) {
+      else if (Math.abs(climber.getWinchError()) < 100 && isHolding) {
+        isHolding = false;
         climber.winchStop();
       }
       //climber.winch(WinchPosition.Hold);

@@ -43,6 +43,10 @@ public class TurretCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    moveTurret();
+  }
+
+  public void moveTurret() {
     if(ClimberSubsystem.hasClimbStarted()) {
       //shooter.turret(180);
       return;

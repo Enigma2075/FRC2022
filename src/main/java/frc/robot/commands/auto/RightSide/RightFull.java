@@ -3,10 +3,12 @@ package frc.robot.commands.auto.RightSide;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Intake.IntakeForceCommand;
 import frc.robot.commands.auto.Shoot;
+import frc.robot.commands.shooter.MoveTurretCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -41,9 +43,9 @@ public class RightFull extends SequentialCommandGroup{
         
         addCommands(grabCargo);
         addCommands(new ParallelRaceGroup(shoot1, new IntakeForceCommand(intake)));
-        addCommands(grabSecondCargo);
+        addCommands(new ParallelCommandGroup(grabSecondCargo, new MoveTurretCommand(shooter, 220)));
         addCommands(shoot2);
-        addCommands(grabThirdCargo);
+        addCommands(new ParallelCommandGroup(grabThirdCargo, new MoveTurretCommand(shooter, 220)));
         addCommands(driveToShoot);
         addCommands(shoot3);
         

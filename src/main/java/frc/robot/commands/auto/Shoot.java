@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commands.drivetrain.RunProfileCommand;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -18,6 +19,8 @@ public class Shoot extends CommandBase {
 
     private double wait;
     private boolean turretAtPosition = false;
+
+    private boolean startedShooting = false;
 
     public Shoot(ShooterSubsystem shooter, IndexerSubsystem indexer, double targetAngle, double speed, double hoodPosition, int ballCount, double wait) {
         this.shooter = shooter;
@@ -40,6 +43,7 @@ public class Shoot extends CommandBase {
 
     boolean shooting = false;
     boolean startBall = false;
+    double noBalls = 0;
     int ballsShot = 0;
     
     @Override
@@ -51,11 +55,11 @@ public class Shoot extends CommandBase {
             ballsShot++;
             startBall = false;
         }
-
+        
         //System.out.println(String.format("ballsShot:%d,startBall:%b", ballsShot, startBall));
 
         shooting = false;
-        if (Math.abs(targetAngle - shooter.getTurretAngle()) < 5 || turretAtPosition) {
+        if ((Math.abs(targetAngle - shooter.getTurretAngle()) < 5 || turretAtPosition) && !startedShooting) {
             turretAtPosition = true;
 
             if (speed == 0) {
@@ -69,10 +73,18 @@ public class Shoot extends CommandBase {
             //shooting = shooter.shoot(true);
         }
 
-        if (shooting) {
+        if (shooting || startedShooting) {
+            startedShooting = true;
             indexer.index(true);
         } else {
             indexer.index();
+        }
+
+        if(!indexer.hasCargo() && noBalls == 0) {
+            noBalls = Timer.getFPGATimestamp();
+        }
+        else if(indexer.hasCargo()) {
+            noBalls = 0;
         }
     }
 
@@ -87,9 +99,14 @@ public class Shoot extends CommandBase {
             count++;
             return false;
         }
+
+        if(noBalls != 0 && Timer.getFPGATimestamp() - noBalls > 1) {
+            return true;
+        } 
         else {
             return false;
         }
+
         //if (!indexer.hasCargo() && ) {
         //    count++;
         //} else {

@@ -40,7 +40,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // 10526 per inch
     Hold(-5000),
     //InnerOut(-20000), //
-    InitialGrab(175000),
+    InitialGrab(180000),
     PullUp(-25000),
     OuterOutTwo(5000),
     PullupHigh(170000);

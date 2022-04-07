@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,6 +62,8 @@ public class RobotContainer {
   private final LeftFull leftFullCommand = new LeftFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
   private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
 
+  private final TurretCommand turretCommand = new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY);
+
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -72,11 +75,11 @@ public class RobotContainer {
     
     intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
-    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper));
+    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper, driverController));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
-    shooterSubsystem.setDefaultCommand(new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY));
+    shooterSubsystem.setDefaultCommand(turretCommand);
 
     // Add commands to the autonomous command chooser
     chooser.setDefaultOption("Right", rightFullCommand);
@@ -94,7 +97,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     new JoystickButton(operatorController, Button.kRightBumper.value)
-      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis));
+      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis, turretCommand));
 
     new JoystickButton(operatorController, Button.kLeftBumper.value)
       .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem));

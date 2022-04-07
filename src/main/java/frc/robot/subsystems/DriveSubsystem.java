@@ -70,7 +70,7 @@ public class DriveSubsystem extends SubsystemBase {
   private static final double kMaxVel = encToInches(18000.0 * 10.0) * .9; // 18000/100ms
   private static final double kMaxAngVel = Math.toRadians(90);
   private static final double kTrackWidth = 24.125;
-  private static final double kMaxAccel = kMaxVel * 2;
+  private static final double kMaxAccel = kMaxVel * 2.25;
 
   private static final TrajectoryVelocityConstraint kVelConstraint = getVelocityConstraint(kMaxVel, kMaxAngVel, kTrackWidth);
   private static final TrajectoryAccelerationConstraint kAccelConstraint = getAccelerationConstraint(kMaxAccel);

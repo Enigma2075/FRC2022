@@ -23,7 +23,7 @@ public class GrabCargo extends RunProfileCommand {
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
-                .forward(46);
+                .forward(60);
         addTrajectory(tb1.build(), true);
 
         //addPointTurn(Math.toRadians(-140), true, true);

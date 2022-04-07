@@ -2,42 +2,39 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.shooter;
+
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
-import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
-import frc.robot.subsystems.IntakeSubsystem.PivotPosition;
-import pabeles.concurrency.ConcurrencyOps.Reset;
+import frc.robot.subsystems.ShooterSubsystem;
 
-/** An example command that uses an example subsystem. */
-public class Rumble extends CommandBase {
+public class MoveTurretCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+  private final ShooterSubsystem shooter;
+  private final double angle;
+  
+  public MoveTurretCommand(ShooterSubsystem shooter, double angle) {
+    this.shooter = shooter;
+    this.angle = angle;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public Rumble() {
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shooter.turret(angle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
   }
 
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 
   // Called once the command ends or is interrupted.

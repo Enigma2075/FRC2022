@@ -33,6 +33,10 @@ public class IndexerSubsystem extends SubsystemBase {
   // public final WPI_TalonSRX singleMotor = new
   // WPI_TalonSRX(IndexerConstants.kSingulizerCanId);
 
+  private static boolean position1HasCargo = false;
+  private static boolean position2HasCargo = false;
+  private static boolean position3HasCargo = false;
+
   private DigitalInput position1 = new DigitalInput(IndexerConstants.kSensor1DioPort);
   private DigitalInput position2 = new DigitalInput(IndexerConstants.kSensor2DioPort);
   private DigitalInput position3 = new DigitalInput(IndexerConstants.kSensor3DioPort);
@@ -51,6 +55,10 @@ public class IndexerSubsystem extends SubsystemBase {
      * configIndexerMotor(indexerMotor, config);
      * configIndexerMotor(singleMotor, config);
      */
+  }
+
+  public static boolean hasCargo() {
+    return position1HasCargo || position2HasCargo || position3HasCargo;
   }
 
   private void configIndexerMotor(WPI_TalonFX motor, TalonFXConfiguration config) {
@@ -165,20 +173,19 @@ public class IndexerSubsystem extends SubsystemBase {
 
   }
 
-  public boolean hasCargo() {
-    return getPosition1() || getPosition2() || getPosition3();
-  }
-
   public boolean getPosition1() {
-    return !position1.get();
+    position1HasCargo = !position1.get();
+    return position1HasCargo;
   }
 
   public boolean getPosition2() {
-    return !position2.get();
+    position2HasCargo = !position2.get();
+    return position2HasCargo;
   }
 
   public boolean getPosition3() {
-    return !position3.get();
+    position3HasCargo = !position3.get();
+    return position3HasCargo;
   }
 
   public void stop() {

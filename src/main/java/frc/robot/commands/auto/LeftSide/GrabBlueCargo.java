@@ -30,11 +30,11 @@ public class GrabBlueCargo extends RunProfileCommand {
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
-            .splineTo(new Vector2d(50, -127), Math.toRadians(targetHeading));
+            .splineTo(new Vector2d(50, -127), Math.toRadians(targetHeading - 225));
         
         addTrajectory(tb1.build(), false, false);
 
-        addPointTurn(Math.toRadians(-180), false, true);
+        //addPointTurn(Math.toRadians(-180), false, true);
 
         //TrajectoryBuilder tb2 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         //tb2

@@ -156,6 +156,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private double currentTv = 0;
 
+  private static boolean stuckOnPost = false; 
+
     //atSpeed = shooter.shoot(.610, 38); //17 ft/216 in
     //atSpeed = shooter.shoot(.545, 21); //13 ft/170 in
     //atSpeed = shooter.shoot(.490, 0); //9 ft/124 in
@@ -164,7 +166,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static double[][] kDistanceSpeedValues = {
     { 90, .45 },
     { 124, .49 },
-    { 170, .545},
+    { 170, .55},
     { 216, .625}
   };
 
@@ -337,6 +339,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooting;
   }
 
+  public static boolean isStuckOnPost() {
+    return stuckOnPost;
+  }
+
   public boolean isShooterAtSpeed(double vel) {
     double targetVelocity = vel * maxVel;
     boolean isTopMotorAtSpeed = Math.abs(topMotor.getSelectedSensorVelocity() - targetVelocity) < 100;
@@ -345,7 +351,11 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isHoodAtPosition(double targetPosition) {
-    return Math.abs(hoodEncoder.getPosition() - targetPosition) < 1;
+    double allowableError = 1;
+    if(targetPosition < 1) {
+      allowableError = 1.5;
+    }
+    return Math.abs(hoodEncoder.getPosition() - targetPosition) < allowableError;
   }
 
   public double getDistanceFromTarget() {
@@ -364,46 +374,8 @@ public class ShooterSubsystem extends SubsystemBase {
     return turretMotor.getSelectedSensorPosition() / kTurretCountsPerDegree;
   }
 
-  public boolean shoot(boolean force) {
-    double speed = .38;
-    topMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
-    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * speed);
-    
-    boolean atSpeed = isShooterAtSpeed(speed);
-    
-    shooting = true;
-
-    if(atSpeed) {
-      popperMotor.set(1);
-      return true;
-    }
-    else {
-      popperMotor.set(0);
-      return false;
-    }
-  }
-
   public double getShooterCurrent() {
     return bottomMotor.getSupplyCurrent();
-  }
-
-  public boolean shoot(double shooterSpeed, double hoodPosition) {
-    setHood(hoodPosition);
-    topMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
-    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
-    
-    boolean atSpeed = isShooterAtSpeed(shooterSpeed);
-    
-    shooting = true;
- 
-    if(atSpeed) {
-      popperMotor.set(1);
-      return true;
-    }
-    else {
-      popperMotor.set(0);
-      return false;
-    }
   }
 
   //public power getSeedForDistance(double distance) {
@@ -482,6 +454,25 @@ public class ShooterSubsystem extends SubsystemBase {
     return canShoot;
   }
 
+  public boolean shoot(double shooterSpeed, double hoodPosition) {
+    setHood(hoodPosition);
+    topMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
+    bottomMotor.set(TalonFXControlMode.Velocity, maxVel * shooterSpeed);
+    
+    boolean atSpeed = isShooterAtSpeed(shooterSpeed);
+    
+    shooting = true;
+ 
+    if(atSpeed) {
+      popperMotor.set(1);
+      return true;
+    }
+    else {
+      popperMotor.set(0);
+      return false;
+    }
+  }
+
   public boolean shoot() {
     shooting = true;
 
@@ -538,6 +529,10 @@ public class ShooterSubsystem extends SubsystemBase {
       currentTx = table.getEntry("tx").getDouble(0); //txFilter.calculate(table.getEntry("tx").getDouble(0));
       currentTy = tyFilter.calculate(table.getEntry("ty").getDouble(0));
     }
+  }
+
+  public boolean hasTarget() {
+    return currentTv != 0;
   }
 
   public boolean aquireTarget() {
@@ -599,6 +594,17 @@ public class ShooterSubsystem extends SubsystemBase {
     //SmartDashboard.putNumber("Vision:tx", tx);
     //SmartDashboard.putNumber("Vision:error", error);
     //SmartDashboard.putNumber("Vision:vel", output * kTurretCruiseVelocity);
+
+    SmartDashboard.putNumber("Turret:FWD", turretMotor.isFwdLimitSwitchClosed());
+    SmartDashboard.putNumber("Turret:REV", turretMotor.isRevLimitSwitchClosed());
+
+    if(currentTv != 0 && (turretMotor.isFwdLimitSwitchClosed() == 1 || turretMotor.isFwdLimitSwitchClosed() == 1))
+    {
+      stuckOnPost = true;
+    }
+    else {
+      stuckOnPost = false;
+    }
 
     if(Math.abs(tx) < 1.25) {
       return true;

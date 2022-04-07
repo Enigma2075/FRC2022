@@ -7,10 +7,13 @@ package frc.robot.commands.drivetrain;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -20,17 +23,21 @@ public class DriveCommand extends CommandBase {
   private final DoubleSupplier throttle;
   private final DoubleSupplier wheel;
   private final BooleanSupplier fastMode;
+  private final XboxController driverController;
+
+  private boolean isRumbling = false;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel, BooleanSupplier fastMode) {
+  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel, BooleanSupplier fastMode, XboxController driverController) {
     this.drive = drive;
     this.throttle = throttle;
     this.wheel = wheel;
     this.fastMode = fastMode;
+    this.driverController = driverController;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -69,13 +76,24 @@ public class DriveCommand extends CommandBase {
     if(ClimberSubsystem.hasClimbStarted()) {
       drive.driveSlow(adjustedThrottle, adjustedWheel);
     }
-    else if (ShooterSubsystem.isShooting()) {
+    else if (ShooterSubsystem.isShooting() && IndexerSubsystem.hasCargo()) {
       drive.driveSlow(adjustedThrottle, adjustedWheel);
     }
     else {
       drive.drive(adjustedThrottle, adjustedWheel);
     }
     
+    SmartDashboard.putBoolean("Shooter:StuckOnPost", ShooterSubsystem.isStuckOnPost());
+      
+    if(ShooterSubsystem.isStuckOnPost() && !isRumbling) {
+      isRumbling = true;
+      driverController.setRumble(RumbleType.kLeftRumble, 1);
+    }
+    else if(!ShooterSubsystem.isStuckOnPost() && isRumbling) {
+      isRumbling = false;
+      driverController.setRumble(RumbleType.kLeftRumble, 0);
+    }
+
     //SmartDashboard.putNumber("Drive Command:Wheel", adjustedWheel);
     //SmartDashboard.putNumber("Drive Command:throttle", adjustedThrottle);
   }
