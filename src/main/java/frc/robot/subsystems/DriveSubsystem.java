@@ -335,14 +335,14 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: Update this to be in it's own thread.
-    debug();
+    //debug();
   }
 
   private void debug() {
     if(currentPose != null) {
-      //SmartDashboard.putNumber("Drive:X", currentPose.getX());
-      //SmartDashboard.putNumber("Drive:Y", currentPose.getY());
-      //SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
+      SmartDashboard.putNumber("Drive:X", currentPose.getX());
+      SmartDashboard.putNumber("Drive:Y", currentPose.getY());
+      SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
     }
     //SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
     //SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());

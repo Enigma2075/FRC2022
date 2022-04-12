@@ -24,11 +24,13 @@ public class GrabThirdCargo extends RunProfileCommand {
 
         //System.out.println("GrabThirdCargo");
 
-        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
+        addPointTurn(Math.toRadians(-180), false, false);
+
+        TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
-            .splineTo(new Vector2d(115, -295), Math.toRadians(300));
+            .forward(165);
         
-        addTrajectory(tb1.build(), true, true);
+        addTrajectory(tb1.build(), false, true);
 
         //System.out.println("End GrabThirdCargo");
     }

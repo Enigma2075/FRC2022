@@ -145,8 +145,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private static double kWallDistance = 0;
   private static double kWallSpeed = 0;
   private static double kWallHood = 0;
-  private static double kMaxDistance = 17*12;
-  private static double kMinDistance = 90;
+  private static double kMaxDistance = 183;
+  private static double kMinDistance = 81;
 
   private double currentTx = 0;
   private double currentTy = 0;
@@ -158,17 +158,25 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private static boolean stuckOnPost = false; 
 
-    //atSpeed = shooter.shoot(.610, 38); //17 ft/216 in
-    //atSpeed = shooter.shoot(.545, 21); //13 ft/170 in
-    //atSpeed = shooter.shoot(.490, 0); //9 ft/124 in
-    //atSpeed = shooter.shoot(.45, 0); //6 ft/90 in
-
+    //The distance from the face of the target to the face of the lower hub is 7.2 in
+    //The distance from the edge of robot to the camera lens 16.25
+    // Distance to place the robot from the target : Distance to place the robot from the lower hub : Distance the limelight should read
+    //atSpeed = shooter.shoot(.45, 0); //  6  ft : 5  ft 4.2 in : 80.45  in
+    //atSpeed = shooter.shoot(.490, 0); // 9  ft : 8  ft 4.8 in : 116.45 in  
+    //atSpeed = shooter.shoot(.545, 21); //13 ft : 12 ft 4.8 in : 165.05 in
+    //atSpeed = shooter.shoot(.610, 38); //17 ft : 16 ft 4.8 in : 220.25 in
+    
   public static double[][] kDistanceSpeedValues = {
-    { 90, .45 },
-    { 124, .49 },
-    { 170, .55},
-    { 216, .625}
-  };
+     { 80.45, .45 },
+     { 116.45, .505 },
+     { 150.05, .56},
+     { 184, .635}
+  // { 205}
+  //   { 105, .465 },
+  //   { 133, .545 },
+  //   { 170, .55 },
+  //   { 190, .64 }
+};
 
   static {
     for (double[] pair : kDistanceSpeedValues) {
@@ -182,10 +190,10 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public static double[][] kDistanceHoodValues = {
-    { 90, 0.0 },
-    { 124, 0.1 },
-    { 170, 21},
-    { 216, 38}
+    { 80.45, 0.0 },
+    { 116.45, 0.1 },
+    { 150.05, 21},
+    { 184, 38}
   };
 
   static {
@@ -359,14 +367,12 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public double getDistanceFromTarget() {
-    double limelightAngle = 25; //33.6;
+    double limelightAngle = 26; //33.6;
     double targetHeight = 103; // 102 at West
     double limelightHeight = 39.6;
 
     double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + currentTy)));
 
-    //SmartDashboard.putNumber("Shooter:AtDistance", currentDistance);
-    
     return currentDistance;
   }
 
@@ -595,10 +601,10 @@ public class ShooterSubsystem extends SubsystemBase {
     //SmartDashboard.putNumber("Vision:error", error);
     //SmartDashboard.putNumber("Vision:vel", output * kTurretCruiseVelocity);
 
-    SmartDashboard.putNumber("Turret:FWD", turretMotor.isFwdLimitSwitchClosed());
-    SmartDashboard.putNumber("Turret:REV", turretMotor.isRevLimitSwitchClosed());
+    //SmartDashboard.putNumber("Turret:FWD", turretMotor.isFwdLimitSwitchClosed());
+    //SmartDashboard.putNumber("Turret:REV", turretMotor.isRevLimitSwitchClosed());
 
-    if(currentTv != 0 && (turretMotor.isFwdLimitSwitchClosed() == 1 || turretMotor.isFwdLimitSwitchClosed() == 1))
+    if(currentTv != 0 && (turretMotor.getSelectedSensorPosition() >= kTurretForwardLimit || turretMotor.getSelectedSensorPosition() <= kTurretReverseLimit))
     {
       stuckOnPost = true;
     }
@@ -612,7 +618,6 @@ public class ShooterSubsystem extends SubsystemBase {
     else {
       return false;
     }
-
   }
 
   public void stop() {

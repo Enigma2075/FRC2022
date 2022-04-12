@@ -24,15 +24,16 @@ public class GrabBlueCargo extends RunProfileCommand {
 
         //System.out.println("GrabSecondCargo");
         
-        double targetHeading = 345;
+        double targetHeading = 342.5;
 
-        addPointTurn(Math.toRadians(targetHeading - 225), false, false);
+        addPointTurn(Math.toRadians((targetHeading - 225) * 1), false, false);
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1
-            .splineTo(new Vector2d(50, -127), Math.toRadians(targetHeading - 225));
+            .forward(120);   
+        //.splineTo(new Vector2d(50, -127), Math.toRadians(targetHeading - 300));
         
-        addTrajectory(tb1.build(), false, false);
+        addTrajectory(tb1.build(), false, true);
 
         //addPointTurn(Math.toRadians(-180), false, true);
 

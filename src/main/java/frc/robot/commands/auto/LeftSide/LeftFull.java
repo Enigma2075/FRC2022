@@ -32,9 +32,9 @@ public class LeftFull extends SequentialCommandGroup{
         startPose = new Pose2d(-41.25, -85.5, Math.toRadians(225));
   
         var grabCargo = new GrabCargo(drive, intake, indexer, startPose);
-        var shoot1 = new Shoot(shooter, indexer, 188, .478, 10, 2, 10);
+        var shoot1 = new Shoot(shooter, indexer, 190, 0, 0, 2, 10);
         var grabSecondCargo = new GrabBlueCargo(drive, intake, indexer, grabCargo.getEndPose());
-        var shoot2 = new Shoot(shooter, indexer, 200, 0, 10, 2, 10);
+        var shoot2 = new Shoot(shooter, indexer, 100, .34, 38, 2, 10);
         var grabThirdCargo = new GrabThirdCargo(drive, intake, indexer, grabSecondCargo.getEndPose());
         var driveToShoot = new DriveToShoot(drive, intake, indexer, grabThirdCargo.getEndPose());
         var shoot3 = new Shoot(shooter, indexer, 200, 0, 10, 2, 10);
@@ -42,8 +42,8 @@ public class LeftFull extends SequentialCommandGroup{
         addCommands(grabCargo);
         addCommands(shoot1);
         addCommands(grabSecondCargo);
-        //addCommands(shoot2);
-        //addCommands(grabThirdCargo);
+        addCommands(grabThirdCargo);
+        addCommands(shoot2);
         //addCommands(driveToShoot);
         //addCommands(shoot3);
         

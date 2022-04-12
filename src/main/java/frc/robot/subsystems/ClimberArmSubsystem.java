@@ -28,10 +28,12 @@ public class ClimberArmSubsystem extends SubsystemBase {
   public enum PivotPosition {
     Forwards(4300), // MAX
     Hold(-100),
-    Grab(3100),
+    Grab(3200),
     ForwardGrab(3900),
+    ForwardGrabBottom(4200),
     ForwardLatch(4650),
-    LetGo(2800),
+    ForwardLatchBottom(4000),
+    LetGo(2900),
     //MidFront(2),
     Middle(3300), // Straight Up
     //MidBack(4),//
@@ -106,11 +108,11 @@ public class ClimberArmSubsystem extends SubsystemBase {
       
       //this.pivotOffset = kOuterPivotOffset;    
       //this.pivotMaxGravityFF = kOuterPivotMaxGravityFF;
+      pivot.setInverted(InvertType.InvertMotorOutput);
       this.pivotCruiseVelocity = kOuterPivotCruiseVelocity;
       this.pivotAccelerationVelocity = kOuterPivotAccelerationVelocity; 
     }
     else {
-      pivot.setInverted(InvertType.InvertMotorOutput);
       //sensors.setQuadraturePosition((int)(sensors.getPulseWidthPosition() - kInnerPivotOffset), 10);
       //pivotPoistion = (int)(sensors.getPulseWidthPosition() - kInnerPivotOffset);
       
@@ -205,4 +207,5 @@ public class ClimberArmSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
   }
+
 }

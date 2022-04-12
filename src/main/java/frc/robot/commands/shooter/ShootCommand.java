@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -30,6 +31,7 @@ public class ShootCommand extends CommandBase {
   private final TurretCommand turretCommand; 
 
   private boolean startedShooting = false;
+  private boolean startedShootingWrongCargo = false;
 
   private State currentState = State.SpinningUp;
 
@@ -53,7 +55,11 @@ public class ShootCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("Shoot Init");
+    if(ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
+
+    //System.out.println("Shoot Init");
     startedShooting = false;
     currentState = State.SpinningUp;
     shooter.setVision(true);
@@ -62,21 +68,25 @@ public class ShootCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if(ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
+
     boolean actuallyShoot = shootSupplier.getAsDouble() > .8;
     boolean quickShoot = quickShootSupplier.getAsDouble() > .8;
 
     //System.out.printf("%b", actuallyShoot);
     boolean atSpeed = false;
+    boolean atSpeedWrongCargo = false;
     Boolean redCargo = indexer.isRedCargoAtPosition3();
 
     boolean wrongCargo = false;
     if(redCargo != null) {
       if(redCargo && DriverStation.getAlliance() == Alliance.Blue) {
-        wrongCargo = true;
-        
+//        wrongCargo = true;
       }
       else if(!redCargo && DriverStation.getAlliance() == Alliance.Red) {
-        wrongCargo = true;
+//        wrongCargo = true;
       }
     }
 
@@ -92,31 +102,39 @@ public class ShootCommand extends CommandBase {
 
     boolean hasTarget = shooter.hasTarget();
 
-    if(wrongCargo && !startedShooting) {
+    if(wrongCargo && !startedShootingWrongCargo) {
+      startedShooting = false;
       currentState = State.ShootingWrongCargo;
-      atSpeed = shooter.shoot(.35, 38);
-    } else if((actuallyShoot || quickShoot) && !startedShooting) {
+      atSpeedWrongCargo = shooter.shoot(.35, 38);
+    } else if(((quickShoot && !startedShooting) || actuallyShoot) && !wrongCargo) {
+      startedShootingWrongCargo = false;
       currentState = State.ShootingCargo;
       atSpeed = shooter.shoot();
     }
-    else if((!actuallyShoot && !quickShoot) && currentState != State.SpinningUp) {
+    else if(((!actuallyShoot && !quickShoot)) && !wrongCargo) {
       startedShooting = false;
       currentState = State.SpinningUp;
-      shooter.spinUp();
+      shooter.spinUp(false);
     }
 
 
     if(atSpeed && !startedShooting) {
       startedShooting = true;
     }
-    else if(hasTarget && startedShooting) {
+    else if(atSpeedWrongCargo && !startedShootingWrongCargo) {
+      startedShootingWrongCargo = true;
+    }
+    else if(startedShooting && !wrongCargo) {
+      shooter.spinUp();
+    }
+    else if(hasTarget && !wrongCargo) { // && !wrongCargo) || startedShooting) {
       shooter.aquireTarget();
     }
-    else if(!hasTarget) {
+    else if(!hasTarget || (hasTarget && wrongCargo)) {
       turretCommand.moveTurret();
     }
 
-    if(startedShooting || atSpeed) {
+    if(startedShooting || startedShootingWrongCargo || atSpeed || atSpeedWrongCargo) {
       indexer.index(true);
     }
     else {
@@ -127,6 +145,10 @@ public class ShootCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if(ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
+
     //shooter.showVision(false);
     shooter.stop();
     indexer.stop();

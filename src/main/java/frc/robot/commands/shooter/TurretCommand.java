@@ -84,11 +84,11 @@ public class TurretCommand extends CommandBase {
       finalHeading += 360.0;
     }
 
-    SmartDashboard.putNumber("RequestedHeading", requestedHeading);
-    SmartDashboard.putNumber("Yaw", gyro.getYaw());
-    SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
-    SmartDashboard.putNumber("FinalHeading", finalHeading);    
-    SmartDashboard.putNumber("RequestedHeading", requestedHeading);    
+    //SmartDashboard.putNumber("RequestedHeading", requestedHeading);
+    //SmartDashboard.putNumber("Yaw", gyro.getYaw());
+    //SmartDashboard.putNumber("CalculatedYaw", currentYaw);    
+    //SmartDashboard.putNumber("FinalHeading", finalHeading);    
+    //SmartDashboard.putNumber("RequestedHeading", requestedHeading);    
     
     shooter.turret(finalHeading);
   }

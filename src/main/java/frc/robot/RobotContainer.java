@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.climber.StartClimb;
+import frc.robot.commands.climber.WinchManual;
 import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.LeftSide.LeftFull;
@@ -35,11 +36,13 @@ import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
 import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 import frc.robot.subsystems.DriveSubsystem.DriveMode;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,6 +61,7 @@ public class RobotContainer {
   private final DriveSubsystem driveSubsystem = new DriveSubsystem(gyroSubsystem);
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   private final LeftFull leftFullCommand = new LeftFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
   private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
@@ -117,6 +121,18 @@ public class RobotContainer {
 
     new JoystickButton(driverController, Button.kA.value)
      .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
+
+    new Trigger(() -> ClimberSubsystem.hasClimbStarted()).and(new Trigger(() -> isRightTriggerPressed())).whileActiveOnce(new WinchManual(climberSubsystem, false, () -> operatorController.getRightTriggerAxis()));
+
+    new Trigger(() -> ClimberSubsystem.hasClimbStarted()).and(new Trigger(() -> isLeftTriggerPressed())).whileActiveOnce(new WinchManual(climberSubsystem, true, () -> operatorController.getRightTriggerAxis()));
+  }
+
+  private boolean isRightTriggerPressed() {
+    return operatorController.getRightTriggerAxis() > .4;
+  }
+
+  private boolean isLeftTriggerPressed() {
+    return operatorController.getLeftTriggerAxis() > .4;
   }
 
   /**

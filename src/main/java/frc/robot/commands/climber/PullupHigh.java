@@ -20,7 +20,9 @@ public class PullupHigh extends CommandBase {
   public enum State {
     Initialize,
     WinchToLetGo,
-    CoastArms
+    CoastArms,
+    CrossUnder,
+    LatchTrav
   }
 
   State currentState = State.Initialize;
@@ -56,18 +58,36 @@ public class PullupHigh extends CommandBase {
 
     switch (currentState) {
       case Initialize:
-        currentState = State.WinchToLetGo;    
+        currentState = State.WinchToLetGo;
+        climber.pivot(ArmPosition.HighPull);
       break;
       case WinchToLetGo:
         climber.winch(WinchPosition.PullupHigh);     
-        if(WinchPosition.PullUp.getValue() + 20000 < climber.getWinchEnc() ) {
-          climber.pivot(ArmPosition.High, true);
+        if(WinchPosition.PullUp.getValue() + 60000 < climber.getWinchEnc() ) {
+          climber.pivot(ArmPosition.HighLetGo, true);
           currentState = State.CoastArms;
+        }
+        else if(WinchPosition.PullUp.getValue() + 40000 < climber.getWinchEnc() ) {
+          climber.pivot(ArmPosition.Coast, true);
         }
       break;
       case CoastArms:
-        if(Math.abs(climber.getWinchError()) < 10000) {
-          //climber.pivot(ArmPosition.OuterLetGo);
+        if(Math.abs(climber.getWinchError()) < 15000) {
+          //climber.winch(WinchPosition.CrossUnder);
+          //climber.pivot(ArmPosition.HighHold, true);
+          //currentState = State.CrossUnder;
+        }
+      break;
+      case CrossUnder:
+        if(Math.abs(climber.getWinchError()) < 15000) {
+          //climber.pivot(ArmPosition.TravGrab, true);
+          //currentState = State.LatchTrav;
+        }
+      break;
+      case LatchTrav:
+        if(Math.abs(climber.getOuterPivotError()) < 200) {
+          
+          //    climber.pivot(ArmPosition.TravLatch, true);
         }
       break;
     }

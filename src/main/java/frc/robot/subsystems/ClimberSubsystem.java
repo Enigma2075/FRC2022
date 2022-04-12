@@ -27,22 +27,23 @@ public class ClimberSubsystem extends SubsystemBase {
     InitialGrab,
     BothMiddle,
     Hold,
-    InnerGrab,
-    OuterLatch,
-    OuterGrab,
     LatchHigh,
     OuterLetGo,
-    High,
-    Coast
+    HighLetGo,
+    HighPull,
+    HighHold,
+    Coast,
+    TravGrab,
+    TravLatch,
   }
 
   public enum WinchPosition {
     // 10526 per inch
     Hold(-5000),
     //InnerOut(-20000), //
-    InitialGrab(180000),
-    PullUp(-25000),
-    OuterOutTwo(5000),
+    InitialGrab(182000), //60 inches to the bottom
+    PullUp(-30000),
+    CrossUnder(90000),
     PullupHigh(170000);
 
     private int value;
@@ -82,7 +83,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private static final double kWinchIZone = 4000;
 
   private static final double kWinchForwardLimit = 244000; // 106000
-  private static final double kWinchReverseLimit = -25000;
+  private static final double kWinchReverseLimit = -30000;
 
   private static boolean climbStarted = false;
 
@@ -153,17 +154,6 @@ public class ClimberSubsystem extends SubsystemBase {
   public void pivot(ArmPosition position, boolean force) {
     if (!climbStarted || force) {
       switch (position) {
-        case OuterLatch:
-          inner.setPivot(PivotPosition.LetGo);
-          outer.setPivotCoast();
-        case BothMiddle:
-          inner.setPivot(PivotPosition.Middle);
-          outer.setPivot(PivotPosition.Middle);
-          break;
-        case OuterGrab:
-          outer.setPivot(PivotPosition.ForwardGrab);
-          inner.setPivotCoast();
-          break;
         case Coast:
           outer.setPivotCoast();
           inner.setPivotCoast();
@@ -172,9 +162,17 @@ public class ClimberSubsystem extends SubsystemBase {
           outer.setPivot(PivotPosition.Middle);
           inner.setPivot(PivotPosition.ForwardLatch);
           break;
-        case High:
+        case HighLetGo:
           outer.setPivot(PivotPosition.LetGo);
           inner.setPivot(PivotPosition.Middle);
+          break;
+        case HighPull:
+          outer.setPivotCoast();
+          inner.setPivot(PivotPosition.ForwardLatch);
+          break;
+        case HighHold:
+          //outer.setPivot(PivotPosition.LetGo);
+          //inner.setPivot(PivotPosition.ForwardLatch);
           break;
         case Hold:
           outer.setPivot(PivotPosition.Hold);
@@ -186,6 +184,14 @@ public class ClimberSubsystem extends SubsystemBase {
           break;
         case OuterLetGo:
           outer.setPivot(PivotPosition.LetGo);
+          inner.setPivotCoast();
+          break;
+        case TravGrab:
+          outer.setPivot(PivotPosition.ForwardGrabBottom);
+          inner.setPivot(PivotPosition.Middle);
+          break;
+        case TravLatch:
+          outer.setPivot(PivotPosition.ForwardLatchBottom);
           inner.setPivotCoast();
       }
     }
@@ -228,7 +234,7 @@ public class ClimberSubsystem extends SubsystemBase {
     return Math.abs(currentWinchPosition.value - winch.getSelectedSensorPosition());
   }
 
-  public void winchStop() {
+  public void stopWinch() {
     winch.set(ControlMode.PercentOutput, 0);
   }
 
@@ -252,4 +258,5 @@ public class ClimberSubsystem extends SubsystemBase {
   public double getInnerPivotError() {
     return inner.getPivotError();
   }
+
 }

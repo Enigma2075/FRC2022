@@ -100,7 +100,7 @@ public class Shoot extends CommandBase {
             return false;
         }
 
-        if(noBalls != 0 && Timer.getFPGATimestamp() - noBalls > 1) {
+        if(noBalls != 0 && Timer.getFPGATimestamp() - noBalls > 1.5) {
             return true;
         } 
         else {
