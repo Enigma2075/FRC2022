@@ -509,13 +509,13 @@ public class ShooterSubsystem extends SubsystemBase {
     NetworkTable table = getLimeLightTable();
 
     NetworkTableEntry pipe = table.getEntry("pipeline");
-    NetworkTableEntry stream = table.getEntry("stream");
+    //NetworkTableEntry stream = table.getEntry("stream");
 
     if (shooting) {
-      stream.setNumber(1);
+      //stream.setNumber(1);
       pipe.setNumber(kPipeWide);
     } else if (!shooting) {
-      stream.setNumber(2);
+      //stream.setNumber(2);
       pipe.setNumber(kPipeOff);
     }
   }

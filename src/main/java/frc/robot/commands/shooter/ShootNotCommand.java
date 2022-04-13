@@ -14,15 +14,18 @@ public class ShootNotCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem shooter;
   private final IndexerSubsystem indexer;
+  private final TurretCommand turretCommand;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShootNotCommand(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+  public ShootNotCommand(ShooterSubsystem shooter, IndexerSubsystem indexer, TurretCommand turretCommand) {
     this.shooter = shooter;
     this.indexer = indexer;
+    this.turretCommand = turretCommand;
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
     addRequirements(indexer);
@@ -47,6 +50,8 @@ public class ShootNotCommand extends CommandBase {
     //double atDistance = shooter.getDistanceFromTarget();
     //shooter.setLEDs(true);
     //SmartDashboard.putNumber("Shooter:Distance", atDistance);
+
+    turretCommand.moveTurret();
 
     if(atSpeed) {
       indexer.index(true);

@@ -37,6 +37,11 @@ public class ClimberSubsystem extends SubsystemBase {
     TravLatch,
   }
 
+  // Our home field to the top
+  // Mid - 60 in 
+  // High - 75 3/8 in
+  // Traversal - 90 5/8 in
+
   public enum WinchPosition {
     // 10526 per inch
     Hold(-5000),
@@ -179,7 +184,7 @@ public class ClimberSubsystem extends SubsystemBase {
           inner.setPivot(PivotPosition.Hold);
           break;
         case InitialGrab:
-          outer.setPivot(PivotPosition.Grab);
+          outer.setPivot(PivotPosition.InitialGrab);
           inner.setPivot(PivotPosition.ForwardGrab);
           break;
         case OuterLetGo:

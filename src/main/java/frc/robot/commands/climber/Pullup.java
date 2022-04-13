@@ -14,6 +14,8 @@ public class Pullup extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
 
+  public static boolean finished = false;
+
   /**
    * Creates a new ExampleCommand.
    *
@@ -28,6 +30,9 @@ public class Pullup extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if(!ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
     //climber.runTapes();
     climber.winch(WinchPosition.PullUp, true);
   }
@@ -40,8 +45,13 @@ public class Pullup extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if(!ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
+    
     if(Math.abs(climber.getWinchError()) < 10000) {
-      climber.pivot(ArmPosition.LatchHigh, true);      
+      climber.pivot(ArmPosition.LatchHigh, true);  
+      finished = true;    
     }
     else {
       climber.pivot(ArmPosition.InitialGrab, true);
@@ -51,6 +61,10 @@ public class Pullup extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if(!ClimberSubsystem.hasClimbStarted()) {
+      return;
+    }
+    
     climber.stop();
   }
 }

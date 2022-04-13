@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.climber.StartClimb;
-import frc.robot.commands.climber.WinchManual;
 import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.LeftSide.LeftFull;
@@ -75,7 +74,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis));
     
     intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
 
@@ -104,13 +103,13 @@ public class RobotContainer {
       .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis, turretCommand));
 
     new JoystickButton(operatorController, Button.kLeftBumper.value)
-      .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem));
+      .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem, turretCommand));
 
     new JoystickButton(operatorController, Button.kB.value)
      .whenHeld(new Pullup(climberSubsystem));
 
     new JoystickButton(operatorController, Button.kX.value)
-     .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem));
+     .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem, operatorController::getPOV));
     
     PullupHigh pullUpHigh = new PullupHigh(climberSubsystem);
     new JoystickButton(operatorController, Button.kY.value)
@@ -118,21 +117,6 @@ public class RobotContainer {
 
     new JoystickButton(operatorController, Button.kA.value)
      .whenHeld(new ResetClimb(climberSubsystem, pullUpHigh));
-
-    new JoystickButton(driverController, Button.kA.value)
-     .whenHeld(new ResetPivot(climberSubsystem, intakeSubsystem));
-
-    new Trigger(() -> ClimberSubsystem.hasClimbStarted()).and(new Trigger(() -> isRightTriggerPressed())).whileActiveOnce(new WinchManual(climberSubsystem, false, () -> operatorController.getRightTriggerAxis()));
-
-    new Trigger(() -> ClimberSubsystem.hasClimbStarted()).and(new Trigger(() -> isLeftTriggerPressed())).whileActiveOnce(new WinchManual(climberSubsystem, true, () -> operatorController.getRightTriggerAxis()));
-  }
-
-  private boolean isRightTriggerPressed() {
-    return operatorController.getRightTriggerAxis() > .4;
-  }
-
-  private boolean isLeftTriggerPressed() {
-    return operatorController.getLeftTriggerAxis() > .4;
   }
 
   /**

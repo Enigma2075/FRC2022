@@ -4,6 +4,8 @@
 
 package frc.robot.commands.climber;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -16,15 +18,17 @@ public class StartClimb extends CommandBase {
   private final ClimberSubsystem climber;
   private final ShooterSubsystem shooter;
   private final static double kTurretAngle = 180;
+  private final DoubleSupplier startClimb;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public StartClimb(ClimberSubsystem climber, ShooterSubsystem shooter) {
+  public StartClimb(ClimberSubsystem climber, ShooterSubsystem shooter, DoubleSupplier startClimb) {
     this.climber = climber;
     this.shooter = shooter;
+    this.startClimb = startClimb;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
@@ -34,6 +38,11 @@ public class StartClimb extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if(startClimb.getAsDouble() < 0) {
+      return;
+    }
+    Pullup.finished = false;
+    
     ClimberSubsystem.startClimb();
     
     // Move the turret so it is out of the way.
@@ -43,6 +52,9 @@ public class StartClimb extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if(startClimb.getAsDouble() < 0) {
+      return;
+    }
     if(Math.abs(shooter.getTurretAngle() - kTurretAngle) < 20) {
       climber.pivot(ArmPosition.InitialGrab, true);
 
@@ -60,6 +72,9 @@ public class StartClimb extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if(startClimb.getAsDouble() < 0) {
+      return;
+    }
     climber.stop();
   }
 }
