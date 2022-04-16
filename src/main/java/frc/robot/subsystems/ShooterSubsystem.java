@@ -157,14 +157,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private double currentTv = 0;
 
   private static boolean stuckOnPost = false; 
+  private static boolean targetFound = false;
 
     //The distance from the face of the target to the face of the lower hub is 7.2 in
     //The distance from the edge of robot to the camera lens 16.25
     // Distance to place the robot from the target : Distance to place the robot from the lower hub : Distance the limelight should read
-    //atSpeed = shooter.shoot(.45, 0); //  6  ft : 5  ft 4.2 in : 80.45  in
-    //atSpeed = shooter.shoot(.490, 0); // 9  ft : 8  ft 4.8 in : 116.45 in  
-    //atSpeed = shooter.shoot(.545, 21); //13 ft : 12 ft 4.8 in : 165.05 in
-    //atSpeed = shooter.shoot(.610, 38); //17 ft : 16 ft 4.8 in : 220.25 in
+    //atSpeed = shooter.shoot(.45, 0); //  6  ft : 5  ft 4.2 in : 80.45  in -- 82 red
+    //atSpeed = shooter.shoot(.490, 0); // 9  ft : 8  ft 4.8 in : 116.45 in -- 112.0 red 111
+    //atSpeed = shooter.shoot(.545, 21); //13 ft : 12 ft 4.8 in : 165.05 in -- 152 red 149
+    //atSpeed = shooter.shoot(.610, 38); //17 ft : 16 ft 4.8 in : 220.25 in -- 187 red 192
     
   public static double[][] kDistanceSpeedValues = {
      { 80.45, .45 },
@@ -208,6 +209,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   private static boolean shooting = false;
+  private static boolean spinningUp = false;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
@@ -347,8 +349,16 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooting;
   }
 
+  public static boolean isSpinningUp() {
+    return spinningUp;
+  }
+
   public static boolean isStuckOnPost() {
     return stuckOnPost;
+  }
+
+  public static boolean isTargetFound() {
+    return targetFound;
   }
 
   public boolean isShooterAtSpeed(double vel) {
@@ -368,7 +378,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public double getDistanceFromTarget() {
     double limelightAngle = 26; //33.6;
-    double targetHeight = 103; // 102 at West
+    double targetHeight = 101.5; //103; GVSU // 102 at West // 101.5 Ford Field
     double limelightHeight = 39.6;
 
     double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + currentTy)));
@@ -402,6 +412,7 @@ public class ShooterSubsystem extends SubsystemBase {
   
   public boolean spinUp(boolean aquireTarget) {
     boolean targetAquired = true;
+    spinningUp = true;
     
     if(aquireTarget) {
       targetAquired = aquireTarget();
@@ -506,18 +517,19 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void setVision(boolean shooting) {
-    NetworkTable table = getLimeLightTable();
+    //NetworkTable table = getLimeLightTable();
 
-    NetworkTableEntry pipe = table.getEntry("pipeline");
+    //NetworkTableEntry pipe = table.getEntry("pipeline");
+    
     //NetworkTableEntry stream = table.getEntry("stream");
 
-    if (shooting) {
+    //if (shooting) {
       //stream.setNumber(1);
-      pipe.setNumber(kPipeWide);
-    } else if (!shooting) {
+      //pipe.setNumber(kPipeWide);
+    //} else if (!shooting) {
       //stream.setNumber(2);
-      pipe.setNumber(kPipeOff);
-    }
+      //pipe.setNumber(kPipeOff);
+    //}
   }
 
   public void updateVisionData() {
@@ -542,21 +554,21 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean aquireTarget() {
-    NetworkTable table = getLimeLightTable();
-    NetworkTableEntry pipe = table.getEntry("pipeline");
+    //NetworkTable table = getLimeLightTable();
+    //NetworkTableEntry pipe = table.getEntry("pipeline");
 
     double tv = currentTv;
     double tx = currentTx;
 
-    if(tv == 0) {
-      pipe.setNumber(kPipeWide);
-    }
-    else if (Math.abs(tx) < 5) {
-      pipe.setNumber(kPipeWide);
-    }
-    else {
-      pipe.setNumber(kPipeWide);
-    }
+    //if(tv == 0) {
+    //  pipe.setNumber(kPipeWide);
+    //}
+    //else if (Math.abs(tx) < 5) {
+    //  pipe.setNumber(kPipeWide);
+    //}
+    //else {
+    //  pipe.setNumber(kPipeWide);
+    //}
  
     double error = -tx;
     //double output = aquireTargetController.calculate(error, 0);
@@ -604,6 +616,13 @@ public class ShooterSubsystem extends SubsystemBase {
     //SmartDashboard.putNumber("Turret:FWD", turretMotor.isFwdLimitSwitchClosed());
     //SmartDashboard.putNumber("Turret:REV", turretMotor.isRevLimitSwitchClosed());
 
+    if(currentTv != 0) {
+      targetFound = true;
+    }
+    else {
+      targetFound = false;
+    }
+
     if(currentTv != 0 && (turretMotor.getSelectedSensorPosition() >= kTurretForwardLimit || turretMotor.getSelectedSensorPosition() <= kTurretReverseLimit))
     {
       stuckOnPost = true;
@@ -623,6 +642,9 @@ public class ShooterSubsystem extends SubsystemBase {
   public void stop() {
     bottomMotor.set(ControlMode.PercentOutput, 0);
     topMotor.set(ControlMode.PercentOutput, 0);
+    stuckOnPost = false;
+    targetFound = false;
+    spinningUp = false;
 
     popperMotor.set(0);
 
@@ -643,6 +665,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void debug() {
+    updateVisionData();
     writeMotorDebug("Top", topMotor);
     writeMotorDebug("Bottom", bottomMotor);
     SmartDashboard.putNumber("Shooter:Distance", getDistanceFromTarget());

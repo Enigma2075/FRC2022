@@ -24,7 +24,7 @@ public class GrabThirdCargo extends RunProfileCommand {
 
         //System.out.println("GrabThirdCargo");
 
-        addPointTurn(Math.toRadians(-180), false, false);
+        addPointTurn(Math.toRadians(-182), false, false, true);
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, getEndPose());
         tb1

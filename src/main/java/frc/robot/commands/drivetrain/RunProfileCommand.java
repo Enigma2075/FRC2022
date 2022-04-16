@@ -77,15 +77,23 @@ public class RunProfileCommand extends CommandBase {
     loadTrajectory(trajectory, reverseHeading, lastTraj);
   }
 
-  public void addPointTurn(double angle, boolean reverseHeading, boolean lastAction) {
+  public void addPointTurn(double angle, boolean reverseHeading, boolean lastAction, boolean slow) {
+    double speed = 500;
+    if(slow) {
+      speed = 250;
+    }
     MotionProfile profile = MotionProfileGenerator.generateSimpleMotionProfile(
       new MotionState(curEndPose.getHeading(), 0.0, 0.0, 0.0),
       new MotionState(curEndPose.getHeading() + angle, 0.0, 0.0, 0.0),
-      Math.toRadians(500),
-      Math.toRadians(500)
+      Math.toRadians(speed),
+      Math.toRadians(speed)
       );
 
     loadTurn(profile, reverseHeading, lastAction);
+  }
+
+  public void addPointTurn(double angle, boolean reverseHeading, boolean lastAction) {
+    addPointTurn(angle, reverseHeading, lastAction, false);
   }
 
   private void loadTurn(MotionProfile profile, boolean reverseHeading, boolean lastAction) {
@@ -218,7 +226,7 @@ public class RunProfileCommand extends CommandBase {
       trajectoryPoints.add(point);
     }
 
-    System.out.println("Loaded");
+    //System.out.println("Loaded");
   }
 
   public Pose2d getEndPose() {

@@ -210,7 +210,7 @@ public class IndexerSubsystem extends SubsystemBase {
     if (redCargo != null) {
       SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
     }
-    SmartDashboard.putString("Indexer:State", currentState.name());
+    //SmartDashboard.putString("Indexer:State", currentState.name());
     // if(isRedCargoAtPosition3() != null) {
     // SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
     // }

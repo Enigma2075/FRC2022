@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.commands.auto.Shoot;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -24,20 +25,23 @@ public class DriveCommand extends CommandBase {
   private final DoubleSupplier wheel;
   private final BooleanSupplier fastMode;
   private final XboxController driverController;
+  private final XboxController operatorController;
 
   private boolean isRumbling = false;
+  private boolean isRumblingOperator = false;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel, BooleanSupplier fastMode, XboxController driverController) {
+  public DriveCommand(DriveSubsystem drive, DoubleSupplier throttle, DoubleSupplier wheel, BooleanSupplier fastMode, XboxController driverController, XboxController operatorController) {
     this.drive = drive;
     this.throttle = throttle;
     this.wheel = wheel;
     this.fastMode = fastMode;
     this.driverController = driverController;
+    this.operatorController = operatorController;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -83,13 +87,22 @@ public class DriveCommand extends CommandBase {
       drive.drive(adjustedThrottle, adjustedWheel);
     }
     
-    SmartDashboard.putBoolean("Shooter:StuckOnPost", ShooterSubsystem.isStuckOnPost());
+    //SmartDashboard.putBoolean("Shooter:StuckOnPost", ShooterSubsystem.isStuckOnPost());
       
-    if(ShooterSubsystem.isStuckOnPost() && !isRumbling) {
+    if((ShooterSubsystem.isTargetFound() || !ShooterSubsystem.isSpinningUp()) && isRumblingOperator) {
+      isRumblingOperator = false;
+      operatorController.setRumble(RumbleType.kLeftRumble, 0);
+    }
+    else if(!ShooterSubsystem.isTargetFound() && !isRumblingOperator && ShooterSubsystem.isSpinningUp()) {
+      isRumblingOperator = true;
+      operatorController.setRumble(RumbleType.kLeftRumble, 1);
+    }
+    
+    if(ShooterSubsystem.isStuckOnPost() && !isRumbling && ShooterSubsystem.isSpinningUp()) {
       isRumbling = true;
       driverController.setRumble(RumbleType.kLeftRumble, 1);
     }
-    else if(!ShooterSubsystem.isStuckOnPost() && isRumbling) {
+    else if((!ShooterSubsystem.isStuckOnPost() || !ShooterSubsystem.isSpinningUp()) && isRumbling) {
       isRumbling = false;
       driverController.setRumble(RumbleType.kLeftRumble, 0);
     }
@@ -101,6 +114,7 @@ public class DriveCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    isRumbling = false;
     driverController.setRumble(RumbleType.kLeftRumble, 0);   
   }
 }

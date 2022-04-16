@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -18,6 +21,7 @@ import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.LeftSide.LeftFull;
+import frc.robot.commands.auto.LeftSide.LeftTwoCargo;
 import frc.robot.commands.auto.RightSide.GrabCargo;
 import frc.robot.commands.auto.RightSide.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
@@ -27,6 +31,7 @@ import frc.robot.commands.climber.PullupHigh;
 import frc.robot.commands.drivetrain.DriveCommand;
 import frc.robot.commands.indexer.IndexerCommand;
 import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.ShootManualCommand;
 import frc.robot.commands.shooter.ShootNotCommand;
 import frc.robot.commands.shooter.TurretCommand;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -44,14 +49,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  XboxController driverController =  new XboxController(IOConstants.kDriverControllerPort);
-  XboxController operatorController =  new XboxController(IOConstants.kOperatorControllerPort);
+  XboxController driverController = new XboxController(IOConstants.kDriverControllerPort);
+  XboxController operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
   // The robot's subsystems and commands are defined here...
   private final GyroSubsystem gyroSubsystem = new GyroSubsystem();
@@ -60,25 +68,35 @@ public class RobotContainer {
   private final DriveSubsystem driveSubsystem = new DriveSubsystem(gyroSubsystem);
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+  // private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
-  private final LeftFull leftFullCommand = new LeftFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
-  private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
+  private final LeftFull leftFullCommand = new LeftFull(gyroSubsystem, driveSubsystem, shooterSubsystem,
+      indexerSubsystem, intakeSubsystem);
+  private final LeftTwoCargo leftTwoCargoCommand = new LeftTwoCargo(gyroSubsystem, driveSubsystem, shooterSubsystem,
+      indexerSubsystem, intakeSubsystem);
+  private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem,
+      indexerSubsystem, intakeSubsystem);
 
-  private final TurretCommand turretCommand = new TurretCommand(shooterSubsystem, gyroSubsystem, operatorController::getLeftX, operatorController::getLeftY);
+  private final TurretCommand turretCommand = new TurretCommand(shooterSubsystem, gyroSubsystem,
+      operatorController::getLeftX, operatorController::getLeftY);
 
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
 
-    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis));
-    
-    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis, driverController::getLeftTriggerAxis));
+    climberSubsystem.setDefaultCommand(new ClimbCommand(climberSubsystem, operatorController::getRightTriggerAxis,
+        operatorController::getLeftTriggerAxis));
 
-    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY, driverController::getRightX, driverController::getLeftBumper, driverController));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, driverController::getRightTriggerAxis,
+        driverController::getLeftTriggerAxis));
+
+    driveSubsystem.setDefaultCommand(new DriveCommand(driveSubsystem, driverController::getLeftY,
+        driverController::getRightX, driverController::getLeftBumper, driverController, operatorController));
 
     indexerSubsystem.setDefaultCommand(new IndexerCommand(indexerSubsystem));
 
@@ -87,36 +105,52 @@ public class RobotContainer {
     // Add commands to the autonomous command chooser
     chooser.setDefaultOption("Right", rightFullCommand);
     chooser.addOption("Left", leftFullCommand);
+    chooser.addOption("Left Two Cargo", leftTwoCargoCommand);
 
     // Put the chooser on the dashboard
     SmartDashboard.putData(chooser);
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     new JoystickButton(operatorController, Button.kRightBumper.value)
-      .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis, operatorController::getLeftTriggerAxis, turretCommand));
+        .whenHeld(new ShootCommand(shooterSubsystem, indexerSubsystem, operatorController::getRightTriggerAxis,
+            operatorController::getLeftTriggerAxis, turretCommand));
 
     new JoystickButton(operatorController, Button.kLeftBumper.value)
-      .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem, turretCommand));
+        .whenHeld(new ShootNotCommand(shooterSubsystem, indexerSubsystem, turretCommand));
 
     new JoystickButton(operatorController, Button.kB.value)
-     .whenHeld(new Pullup(climberSubsystem));
+        .whenHeld(new Pullup(climberSubsystem));
 
     new JoystickButton(operatorController, Button.kX.value)
-     .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem, operatorController::getPOV));
-    
+        .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem, operatorController::getPOV));
+
     PullupHigh pullUpHigh = new PullupHigh(climberSubsystem);
     new JoystickButton(operatorController, Button.kY.value)
-     .whenHeld(pullUpHigh);
+        .whenHeld(pullUpHigh);
 
     new JoystickButton(operatorController, Button.kA.value)
-     .whenHeld(new ResetClimb(climberSubsystem, pullUpHigh));
+        .whenHeld(new ResetClimb(climberSubsystem, pullUpHigh));
+
+    BooleanSupplier safeZoneShotSupplier = () -> {
+      return (operatorController.getRightX() < -.4);
+    };
+    new Trigger(safeZoneShotSupplier)
+        .whileActiveOnce(new ShootManualCommand(shooterSubsystem, indexerSubsystem, 344, .545, 21));
+
+    BooleanSupplier wallShotSupplier = () -> {
+      return (operatorController.getRightX() > .4);
+    };
+    new Trigger(wallShotSupplier)
+        .whileActiveOnce(new ShootManualCommand(shooterSubsystem, indexerSubsystem, 180, .48, .1));
   }
 
   /**
@@ -136,7 +170,7 @@ public class RobotContainer {
   }
 
   public void updateDrive() {
-    //System.out.println("UpdateDrive");
+    // System.out.println("UpdateDrive");
     driveSubsystem.update();
   }
 }
