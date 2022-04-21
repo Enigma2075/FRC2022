@@ -339,11 +339,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   private void debug() {
-    if(currentPose != null) {
-      SmartDashboard.putNumber("Drive:X", currentPose.getX());
-      SmartDashboard.putNumber("Drive:Y", currentPose.getY());
-      SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
-    }
+    //if(currentPose != null) {
+    //  SmartDashboard.putNumber("Drive:X", currentPose.getX());
+    //  SmartDashboard.putNumber("Drive:Y", currentPose.getY());
+    //  SmartDashboard.putNumber("Drive:Heading", currentPose.getHeading());
+    //}
     //SmartDashboard.putNumber("Drive:RightEnc", rightOne.getSelectedSensorPosition());
     //SmartDashboard.putNumber("Drive:LeftEnc", leftOne.getSelectedSensorPosition());
 

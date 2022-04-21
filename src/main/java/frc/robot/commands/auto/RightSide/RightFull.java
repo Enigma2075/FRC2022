@@ -39,7 +39,7 @@ public class RightFull extends SequentialCommandGroup{
         var shoot2 = new Shoot(shooter, indexer, 220, 0, 0, 1, 15);
         var grabThirdCargo = new GrabThirdCargo(drive, intake, indexer, grabSecondCargo.getEndPose());
         var driveToShoot = new DriveToShoot(drive, intake, indexer, grabThirdCargo.getEndPose());
-        var shoot3 = new Shoot(shooter, indexer, 200, 0, 0, 2, 10);
+        var shoot3 = new Shoot(shooter, indexer, 210, 0, 0, 2, 10);
         
         addCommands(grabCargo);
         addCommands(new ParallelRaceGroup(shoot1, new IntakeForceCommand(intake)));

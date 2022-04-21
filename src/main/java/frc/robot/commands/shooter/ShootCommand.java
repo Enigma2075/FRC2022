@@ -33,6 +33,8 @@ public class ShootCommand extends CommandBase {
   private boolean startedShooting = false;
   private boolean startedShootingWrongCargo = false;
 
+  private static Alliance currentAlliance;
+
   private State currentState = State.SpinningUp;
 
   /**
@@ -46,6 +48,8 @@ public class ShootCommand extends CommandBase {
     this.shootSupplier = shootSupplier;
     this.quickShootSupplier = quickShootSupplier;
     this.turretCommand = turretCommand;
+
+    currentAlliance = DriverStation.getAlliance();
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
@@ -82,11 +86,11 @@ public class ShootCommand extends CommandBase {
 
     boolean wrongCargo = false;
     if(redCargo != null) {
-      if(redCargo && DriverStation.getAlliance() == Alliance.Blue) {
-//        wrongCargo = true;
+      if(redCargo && currentAlliance == Alliance.Blue) {
+        //wrongCargo = true;
       }
-      else if(!redCargo && DriverStation.getAlliance() == Alliance.Red) {
-//        wrongCargo = true;
+      else if(!redCargo && currentAlliance == Alliance.Red) {
+        //wrongCargo = true;
       }
     }
 
@@ -100,7 +104,7 @@ public class ShootCommand extends CommandBase {
 
     shooter.updateVisionData();
 
-    boolean hasTarget = shooter.hasTarget();
+    boolean hasTarget = ShooterSubsystem.hasTarget();
 
     if(wrongCargo && !startedShootingWrongCargo) {
       startedShooting = false;

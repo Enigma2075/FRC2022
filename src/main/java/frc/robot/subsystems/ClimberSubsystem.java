@@ -35,6 +35,8 @@ public class ClimberSubsystem extends SubsystemBase {
     Coast,
     TravGrab,
     TravLatch,
+    TravPullup,
+    CrossUnderTrav,
   }
 
   // Our home field to the top
@@ -48,8 +50,11 @@ public class ClimberSubsystem extends SubsystemBase {
     //InnerOut(-20000), //
     InitialGrab(182000), //60 inches to the bottom
     PullUp(-30000),
+    PullUpTrav(90000),
     CrossUnder(90000),
-    PullupHigh(170000);
+    PullUpHigh(170000),
+    PullUpHighFull(245000),
+    LetGoTrav(190000);
 
     private int value;
     private static Map map = new HashMap<>();
@@ -87,7 +92,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private static final double kWinchI = 0.0001;
   private static final double kWinchIZone = 4000;
 
-  private static final double kWinchForwardLimit = 244000; // 106000
+  private static final double kWinchForwardLimit = 255000; // 106000
   private static final double kWinchReverseLimit = -30000;
 
   private static boolean climbStarted = false;
@@ -198,6 +203,16 @@ public class ClimberSubsystem extends SubsystemBase {
         case TravLatch:
           outer.setPivot(PivotPosition.ForwardLatchBottom);
           inner.setPivotCoast();
+          break;
+        case TravPullup:
+          outer.setPivotCoast();
+          inner.setPivot(PivotPosition.LetGoBottom);
+          break;
+
+        case CrossUnderTrav:
+        outer.setPivotCoast();
+        inner.setPivot(PivotPosition.ForwardGrab);
+      break;
       }
     }
   }

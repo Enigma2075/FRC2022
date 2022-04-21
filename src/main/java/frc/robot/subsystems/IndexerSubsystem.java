@@ -84,22 +84,15 @@ public class IndexerSubsystem extends SubsystemBase {
     return config;
   }
 
+  private boolean curPosition1;
+  private boolean curPosition2;
+  private boolean curPosition3;
+  private boolean startlastCargoAtPosition3 = false;
+
   private Boolean lastCargoAtPosition3 = null;
   private double lastCargoAtPosition3timestamp = 0;
-
+  
   public Boolean isRedCargoAtPosition3() {
-    double currentTimestamp = Timer.getFPGATimestamp();
-    boolean timeElapsed = currentTimestamp - lastCargoAtPosition3timestamp > .5;
-    if (getPosition3() && redCargo.get() && (lastCargoAtPosition3 == null || lastCargoAtPosition3 == false)
-        && timeElapsed) {
-      lastCargoAtPosition3timestamp = currentTimestamp;
-      lastCargoAtPosition3 = true;
-    } else if (getPosition3() && !redCargo.get() && (lastCargoAtPosition3 == null || lastCargoAtPosition3 == true)
-        && timeElapsed) {
-      lastCargoAtPosition3timestamp = currentTimestamp;
-      lastCargoAtPosition3 = false;
-    }
-
     return lastCargoAtPosition3;
   }
 
@@ -109,9 +102,35 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public void index(boolean force) {
     // Force both motors to run if the caller is forcing.
-    boolean curPosition1 = getPosition1();
-    boolean curPosition2 = getPosition2();
-    boolean curPosition3 = getPosition3();
+    curPosition1 = getPosition1();
+    curPosition2 = getPosition2();
+    curPosition3 = getPosition3();
+
+    if(!startlastCargoAtPosition3 && curPosition3) {
+      startlastCargoAtPosition3 = true;
+      boolean curRedCargo = redCargo.get();
+
+      if(lastCargoAtPosition3 == null && !curRedCargo) {
+        lastCargoAtPosition3 = false;
+      }
+    }
+    else if(startlastCargoAtPosition3 && curPosition3) {
+      boolean curRedCargo = redCargo.get();
+      if(lastCargoAtPosition3 == null && !curRedCargo) {
+        lastCargoAtPosition3 = false;
+      }
+    }
+    else if (startlastCargoAtPosition3 && !curPosition3 && lastCargoAtPosition3timestamp == 0) {
+      if(lastCargoAtPosition3 == null) {
+        lastCargoAtPosition3 = true;
+      }
+      lastCargoAtPosition3timestamp = Timer.getFPGATimestamp();
+    }
+    else if (startlastCargoAtPosition3 && Timer.getFPGATimestamp() - lastCargoAtPosition3timestamp > .25) {
+      lastCargoAtPosition3timestamp = 0;
+      lastCargoAtPosition3 = null;
+      startlastCargoAtPosition3 = false;
+    }
 
     IndexerState requestedState = IndexerState.OnlySingulizer;
 
@@ -191,6 +210,7 @@ public class IndexerSubsystem extends SubsystemBase {
   public void stop() {
     if(currentState != IndexerState.Stop) {
       currentState = IndexerState.Stop;
+      lastCargoAtPosition3timestamp = 0;
       indexerMotor.set(ControlMode.PercentOutput, 0);
       singleMotor.set(ControlMode.PercentOutput, 0);
     }
@@ -199,17 +219,17 @@ public class IndexerSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    debug();
+    //debug();
   }
 
   public void debug() {
     SmartDashboard.putBoolean("Indexer:Sensor1", getPosition1());
     SmartDashboard.putBoolean("Indexer:Sensor2", getPosition2());
     SmartDashboard.putBoolean("Indexer:Sensor3", getPosition3());
-    Boolean redCargo = isRedCargoAtPosition3();
-    if (redCargo != null) {
-      SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());
-    }
+    //Boolean redCargo = isRedCargoAtPosition3();
+    //if (redCargo != null) {
+      SmartDashboard.putBoolean("Indexer:RedCargo", this.redCargo.get());
+    //}
     //SmartDashboard.putString("Indexer:State", currentState.name());
     // if(isRedCargoAtPosition3() != null) {
     // SmartDashboard.putBoolean("Indexer:RedCargo", isRedCargoAtPosition3());

@@ -5,29 +5,25 @@
 package frc.robot;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.climber.StartClimb;
-import frc.robot.commands.ResetPivot;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.LeftSide.LeftFull;
 import frc.robot.commands.auto.LeftSide.LeftTwoCargo;
-import frc.robot.commands.auto.RightSide.GrabCargo;
 import frc.robot.commands.auto.RightSide.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ResetClimb;
 import frc.robot.commands.climber.Pullup;
 import frc.robot.commands.climber.PullupHigh;
+import frc.robot.commands.climber.PullupTrav;
 import frc.robot.commands.drivetrain.DriveCommand;
 import frc.robot.commands.indexer.IndexerCommand;
 import frc.robot.commands.shooter.ShootCommand;
@@ -40,9 +36,6 @@ import frc.robot.subsystems.GyroSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.ClimberArmSubsystem.PivotPosition;
-import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 import frc.robot.subsystems.DriveSubsystem.DriveMode;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -133,18 +126,21 @@ public class RobotContainer {
     new JoystickButton(operatorController, Button.kX.value)
         .whenHeld(new StartClimb(climberSubsystem, shooterSubsystem, operatorController::getPOV));
 
-    PullupHigh pullUpHigh = new PullupHigh(climberSubsystem);
+    PullupHigh pullUpHigh = new PullupHigh(climberSubsystem, operatorController::getRightBumper);
     new JoystickButton(operatorController, Button.kY.value)
         .whenHeld(pullUpHigh);
 
     new JoystickButton(operatorController, Button.kA.value)
+        .whenHeld(new PullupTrav(climberSubsystem));
+
+    new JoystickButton(operatorController, Button.kBack.value)
         .whenHeld(new ResetClimb(climberSubsystem, pullUpHigh));
 
     BooleanSupplier safeZoneShotSupplier = () -> {
       return (operatorController.getRightX() < -.4);
     };
     new Trigger(safeZoneShotSupplier)
-        .whileActiveOnce(new ShootManualCommand(shooterSubsystem, indexerSubsystem, 344, .545, 21));
+        .whileActiveOnce(new ShootManualCommand(shooterSubsystem, indexerSubsystem, 344, .555, 21));
 
     BooleanSupplier wallShotSupplier = () -> {
       return (operatorController.getRightX() > .4);

@@ -30,13 +30,13 @@ public class ClimberArmSubsystem extends SubsystemBase {
     Hold(-100),
     InitialGrab(3100),
     ForwardGrab(3900),
-    ForwardGrabBottom(4200),
+    ForwardGrabBottom(4100),
     ForwardLatch(4650),
-    ForwardLatchBottom(4000),
+    ForwardLatchBottom(3900),
     LetGo(2900),
     //MidFront(2),
     Middle(3300), // Straight Up
-    //MidBack(4),//
+    LetGoBottom(800),//
     Backwards(500);///
 
     private int value;

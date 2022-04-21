@@ -26,7 +26,7 @@ public class GrabSecondCargo extends RunProfileCommand {
 
         TrajectoryBuilder tb1 = drivetrain.getTrajectoryBuilder(false, startPose);
         tb1
-            .splineTo(new Vector2d(89, -140), Math.toRadians(270));
+            .splineTo(new Vector2d(92, -145), Math.toRadians(270));
         
         addTrajectory(tb1.build(), true, true);
 

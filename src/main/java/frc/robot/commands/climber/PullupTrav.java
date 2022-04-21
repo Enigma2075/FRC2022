@@ -14,11 +14,9 @@ import frc.robot.subsystems.ClimberSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimberSubsystem.WinchPosition;
 
 /** An example command that uses an example subsystem. */
-public class PullupHigh extends CommandBase {
+public class PullupTrav extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ClimberSubsystem climber;
-  private final BooleanSupplier shouldLatch;
-
   public enum State {
     Initialize,
     WinchToLetGo,
@@ -35,9 +33,8 @@ public class PullupHigh extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public PullupHigh(ClimberSubsystem climber, BooleanSupplier shouldLatch) {
+  public PullupTrav(ClimberSubsystem climber) {
     this.climber = climber;
-    this.shouldLatch = shouldLatch;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
   }
@@ -70,44 +67,39 @@ public class PullupHigh extends CommandBase {
     switch (currentState) {
       case Initialize:
         currentState = State.WinchToLetGo;
-        climber.pivot(ArmPosition.HighPull);
+        climber.winch(WinchPosition.PullUpTrav);
       break;
-      case WinchToLetGo:
-        climber.winch(WinchPosition.PullUpHigh);     
-        if(WinchPosition.PullUp.getValue() + 60000 < climber.getWinchEnc() ) {
-          climber.pivot(ArmPosition.HighLetGo, true);
+       case WinchToLetGo:
+       if(Math.abs(climber.getWinchError()) < 15000) {
+          climber.winch(WinchPosition.LetGoTrav);  
+          climber.pivot(ArmPosition.TravPullup, true);
           currentState = State.CoastArms;
         }
-        else if(WinchPosition.PullUp.getValue() + 40000 < climber.getWinchEnc() ) {
-          climber.pivot(ArmPosition.Coast, true);
-        }
-      break;
-      case CoastArms:
-        if(Math.abs(climber.getWinchError()) < 15000) {
-          climber.winch(WinchPosition.CrossUnder);
-          //climber.pivot(ArmPosition.HighHold, true);
-          currentState = State.CrossUnder;
-        }
-      break;
-      case CrossUnder:
-        if(Math.abs(climber.getWinchError()) < 15000) {
-          climber.pivot(ArmPosition.TravGrab, true);
-          currentState = State.ExtendToLatch;
-        }
-      break;
-      case ExtendToLatch:
-        if(Math.abs(climber.getOuterPivotError()) < 200) {
-          //climber.pivot(ArmPosition.TravLatch, true);
-          climber.winch(WinchPosition.PullUpHighFull);
-          currentState = State.LatchTrav;
-        }
-      break;
-      case LatchTrav:
-        if(Math.abs(climber.getWinchError()) < 5000 && shouldLatch.getAsBoolean()) {
-          climber.pivot(ArmPosition.TravLatch, true);
-          Pullup.finished = false;
-        }
-      break;
+        break;
+       case CoastArms:
+        //if(Math.abs(climber.getWinchError()) < 15000) {
+           //climber.pivot(ArmPosition.CrossUnderTrav, true);
+           //currentState = State.CrossUnder;
+        //}
+       break;
+      // case CrossUnder:
+      //   if(Math.abs(climber.getWinchError()) < 15000) {
+      //     climber.pivot(ArmPosition.TravGrab, true);
+      //     currentState = State.ExtendToLatch;
+      //   }
+      // break;
+      // case ExtendToLatch:
+      //   if(Math.abs(climber.getOuterPivotError()) < 200) {
+      //     //climber.pivot(ArmPosition.TravLatch, true);
+      //     climber.winch(WinchPosition.PullUpHighFull);
+      //     currentState = State.LatchTrav;
+      //   }
+      // break;
+      // case LatchTrav:
+      //   if(Math.abs(climber.getWinchError()) < 15000) {
+      //     climber.pivot(ArmPosition.TravLatch, true);
+      //   }
+      // break;
     }
   }
 

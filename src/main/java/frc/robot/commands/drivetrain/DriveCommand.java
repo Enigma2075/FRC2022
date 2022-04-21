@@ -89,11 +89,11 @@ public class DriveCommand extends CommandBase {
     
     //SmartDashboard.putBoolean("Shooter:StuckOnPost", ShooterSubsystem.isStuckOnPost());
       
-    if((ShooterSubsystem.isTargetFound() || !ShooterSubsystem.isSpinningUp()) && isRumblingOperator) {
+    if((ShooterSubsystem.hasTarget() || !ShooterSubsystem.isSpinningUp()) && isRumblingOperator) {
       isRumblingOperator = false;
       operatorController.setRumble(RumbleType.kLeftRumble, 0);
     }
-    else if(!ShooterSubsystem.isTargetFound() && !isRumblingOperator && ShooterSubsystem.isSpinningUp()) {
+    else if(!ShooterSubsystem.hasTarget() && !isRumblingOperator && ShooterSubsystem.isSpinningUp()) {
       isRumblingOperator = true;
       operatorController.setRumble(RumbleType.kLeftRumble, 1);
     }
