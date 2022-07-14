@@ -49,7 +49,7 @@ public class Pullup extends CommandBase {
       return;
     }
     
-    if(Math.abs(climber.getWinchError()) < 5000) {
+    if(Math.abs(climber.getWinchError()) < 10000) {
       climber.pivot(ArmPosition.LatchHigh, true);  
       finished = true;    
     }

@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private IntakeState currentState = IntakeState.Stop;
 
   public enum PivotPosition {
-    Down(1810),
+    Down(2100),
     Up(-220),
     HelpIntake(1000),
     FullyUp(0);

@@ -52,7 +52,7 @@ public class ClimbCommand extends CommandBase {
     double out = outSupplier.getAsDouble();
 
     if(!ClimberSubsystem.hasClimbStarted()) {
-      if(Math.abs(climber.getWinchError()) > 8000 && !isHolding) {
+      if(Math.abs(climber.getWinchError()) > 5000 && !isHolding) {
         isHolding = true;
         climber.winch(WinchPosition.Hold);
       }

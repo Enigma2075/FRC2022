@@ -248,7 +248,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void drive(double throttle, double wheel) {
     boolean quickTurn = false;
-    if(throttle <= .2) {
+    if(Math.abs(throttle) <= .2) {
       quickTurn = true;
       wheel *= .75;
     }
