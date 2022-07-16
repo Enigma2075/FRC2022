@@ -373,7 +373,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public double getDistanceFromTarget() {
     double limelightAngle = 26; //33.6;
-    double targetHeight = 101.5; //103; GVSU // 102 at West // 101.5 Ford Field
+    double targetHeight = 102;//101.5; //103; GVSU // 102 at West // 101.5 Ford Field
     double limelightHeight = 39.6;
 
     double currentDistance = ((targetHeight - limelightHeight) / Math.tan(Math.toRadians(limelightAngle + currentTy)));

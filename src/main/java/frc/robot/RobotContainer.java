@@ -18,6 +18,7 @@ import frc.robot.commands.climber.StartClimb;
 import frc.robot.commands.Intake.IntakeCommand;
 import frc.robot.commands.auto.LeftSide.LeftFull;
 import frc.robot.commands.auto.LeftSide.LeftTwoCargo;
+import frc.robot.commands.auto.LeftSide.Middle;
 import frc.robot.commands.auto.RightSide.RightFull;
 import frc.robot.commands.climber.ClimbCommand;
 import frc.robot.commands.climber.ResetClimb;
@@ -69,6 +70,7 @@ public class RobotContainer {
       indexerSubsystem, intakeSubsystem);
   private final RightFull rightFullCommand = new RightFull(gyroSubsystem, driveSubsystem, shooterSubsystem,
       indexerSubsystem, intakeSubsystem);
+  private final Middle middleCommand = new Middle(gyroSubsystem, driveSubsystem, shooterSubsystem, indexerSubsystem, intakeSubsystem);
 
   private final TurretCommand turretCommand = new TurretCommand(shooterSubsystem, gyroSubsystem,
       operatorController::getLeftX, operatorController::getLeftY);
@@ -99,6 +101,7 @@ public class RobotContainer {
     chooser.setDefaultOption("Right", rightFullCommand);
     chooser.addOption("Left", leftFullCommand);
     chooser.addOption("Left Two Cargo", leftTwoCargoCommand);
+    chooser.addOption("Middle", middleCommand);
 
     // Put the chooser on the dashboard
     SmartDashboard.putData(chooser);
